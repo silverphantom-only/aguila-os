@@ -1,47 +1,44 @@
-body {
-    font-family: Arial;
-    background: #020617;
-    color: white;
-    margin: 0;
-    padding: 10px;
+body{
+    background:#020617;
+    color:white;
+    font-family:Arial;
+    padding:10px;
 }
 
-h1 {
-    text-align: center;
+h1{text-align:center;}
+
+.card{
+    background:#0f172a;
+    padding:15px;
+    margin-bottom:12px;
+    border-radius:12px;
 }
 
-.section {
-    background: #111827;
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 12px;
+button{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border:none;
+    border-radius:10px;
+    background:#22c55e;
+    font-weight:bold;
 }
 
-button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 6px;
-    border-radius: 10px;
-    border: none;
-    background: #22c55e;
-    font-weight: bold;
+textarea,input{
+    width:100%;
+    margin:5px 0;
+    padding:8px;
+    border:none;
+    border-radius:6px;
 }
 
-textarea, input {
-    width: 100%;
-    margin: 5px 0;
-    padding: 8px;
-    border-radius: 6px;
-    border: none;
+#estadoImg{
+    width:100%;
+    border-radius:10px;
 }
 
-#estadoImg {
-    width: 100%;
-    border-radius: 10px;
-}
-
-#timer {
-    font-size: 40px;
-    text-align: center;
-    color: #f59e0b;
+#timer{
+    font-size:35px;
+    text-align:center;
+    color:#f59e0b;
 }
