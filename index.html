@@ -13,51 +13,76 @@
 
 <h1>🦅 Águila OS</h1>
 
-<div class="section">
+<div class="card">
 <h2>📍 Hoy</h2>
-<div id="hoyBox"></div>
+<div id="hoy"></div>
 </div>
 
-<div class="section">
+<div class="card">
 <h2>📊 Estado</h2>
 <img id="estadoImg" src="img/balgham.png">
-<p id="estadoDia"></p>
+<p id="estadoTexto"></p>
 </div>
 
-<div class="section">
-<button onclick="abrirMusica()">🎧 Música</button>
-<button onclick="iniciarEntreno()">🔥 Entrenar</button>
+<div class="card">
+<button onclick="musica()">🎧 Música</button>
+<button onclick="entreno()">🔥 Entrenar</button>
 <p id="fase"></p>
 <div id="timer"></div>
 </div>
 
-<div class="section">
+<div class="card">
+<h2>✔️ Checklist</h2>
+
+<h3>🌅 Mañana</h3>
+<label><input type="checkbox" data-check="resp"> Respiración</label>
+<label><input type="checkbox" data-check="cal"> Calistenia</label>
+<label><input type="checkbox" data-check="des"> Desayuno</label>
+
+<h3>💼 Trabajo</h3>
+<label><input type="checkbox" data-check="wa"> WhatsApp</label>
+<label><input type="checkbox" data-check="gm"> Gmail</label>
+<label><input type="checkbox" data-check="res"> Reservas</label>
+<label><input type="checkbox" data-check="gas"> Gasolina</label>
+<label><input type="checkbox" data-check="cier"> Cierre</label>
+<label><input type="checkbox" data-check="ctrl"> Control</label>
+
+</div>
+
+<div class="card">
 <h2>📅 Semana</h2>
-<textarea data-key="domingo" placeholder="Domingo"></textarea>
-<textarea data-key="lunes" placeholder="Lunes"></textarea>
-<textarea data-key="martes" placeholder="Martes"></textarea>
-<textarea data-key="miercoles" placeholder="Miércoles"></textarea>
-<textarea data-key="jueves" placeholder="Jueves"></textarea>
-<textarea data-key="viernes" placeholder="Viernes"></textarea>
-<textarea data-key="sabado" placeholder="Sábado"></textarea>
+<textarea data-key="lunes"></textarea>
+<textarea data-key="martes"></textarea>
+<textarea data-key="miercoles"></textarea>
+<textarea data-key="jueves"></textarea>
+<textarea data-key="viernes"></textarea>
+<textarea data-key="sabado"></textarea>
+<textarea data-key="domingo"></textarea>
 </div>
 
-<div class="section">
+<div class="card">
 <h2>📖 Diario</h2>
-<textarea data-key="diario" placeholder="Escribe tu día..."></textarea>
+<textarea data-key="diario"></textarea>
 </div>
 
-<div class="section">
+<div class="card">
 <h2>💰 Gastos</h2>
 <input id="monto" placeholder="Monto">
 <input id="categoria" placeholder="Categoría">
 <button onclick="addGasto()">Agregar</button>
-<ul id="gastos"></ul>
+<ul id="lista"></ul>
 <p>Total: $<span id="total"></span></p>
 </div>
 
-<div class="section">
-<button onclick="resetAll()">RESET</button>
+<div class="card">
+<h2>💧 Agua</h2>
+<p id="agua">0 ml</p>
+<button onclick="sumarAgua()">+250ml</button>
+<button onclick="resetAgua()">Reset</button>
+</div>
+
+<div class="card">
+<button onclick="reset()">RESET TODO</button>
 </div>
 
 <script src="app.js"></script>
