@@ -50,13 +50,13 @@ function estado(){
 
     if(total>=6){
         txt.innerText="🔥 Águila";
-        img.src="img/aguila.png";
+        img.src="aguila.png";
     }else if(total>=3){
         txt.innerText="⚖️ Medio";
-        img.src="img/medio.png";
+        img.src="medio.png";
     }else{
         txt.innerText="❄️ Balgham";
-        img.src="img/balgham.png";
+        img.src="balgham.png";
     }
 }
 estado();
