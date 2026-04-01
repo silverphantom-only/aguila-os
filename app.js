@@ -151,13 +151,13 @@ function estado(){
 
   if(c>=6){
     estadoTexto.innerText="🔥 Águila";
-    estadoImg.src="img/aguila.png";
+    estadoImg.src="aguila.png";
   }else if(c>=3){
     estadoTexto.innerText="⚖️ Medio";
-    estadoImg.src="img/medio.png";
+    estadoImg.src="medio.png";
   }else{
     estadoTexto.innerText="❄️ Balgham";
-    estadoImg.src="img/balgham.png";
+    estadoImg.src="balgham.png";
   }
 }
 estado();
