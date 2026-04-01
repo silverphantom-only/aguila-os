@@ -3,22 +3,21 @@ const KEY="aguila_total";
 let db=JSON.parse(localStorage.getItem(KEY))||{
   checks:{},
   eventos:[],
-  gastos:[]
+  gastos:[],
+  agua:0
 };
 
-// HORARIO DINÁMICO
 let horario=JSON.parse(localStorage.getItem("horario"))||{
   trabajoInicio:9,
-  trabajoFin:14,
-  trabajo2Inicio:16,
-  trabajo2Fin:18
+  trabajoFin:14
 };
 
 function save(){
   localStorage.setItem(KEY,JSON.stringify(db));
+  localStorage.setItem("horario",JSON.stringify(horario));
 }
 
-// HOY + EVENTOS
+// HOY
 function renderHoy(){
   let hoy=new Date();
   let fecha=hoy.toISOString().split("T")[0];
@@ -28,7 +27,7 @@ function renderHoy(){
   let txt=hoy.toLocaleDateString();
 
   if(eventosHoy.length){
-    txt+=" → "+eventosHoy.map(e=>e.evento).join(", ");
+    txt+=" → "+eventosHoy.map(e=>`${e.hora} ${e.evento}`).join(", ");
   }else{
     txt+=" → Sin pendientes";
   }
@@ -70,28 +69,24 @@ function estado(){
 }
 estado();
 
-// BLOQUE DEL DÍA
+// BLOQUE
 function bloqueActual(){
   let h=new Date().getHours();
 
   if(h<horario.trabajoInicio) return "mañana";
   if(h<horario.trabajoFin) return "trabajo";
-  if(h<horario.trabajo2Inicio) return "descanso";
-  if(h<horario.trabajo2Fin) return "trabajo2";
   return "noche";
 }
 
-// MENSAJE INTELIGENTE
+// MENSAJE
 function mensaje(){
   let b=bloqueActual();
   let c=Object.values(db.checks).filter(v=>v).length;
 
   let msg="";
 
-  if(b==="mañana") msg="Tonatiuh: Actívate. Entrena.";
+  if(b==="mañana") msg="Tonatiuh: Actívate.";
   else if(b==="trabajo") msg="Tonatiuh: Enfócate.";
-  else if(b==="descanso") msg="Tonatiuh: Recupera control.";
-  else if(b==="trabajo2") msg="Tonatiuh: Cierra fuerte.";
   else msg="Tonatiuh: Descansa.";
 
   if(c<=2) msg+=" ⚠️ Bajo";
@@ -104,11 +99,14 @@ mensaje();
 // AGENDA
 function agregarEvento(){
   let f=fecha.value;
+  let h=hora.value;
   let e=evento.value;
-  if(!f||!e)return;
 
-  db.eventos.push({fecha:f,evento:e});
+  if(!f||!h||!e)return;
+
+  db.eventos.push({fecha:f,hora:h,evento:e});
   save();
+
   renderEventos();
   renderHoy();
 
@@ -121,41 +119,25 @@ function renderEventos(){
 
   db.eventos.forEach(ev=>{
     let li=document.createElement("li");
-    li.innerText=ev.fecha+" → "+ev.evento;
+    li.innerText=`${ev.fecha} ${ev.hora} → ${ev.evento}`;
     ul.appendChild(li);
   });
 }
 renderEventos();
 
-// GASTOS
-function addGasto(){
-  let m=parseFloat(monto.value);
-  let c=categoria.value;
-  if(!m)return;
-
-  db.gastos.push({m,c});
+// AGUA
+function agregarAgua(){
+  db.agua+=250;
   save();
-  renderGastos();
-
-  monto.value="";
-  categoria.value="";
+  document.getElementById("agua").innerText=db.agua+" ml";
 }
 
-function renderGastos(){
-  let ul=document.getElementById("listaGastos");
-  ul.innerHTML="";
-  let t=0;
-
-  db.gastos.forEach(g=>{
-    let li=document.createElement("li");
-    li.innerText=g.c+" $"+g.m;
-    ul.appendChild(li);
-    t+=g.m;
-  });
-
-  total.innerText=t;
+// HORARIO
+function setHorario(){
+  horario.trabajoInicio=parseInt(inicio.value);
+  horario.trabajoFin=parseInt(fin.value);
+  save();
 }
-renderGastos();
 
 // ENTRENAMIENTO
 let rutina=[
