@@ -9,13 +9,20 @@ let db=JSON.parse(localStorage.getItem(KEY))||{
   lastCheck:null
 };
 
-let fechaSeleccionada=new Date().toISOString().split("T")[0];
+// 🔥 FECHA LOCAL CORRECTA
+function getFechaLocal(date = new Date()) {
+  let offset = date.getTimezoneOffset();
+  let local = new Date(date.getTime() - (offset * 60000));
+  return local.toISOString().split('T')[0];
+}
+
+let fechaSeleccionada = getFechaLocal();
 
 function save(){
   localStorage.setItem(KEY,JSON.stringify(db));
 }
 
-// SEMANA
+// 📆 SEMANA
 function generarSemana(){
   let cont=document.getElementById("semana");
   cont.innerHTML="";
@@ -26,7 +33,7 @@ function generarSemana(){
     let d=new Date();
     d.setDate(hoy.getDate()-hoy.getDay()+i);
 
-    let fecha=d.toISOString().split("T")[0];
+    let fecha=getFechaLocal(d);
 
     let div=document.createElement("div");
     div.className="dia";
@@ -46,7 +53,7 @@ function generarSemana(){
   }
 }
 
-// FECHA BONITA
+// 📅 TEXTO FECHA
 function mostrarFecha(){
   let f=new Date(fechaSeleccionada);
 
@@ -59,7 +66,7 @@ function mostrarFecha(){
   document.getElementById("fechaTexto").innerText=texto;
 }
 
-// RENDER DIA
+// 📋 EVENTOS DEL DÍA
 function renderDia(){
   let eventos=db.eventos.filter(e=>e.fecha===fechaSeleccionada);
   let cont=document.getElementById("hoy");
@@ -82,7 +89,7 @@ function renderDia(){
   }
 }
 
-// TOGGLE
+// ✔ TOGGLE EVENTO
 function toggleEvento(i){
   let eventos=db.eventos.filter(e=>e.fecha===fechaSeleccionada);
   let ev=eventos[i];
@@ -93,13 +100,16 @@ function toggleEvento(i){
   save();
 }
 
-// EVENTO
+// ➕ EVENTO
 function agregarEvento(){
   let f=fecha.value;
   let h=hora.value;
   let e=evento.value;
 
-  if(!f||!h||!e)return;
+  if(!f||!h||!e){
+    alert("Completa todo");
+    return;
+  }
 
   db.eventos.push({fecha:f,hora:h,evento:e,done:false});
 
@@ -107,7 +117,7 @@ function agregarEvento(){
   renderDia();
 }
 
-// CHECKLIST + STREAK
+// ✔ CHECKLIST + STREAK
 document.querySelectorAll("[data-check]").forEach(el=>{
   let k=el.dataset.check;
   el.checked=db.checks[k]||false;
@@ -129,13 +139,13 @@ document.querySelectorAll("[data-check]").forEach(el=>{
   }
 });
 
-// STREAK
+// 🔥 STREAK
 function renderStreak(){
   streak.innerText=db.streak;
 }
 renderStreak();
 
-// ESTADO
+// 📊 ESTADO
 function estado(){
   let c=Object.values(db.checks).filter(v=>v).length;
 
@@ -152,7 +162,7 @@ function estado(){
 }
 estado();
 
-// MENSAJE
+// 🧠 MENSAJE
 function mensaje(){
   let h=new Date().getHours();
 
@@ -162,7 +172,7 @@ function mensaje(){
 }
 mensaje();
 
-// AGUA
+// 💧 AGUA
 function agregarAgua(){
   db.agua+=250;
   save();
@@ -170,7 +180,7 @@ function agregarAgua(){
 }
 agua.innerText=db.agua+" ml";
 
-// GASTOS
+// 💰 GASTOS
 function addGasto(){
   let m=parseFloat(monto.value);
   let c=categoria.value;
@@ -197,7 +207,7 @@ function renderGastos(){
 }
 renderGastos();
 
-// INIT
+// 🚀 INIT
 generarSemana();
 mostrarFecha();
 renderDia();
