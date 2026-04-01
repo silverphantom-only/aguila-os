@@ -9,18 +9,18 @@ let db=JSON.parse(localStorage.getItem(KEY))||{
   lastCheck:null
 };
 
-// 🔥 FECHA LOCAL CORRECTA
-function getFechaLocal(date = new Date()) {
-  let offset = date.getTimezoneOffset();
-  let local = new Date(date.getTime() - (offset * 60000));
-  return local.toISOString().split('T')[0];
-}
-
-let fechaSeleccionada = getFechaLocal();
-
 function save(){
   localStorage.setItem(KEY,JSON.stringify(db));
 }
+
+// 🔥 FECHA LOCAL REAL (SIN UTC BUG)
+function getFechaLocal(date = new Date()) {
+  let d = new Date(date);
+  d.setHours(12,0,0,0);
+  return d.toISOString().split('T')[0];
+}
+
+let fechaSeleccionada = getFechaLocal();
 
 // 📆 SEMANA
 function generarSemana(){
@@ -28,16 +28,19 @@ function generarSemana(){
   cont.innerHTML="";
 
   let hoy=new Date();
+  hoy.setHours(12);
+
+  let inicio=new Date(hoy);
+  inicio.setDate(hoy.getDate()-hoy.getDay());
 
   for(let i=0;i<7;i++){
-    let d=new Date();
-    d.setDate(hoy.getDate()-hoy.getDay()+i);
+    let d=new Date(inicio);
+    d.setDate(inicio.getDate()+i);
 
     let fecha=getFechaLocal(d);
 
     let div=document.createElement("div");
     div.className="dia";
-
     if(fecha===fechaSeleccionada) div.classList.add("activo");
 
     div.innerText=d.getDate();
@@ -45,40 +48,43 @@ function generarSemana(){
     div.onclick=()=>{
       fechaSeleccionada=fecha;
       generarSemana();
-      renderDia();
       mostrarFecha();
+      renderDia();
     };
 
     cont.appendChild(div);
   }
 }
 
-// 📅 TEXTO FECHA
+// 📅 TEXTO DÍA (SIN ERROR)
 function mostrarFecha(){
-  let f=new Date(fechaSeleccionada);
+  let p = fechaSeleccionada.split("-");
+  let fecha = new Date(p[0], p[1]-1, p[2]);
 
-  let texto=f.toLocaleDateString("es-MX",{
+  let texto = fecha.toLocaleDateString("es-MX",{
     weekday:"long",
     day:"numeric",
     month:"long"
   });
 
-  document.getElementById("fechaTexto").innerText=texto;
+  document.getElementById("fechaTexto").innerText = texto;
 }
 
-// 📋 EVENTOS DEL DÍA
+// 📋 EVENTOS
 function renderDia(){
-  let eventos=db.eventos.filter(e=>e.fecha===fechaSeleccionada);
   let cont=document.getElementById("hoy");
   cont.innerHTML="";
 
+  let eventos=db.eventos.filter(e=>e.fecha===fechaSeleccionada);
+
   if(eventos.length){
-    eventos.forEach((ev,i)=>{
+    eventos.forEach(ev=>{
       let div=document.createElement("div");
 
       div.innerHTML=`
       <label>
-      <input type="checkbox" ${ev.done?"checked":""} onclick="toggleEvento(${i})">
+      <input type="checkbox" ${ev.done?"checked":""}
+      onclick="toggleEvento('${ev.id}')">
       ${ev.hora} ${ev.evento}
       </label>`;
 
@@ -89,18 +95,14 @@ function renderDia(){
   }
 }
 
-// ✔ TOGGLE EVENTO
-function toggleEvento(i){
-  let eventos=db.eventos.filter(e=>e.fecha===fechaSeleccionada);
-  let ev=eventos[i];
-
-  let real=db.eventos.find(e=>e.fecha===ev.fecha && e.hora===ev.hora && e.evento===ev.evento);
-
-  real.done=!real.done;
+// ✔ toggle
+function toggleEvento(id){
+  let ev=db.eventos.find(e=>e.id===id);
+  ev.done=!ev.done;
   save();
 }
 
-// ➕ EVENTO
+// ➕ agregar
 function agregarEvento(){
   let f=fecha.value;
   let h=hora.value;
@@ -111,13 +113,19 @@ function agregarEvento(){
     return;
   }
 
-  db.eventos.push({fecha:f,hora:h,evento:e,done:false});
+  db.eventos.push({
+    id:Date.now(),
+    fecha:f,
+    hora:h,
+    evento:e,
+    done:false
+  });
 
   save();
   renderDia();
 }
 
-// ✔ CHECKLIST + STREAK
+// ✔ CHECKLIST + RACHA
 document.querySelectorAll("[data-check]").forEach(el=>{
   let k=el.dataset.check;
   el.checked=db.checks[k]||false;
@@ -135,15 +143,9 @@ document.querySelectorAll("[data-check]").forEach(el=>{
     save();
     estado();
     mensaje();
-    renderStreak();
+    streak.innerText=db.streak;
   }
 });
-
-// 🔥 STREAK
-function renderStreak(){
-  streak.innerText=db.streak;
-}
-renderStreak();
 
 // 📊 ESTADO
 function estado(){
@@ -166,9 +168,9 @@ estado();
 function mensaje(){
   let h=new Date().getHours();
 
-  if(h<12) mensaje.innerText="Tonatiuh: Actívate";
-  else if(h<18) mensaje.innerText="Tonatiuh: Enfócate";
-  else mensaje.innerText="Tonatiuh: Descansa";
+  if(h<12) mensaje.innerText="Actívate";
+  else if(h<18) mensaje.innerText="Enfócate";
+  else mensaje.innerText="Descansa";
 }
 mensaje();
 
@@ -211,3 +213,4 @@ renderGastos();
 generarSemana();
 mostrarFecha();
 renderDia();
+streak.innerText=db.streak;
