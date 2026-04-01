@@ -41,7 +41,7 @@ input{
 
 #semana{
   display:flex;
-  justify-content:space-between;
+  gap:5px;
 }
 
 .dia{
@@ -49,9 +49,8 @@ input{
   text-align:center;
   padding:8px;
   border-radius:8px;
-  cursor:pointer;
   background:#1e293b;
-  margin:2px;
+  cursor:pointer;
 }
 
 .activo{
