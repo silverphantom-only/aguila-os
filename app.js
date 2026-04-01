@@ -9,24 +9,57 @@ let db=JSON.parse(localStorage.getItem(KEY))||{
   lastCheck:null
 };
 
-let horario=JSON.parse(localStorage.getItem("horario"))||{
-  inicio:9,
-  fin:14
-};
-
 let fechaSeleccionada=new Date().toISOString().split("T")[0];
 
 function save(){
   localStorage.setItem(KEY,JSON.stringify(db));
-  localStorage.setItem("horario",JSON.stringify(horario));
 }
 
-// AGENDA
-function verDia(){
-  fechaSeleccionada=document.getElementById("verFecha").value;
-  renderDia();
+// SEMANA
+function generarSemana(){
+  let cont=document.getElementById("semana");
+  cont.innerHTML="";
+
+  let hoy=new Date();
+
+  for(let i=0;i<7;i++){
+    let d=new Date();
+    d.setDate(hoy.getDate()-hoy.getDay()+i);
+
+    let fecha=d.toISOString().split("T")[0];
+
+    let div=document.createElement("div");
+    div.className="dia";
+
+    if(fecha===fechaSeleccionada) div.classList.add("activo");
+
+    div.innerText=d.getDate();
+
+    div.onclick=()=>{
+      fechaSeleccionada=fecha;
+      generarSemana();
+      renderDia();
+      mostrarFecha();
+    };
+
+    cont.appendChild(div);
+  }
 }
 
+// FECHA BONITA
+function mostrarFecha(){
+  let f=new Date(fechaSeleccionada);
+
+  let texto=f.toLocaleDateString("es-MX",{
+    weekday:"long",
+    day:"numeric",
+    month:"long"
+  });
+
+  document.getElementById("fechaTexto").innerText=texto;
+}
+
+// RENDER DIA
 function renderDia(){
   let eventos=db.eventos.filter(e=>e.fecha===fechaSeleccionada);
   let cont=document.getElementById("hoy");
@@ -35,34 +68,32 @@ function renderDia(){
   if(eventos.length){
     eventos.forEach((ev,i)=>{
       let div=document.createElement("div");
+
       div.innerHTML=`
       <label>
       <input type="checkbox" ${ev.done?"checked":""} onclick="toggleEvento(${i})">
       ${ev.hora} ${ev.evento}
       </label>`;
+
       cont.appendChild(div);
     });
   }else{
     cont.innerText="Sin pendientes";
   }
 }
-renderDia();
 
+// TOGGLE
 function toggleEvento(i){
   let eventos=db.eventos.filter(e=>e.fecha===fechaSeleccionada);
   let ev=eventos[i];
 
-  let real=db.eventos.find(e=>
-    e.fecha===ev.fecha &&
-    e.hora===ev.hora &&
-    e.evento===ev.evento
-  );
+  let real=db.eventos.find(e=>e.fecha===ev.fecha && e.hora===ev.hora && e.evento===ev.evento);
 
   real.done=!real.done;
   save();
 }
 
-// EVENTOS
+// EVENTO
 function agregarEvento(){
   let f=fecha.value;
   let h=hora.value;
@@ -70,12 +101,7 @@ function agregarEvento(){
 
   if(!f||!h||!e)return;
 
-  db.eventos.push({
-    fecha:f,
-    hora:h,
-    evento:e,
-    done:false
-  });
+  db.eventos.push({fecha:f,hora:h,evento:e,done:false});
 
   save();
   renderDia();
@@ -105,7 +131,7 @@ document.querySelectorAll("[data-check]").forEach(el=>{
 
 // STREAK
 function renderStreak(){
-  document.getElementById("streak").innerText=db.streak;
+  streak.innerText=db.streak;
 }
 renderStreak();
 
@@ -115,13 +141,13 @@ function estado(){
 
   if(c>=6){
     estadoTexto.innerText="🔥 Águila";
-    estadoImg.src="aguila.png";
+    estadoImg.src="img/aguila.png";
   }else if(c>=3){
     estadoTexto.innerText="⚖️ Medio";
-    estadoImg.src="medio.png";
+    estadoImg.src="img/medio.png";
   }else{
     estadoTexto.innerText="❄️ Balgham";
-    estadoImg.src="balgham.png";
+    estadoImg.src="img/balgham.png";
   }
 }
 estado();
@@ -130,8 +156,8 @@ estado();
 function mensaje(){
   let h=new Date().getHours();
 
-  if(h<horario.inicio) mensaje.innerText="Tonatiuh: Actívate";
-  else if(h<horario.fin) mensaje.innerText="Tonatiuh: Trabaja";
+  if(h<12) mensaje.innerText="Tonatiuh: Actívate";
+  else if(h<18) mensaje.innerText="Tonatiuh: Enfócate";
   else mensaje.innerText="Tonatiuh: Descansa";
 }
 mensaje();
@@ -143,20 +169,6 @@ function agregarAgua(){
   agua.innerText=db.agua+" ml";
 }
 agua.innerText=db.agua+" ml";
-
-// HORARIO
-function setHorario(){
-  let i=parseInt(inicio.value);
-  let f=parseInt(fin.value);
-
-  if(!i||!f)return;
-
-  horario.inicio=i;
-  horario.fin=f;
-
-  save();
-  alert("Horario guardado");
-}
 
 // GASTOS
 function addGasto(){
@@ -184,3 +196,8 @@ function renderGastos(){
   total.innerText=t;
 }
 renderGastos();
+
+// INIT
+generarSemana();
+mostrarFecha();
+renderDia();
