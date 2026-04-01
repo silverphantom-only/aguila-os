@@ -12,8 +12,12 @@
 <h1>🦅 Aguila OS</h1>
 
 <div class="card">
-<h2>📍 Agenda del día</h2>
-<input type="date" id="verFecha" onchange="verDia()">
+<h2>📆 Semana</h2>
+<div id="semana"></div>
+</div>
+
+<div class="card">
+<h2>📍 Día</h2>
 <p id="fechaTexto"></p>
 <div id="hoy"></div>
 </div>
@@ -30,12 +34,12 @@
 
 <div class="card">
 <h2>📊 Estado</h2>
-<img id="estadoImg" src="balgham.png">
+<img id="estadoImg" src="img/balgham.png">
 <p id="estadoTexto"></p>
 </div>
 
 <div class="card">
-<h2>✔️ Checklist Diario</h2>
+<h2>✔️ Checklist</h2>
 
 <label><input type="checkbox" data-check="resp"> Respiración</label>
 <label><input type="checkbox" data-check="entreno"> Entrenamiento</label>
@@ -51,7 +55,7 @@
 </div>
 
 <div class="card">
-<h2>📅 Agregar Evento</h2>
+<h2>➕ Evento</h2>
 <input type="date" id="fecha">
 <input type="time" id="hora">
 <input type="text" id="evento" placeholder="Evento">
@@ -62,13 +66,6 @@
 <h2>💧 Agua</h2>
 <p id="agua">0 ml</p>
 <button onclick="agregarAgua()">+250 ml</button>
-</div>
-
-<div class="card">
-<h2>🕒 Horario Trabajo</h2>
-<input type="number" id="inicio" placeholder="Inicio (9)">
-<input type="number" id="fin" placeholder="Fin (14)">
-<button onclick="setHorario()">Guardar</button>
 </div>
 
 <div class="card">
