@@ -3,88 +3,87 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Águila OS</title>
+<title>Aguila OS</title>
 
-<link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+
+<meta name="theme-color" content="#020617">
 </head>
 
 <body>
 
-<h1>🦅 Águila OS</h1>
+<header>
+  <h1>🦅 Aguila OS</h1>
+</header>
 
-<div class="card">
-<h2>📍 Hoy</h2>
-<div id="hoy"></div>
-</div>
+<div class="container">
 
-<div class="card">
-<h2>📊 Estado</h2>
-<img id="estadoImg" src="img/balgham.png">
-<p id="estadoTexto"></p>
-</div>
+  <div class="card">
+    <h2>📍 Hoy</h2>
+    <p id="hoy"></p>
+  </div>
 
-<div class="card">
-<button onclick="musica()">🎧 Música</button>
-<button onclick="entreno()">🔥 Entrenar</button>
-<p id="fase"></p>
-<div id="timer"></div>
-</div>
+  <div class="card">
+    <h2>🧠 Tonatiuh</h2>
+    <p id="mensaje"></p>
+  </div>
 
-<div class="card">
-<h2>✔️ Checklist</h2>
+  <div class="card estado-card">
+    <h2>📊 Estado</h2>
+    <img id="estadoImg" src="img/balgham.png">
+    <p id="estadoTexto"></p>
 
-<h3>🌅 Mañana</h3>
-<label><input type="checkbox" data-check="resp"> Respiración</label>
-<label><input type="checkbox" data-check="cal"> Calistenia</label>
-<label><input type="checkbox" data-check="des"> Desayuno</label>
+    <button class="btn-green" onclick="musica()">🎧 Música</button>
+    <button class="btn-orange" onclick="iniciarRutina()">🔥 Entrenar</button>
 
-<h3>💼 Trabajo</h3>
-<label><input type="checkbox" data-check="wa"> WhatsApp</label>
-<label><input type="checkbox" data-check="gm"> Gmail</label>
-<label><input type="checkbox" data-check="res"> Reservas</label>
-<label><input type="checkbox" data-check="gas"> Gasolina</label>
-<label><input type="checkbox" data-check="cier"> Cierre</label>
-<label><input type="checkbox" data-check="ctrl"> Control</label>
+    <p id="ejercicio"></p>
+    <div id="timer"></div>
+  </div>
 
-</div>
+  <div class="card">
+    <h2>✔️ Checklist</h2>
 
-<div class="card">
-<h2>📅 Semana</h2>
-<textarea data-key="lunes"></textarea>
-<textarea data-key="martes"></textarea>
-<textarea data-key="miercoles"></textarea>
-<textarea data-key="jueves"></textarea>
-<textarea data-key="viernes"></textarea>
-<textarea data-key="sabado"></textarea>
-<textarea data-key="domingo"></textarea>
-</div>
+    <h3>🌅 Mañana</h3>
+    <label><input type="checkbox" data-check="resp"> Respiración</label>
+    <label><input type="checkbox" data-check="cal"> Calistenia</label>
+    <label><input type="checkbox" data-check="des"> Desayuno</label>
 
-<div class="card">
-<h2>📖 Diario</h2>
-<textarea data-key="diario"></textarea>
-</div>
+    <h3>💼 Trabajo</h3>
+    <label><input type="checkbox" data-check="wa"> WhatsApp</label>
+    <label><input type="checkbox" data-check="gm"> Gmail</label>
+    <label><input type="checkbox" data-check="res"> Reservas</label>
+    <label><input type="checkbox" data-check="gas"> Gasolina</label>
+    <label><input type="checkbox" data-check="cier"> Cierre</label>
+    <label><input type="checkbox" data-check="ctrl"> Control</label>
+  </div>
 
-<div class="card">
-<h2>💰 Gastos</h2>
-<input id="monto" placeholder="Monto">
-<input id="categoria" placeholder="Categoría">
-<button onclick="addGasto()">Agregar</button>
-<ul id="lista"></ul>
-<p>Total: $<span id="total"></span></p>
-</div>
+  <div class="card">
+    <h2>📅 Agenda</h2>
+    <input type="date" id="fecha">
+    <input type="text" id="evento" placeholder="Evento">
+    <button onclick="agregarEvento()">Agregar</button>
+    <ul id="listaEventos"></ul>
+  </div>
 
-<div class="card">
-<h2>💧 Agua</h2>
-<p id="agua">0 ml</p>
-<button onclick="sumarAgua()">+250ml</button>
-<button onclick="resetAgua()">Reset</button>
-</div>
+  <div class="card">
+    <h2>💰 Gastos</h2>
+    <input id="monto" placeholder="Monto">
+    <input id="categoria" placeholder="Categoría">
+    <button onclick="addGasto()">Agregar</button>
+    <ul id="listaGastos"></ul>
+    <p>Total: $<span id="total"></span></p>
+  </div>
 
-<div class="card">
-<button onclick="reset()">RESET TODO</button>
 </div>
 
 <script src="app.js"></script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+}
+</script>
+
 </body>
 </html>
