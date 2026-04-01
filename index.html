@@ -4,10 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Aguila OS</title>
-
-<link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
-<meta name="theme-color" content="#020617">
 </head>
 
 <body>
@@ -15,8 +12,14 @@
 <h1>🦅 Aguila OS</h1>
 
 <div class="card">
-<h2>📍 Hoy</h2>
-<p id="hoy"></p>
+<h2>📍 Agenda del día</h2>
+<input type="date" id="verFecha" onchange="verDia()">
+<div id="hoy"></div>
+</div>
+
+<div class="card">
+<h2>🔥 Disciplina</h2>
+<p>Racha: <span id="streak">0</span></p>
 </div>
 
 <div class="card">
@@ -26,21 +29,15 @@
 
 <div class="card">
 <h2>📊 Estado</h2>
-<img id="estadoImg" src="balgham.png">
+<img id="estadoImg" src="img/balgham.png">
 <p id="estadoTexto"></p>
-
-<button onclick="musica()" class="btn-green">🎧 Música</button>
-<button onclick="iniciarRutina()" class="btn-orange">🔥 Entrenar</button>
-
-<p id="ejercicio"></p>
-<div id="timer"></div>
 </div>
 
 <div class="card">
-<h2>✔️ Checklist</h2>
+<h2>✔️ Checklist Diario</h2>
 
 <label><input type="checkbox" data-check="resp"> Respiración</label>
-<label><input type="checkbox" data-check="cal"> Calistenia</label>
+<label><input type="checkbox" data-check="entreno"> Entrenamiento</label>
 <label><input type="checkbox" data-check="des"> Desayuno</label>
 
 <label><input type="checkbox" data-check="wa"> WhatsApp</label>
@@ -49,15 +46,15 @@
 <label><input type="checkbox" data-check="gas"> Gasolina</label>
 <label><input type="checkbox" data-check="cier"> Cierre</label>
 <label><input type="checkbox" data-check="ctrl"> Control</label>
+
 </div>
 
 <div class="card">
-<h2>📅 Agenda</h2>
+<h2>📅 Agregar Evento</h2>
 <input type="date" id="fecha">
 <input type="time" id="hora">
 <input type="text" id="evento" placeholder="Evento">
 <button onclick="agregarEvento()">Agregar</button>
-<ul id="listaEventos"></ul>
 </div>
 
 <div class="card">
@@ -68,8 +65,8 @@
 
 <div class="card">
 <h2>🕒 Horario Trabajo</h2>
-<input id="inicio" placeholder="Inicio (9)">
-<input id="fin" placeholder="Fin (14)">
+<input type="number" id="inicio" placeholder="Inicio (9)">
+<input type="number" id="fin" placeholder="Fin (14)">
 <button onclick="setHorario()">Guardar</button>
 </div>
 
@@ -83,12 +80,6 @@
 </div>
 
 <script src="app.js"></script>
-
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js');
-}
-</script>
 
 </body>
 </html>
