@@ -7,74 +7,79 @@
 
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
-
 <meta name="theme-color" content="#020617">
 </head>
 
 <body>
 
-<header>
-  <h1>🦅 Aguila OS</h1>
-</header>
+<h1>🦅 Aguila OS</h1>
 
-<div class="container">
+<div class="card">
+<h2>📍 Hoy</h2>
+<p id="hoy"></p>
+</div>
 
-  <div class="card">
-    <h2>📍 Hoy</h2>
-    <p id="hoy"></p>
-  </div>
+<div class="card">
+<h2>🧠 Tonatiuh</h2>
+<p id="mensaje"></p>
+</div>
 
-  <div class="card">
-    <h2>🧠 Tonatiuh</h2>
-    <p id="mensaje"></p>
-  </div>
+<div class="card">
+<h2>📊 Estado</h2>
+<img id="estadoImg" src="img/balgham.png">
+<p id="estadoTexto"></p>
 
-  <div class="card estado-card">
-    <h2>📊 Estado</h2>
-    <img id="estadoImg" src="img/balgham.png">
-    <p id="estadoTexto"></p>
+<button onclick="musica()" class="btn-green">🎧 Música</button>
+<button onclick="iniciarRutina()" class="btn-orange">🔥 Entrenar</button>
 
-    <button class="btn-green" onclick="musica()">🎧 Música</button>
-    <button class="btn-orange" onclick="iniciarRutina()">🔥 Entrenar</button>
+<p id="ejercicio"></p>
+<div id="timer"></div>
+</div>
 
-    <p id="ejercicio"></p>
-    <div id="timer"></div>
-  </div>
+<div class="card">
+<h2>✔️ Checklist</h2>
 
-  <div class="card">
-    <h2>✔️ Checklist</h2>
+<label><input type="checkbox" data-check="resp"> Respiración</label>
+<label><input type="checkbox" data-check="cal"> Calistenia</label>
+<label><input type="checkbox" data-check="des"> Desayuno</label>
 
-    <h3>🌅 Mañana</h3>
-    <label><input type="checkbox" data-check="resp"> Respiración</label>
-    <label><input type="checkbox" data-check="cal"> Calistenia</label>
-    <label><input type="checkbox" data-check="des"> Desayuno</label>
+<label><input type="checkbox" data-check="wa"> WhatsApp</label>
+<label><input type="checkbox" data-check="gm"> Gmail</label>
+<label><input type="checkbox" data-check="res"> Reservas</label>
+<label><input type="checkbox" data-check="gas"> Gasolina</label>
+<label><input type="checkbox" data-check="cier"> Cierre</label>
+<label><input type="checkbox" data-check="ctrl"> Control</label>
+</div>
 
-    <h3>💼 Trabajo</h3>
-    <label><input type="checkbox" data-check="wa"> WhatsApp</label>
-    <label><input type="checkbox" data-check="gm"> Gmail</label>
-    <label><input type="checkbox" data-check="res"> Reservas</label>
-    <label><input type="checkbox" data-check="gas"> Gasolina</label>
-    <label><input type="checkbox" data-check="cier"> Cierre</label>
-    <label><input type="checkbox" data-check="ctrl"> Control</label>
-  </div>
+<div class="card">
+<h2>📅 Agenda</h2>
+<input type="date" id="fecha">
+<input type="time" id="hora">
+<input type="text" id="evento" placeholder="Evento">
+<button onclick="agregarEvento()">Agregar</button>
+<ul id="listaEventos"></ul>
+</div>
 
-  <div class="card">
-    <h2>📅 Agenda</h2>
-    <input type="date" id="fecha">
-    <input type="text" id="evento" placeholder="Evento">
-    <button onclick="agregarEvento()">Agregar</button>
-    <ul id="listaEventos"></ul>
-  </div>
+<div class="card">
+<h2>💧 Agua</h2>
+<p id="agua">0 ml</p>
+<button onclick="agregarAgua()">+250 ml</button>
+</div>
 
-  <div class="card">
-    <h2>💰 Gastos</h2>
-    <input id="monto" placeholder="Monto">
-    <input id="categoria" placeholder="Categoría">
-    <button onclick="addGasto()">Agregar</button>
-    <ul id="listaGastos"></ul>
-    <p>Total: $<span id="total"></span></p>
-  </div>
+<div class="card">
+<h2>🕒 Horario Trabajo</h2>
+<input id="inicio" placeholder="Inicio (9)">
+<input id="fin" placeholder="Fin (14)">
+<button onclick="setHorario()">Guardar</button>
+</div>
 
+<div class="card">
+<h2>💰 Gastos</h2>
+<input id="monto" placeholder="Monto">
+<input id="categoria" placeholder="Categoría">
+<button onclick="addGasto()">Agregar</button>
+<ul id="listaGastos"></ul>
+<p>Total: $<span id="total"></span></p>
 </div>
 
 <script src="app.js"></script>
