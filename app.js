@@ -347,36 +347,72 @@ function toggleCheck(index) {
    ESTADO ÁGUILA
    ============================================================ */
 
+// Exactamente 3 niveles según los requisitos:
+// 0–2 tareas → Bajo | 3–5 → Medio | 6+ → Águila
 const EAGLE_LEVELS = [
-  { min: 0,   max: 2,  icon: '🥚',  label: 'Inicio',  cls: '' },
-  { min: 3,   max: 4,  icon: '🐣',  label: 'Despertando', cls: '' },
-  { min: 5,   max: 6,  icon: '🦤',  label: 'Creciendo', cls: '' },
-  { min: 7,   max: 8,  icon: '🦅',  label: 'Águila', cls: 'aguila' },
+  {
+    minTasks: 0,
+    icon:     '❄️',
+    label:    'Bajo',
+    sub:      'Empieza completando tareas del checklist',
+    cls:      '',
+  },
+  {
+    minTasks: 3,
+    icon:     '⚖️',
+    label:    'Medio',
+    sub:      'Buen avance — sigue empujando',
+    cls:      '',
+  },
+  {
+    minTasks: 6,
+    icon:     '🦅',
+    label:    'Águila',
+    sub:      '¡Modo Águila activado! Racha imparable',
+    cls:      'aguila',
+  },
 ];
+
+function _getLevel(completed) {
+  // Recorre de mayor a menor para devolver el nivel más alto alcanzado
+  for (let i = EAGLE_LEVELS.length - 1; i >= 0; i--) {
+    if (completed >= EAGLE_LEVELS[i].minTasks) return EAGLE_LEVELS[i];
+  }
+  return EAGLE_LEVELS[0];
+}
 
 function updateEagleState() {
   const state     = load('aguilaChecklist', {});
   const completed = Object.values(state).filter(Boolean).length;
   const total     = CHECKLIST_ITEMS.length;
-  const pct       = total ? (completed / total) * 100 : 0;
+  const pct       = total ? Math.round((completed / total) * 100) : 0;
 
-  // Determinar nivel
-  let level = EAGLE_LEVELS[0];
-  for (const lv of EAGLE_LEVELS) {
-    if (completed >= lv.min) level = lv;
-  }
+  const level = _getLevel(completed);
 
-  // Header
+  // ── Header (ícono + etiqueta pequeña) ──
   document.getElementById('stateIcon').textContent  = level.icon;
   document.getElementById('stateLabel').textContent = level.label;
 
-  // Disciplina card
+  // ── Card "Nivel Águila" ──
   const bigState = document.getElementById('eagleBigState');
   bigState.textContent = level.icon;
   bigState.className   = 'eagle-big-state' + (level.cls ? ` ${level.cls}` : '');
-  document.getElementById('eagleBigLabel').textContent  = level.label;
-  document.getElementById('progressBar').style.width    = pct + '%';
-  document.getElementById('progressText').textContent   = `${completed} / ${total} tareas`;
+
+  document.getElementById('eagleBigLabel').textContent = level.label;
+
+  // Texto dinámico de contexto
+  const subEl = document.querySelector('.eagle-sub');
+  if (subEl) subEl.textContent = level.sub;
+
+  // Barra de progreso porcentual
+  document.getElementById('progressBar').style.width = pct + '%';
+
+  // Progreso numérico: "4 / 8 tareas (50%)"
+  document.getElementById('progressText').textContent =
+    `${completed} / ${total} tareas (${pct}%)`;
+
+  // Guardar snapshot del estado en localStorage para persistencia
+  save('aguilaEagleState', { completed, total, label: level.label, pct });
 }
 
 /* ============================================================
