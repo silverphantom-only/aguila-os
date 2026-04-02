@@ -1,16 +1,13 @@
 body{
-  background:linear-gradient(180deg,#020617,#020617,#020617);
+  background:#020617;
   color:white;
   font-family:-apple-system,BlinkMacSystemFont,sans-serif;
   padding:10px;
 }
 
-/* HEADER */
 h1{
   text-align:center;
-  font-size:22px;
   margin-bottom:20px;
-  letter-spacing:1px;
 }
 
 /* TARJETAS */
@@ -29,17 +26,11 @@ h1{
 button{
   width:100%;
   padding:12px;
-  margin-top:8px;
   border:none;
   border-radius:12px;
-  font-weight:600;
   background:linear-gradient(135deg,#22c55e,#16a34a);
   color:black;
-  transition:0.2s;
-}
-
-button:active{
-  transform:scale(0.97);
+  font-weight:600;
 }
 
 /* INPUTS */
@@ -53,31 +44,23 @@ input{
   color:white;
 }
 
-/* 🔥 ESTADO PRO (BARRA PREMIUM) */
+/* 🔥 ESTADO BARRA PRO */
 #estadoImg{
   width:100%;
   height:100px;
   object-fit:cover;
   border-radius:14px;
   margin-top:10px;
-
-  /* EFECTO PRO */
-  filter:contrast(1.1) brightness(1.05);
-
-  box-shadow:
-    inset 0 0 30px rgba(0,0,0,0.6),
-    0 0 10px rgba(0,0,0,0.5);
+  box-shadow:inset 0 0 30px rgba(0,0,0,0.6);
 }
 
-/* TEXTO ESTADO */
+/* TEXTO */
 #estadoTexto{
   margin-top:10px;
   font-weight:600;
-  font-size:14px;
-  opacity:0.9;
 }
 
-/* SEMANA (ESTILO IOS) */
+/* SEMANA */
 #semana{
   display:flex;
   gap:6px;
@@ -90,63 +73,29 @@ input{
   border-radius:12px;
   background:#1e293b;
   cursor:pointer;
-  font-size:14px;
-
-  transition:0.2s;
-}
-
-.dia:hover{
-  background:#334155;
 }
 
 .activo{
   background:linear-gradient(135deg,#22c55e,#16a34a);
   color:black;
-  font-weight:700;
-  transform:scale(1.05);
+  font-weight:bold;
 }
 
-/* EVENTOS */
-#hoy div{
-  margin-top:8px;
-  padding:6px;
-  border-radius:8px;
-  background:rgba(255,255,255,0.03);
-}
-
-/* CHECKLIST PRO */
+/* CHECKLIST */
 label{
   display:flex;
   justify-content:space-between;
-  align-items:center;
   margin:8px 0;
-  font-size:14px;
-}
-
-/* CHECKBOX PRO */
-input[type="checkbox"]{
-  transform:scale(1.2);
-  accent-color:#22c55e;
 }
 
 /* AGUA */
 #agua{
-  font-size:20px;
-  font-weight:700;
   text-align:center;
+  font-size:18px;
+  font-weight:bold;
 }
 
-/* GASTOS */
-ul{
-  padding-left:15px;
-}
-
-li{
-  margin-top:6px;
-  font-size:14px;
-}
-
-/* 🔥 EFECTOS SEGÚN ESTADO */
+/* ESTADOS DINÁMICOS */
 .aguila{
   box-shadow:0 0 20px rgba(255,80,0,0.4);
 }
