@@ -1,215 +1,442 @@
-const KEY = "aguila_pro";
+/* ============================================================
+   ÁGUILA OS — app.js
+   ============================================================ */
 
-let db = JSON.parse(localStorage.getItem(KEY)) || {
-  eventos: [],
-  checks: {},
-  agua: 0,
-  gastos: [],
-  streak: 0,
-  lastCheck: null
-};
+/* ─── Utilidades de fecha (sin problemas de zona horaria) ─── */
 
-function save(){
-  localStorage.setItem(KEY, JSON.stringify(db));
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-/* FECHA */
-function fechaISO(d = new Date()){
-  d.setHours(12);
-  return d.toISOString().split("T")[0];
+function dateKey(year, month, day) {
+  return `${year}-${pad(month + 1)}-${pad(day)}`;
 }
 
-let fechaSeleccionada = fechaISO();
+function pad(n) {
+  return String(n).padStart(2, '0');
+}
 
-/* SEMANA */
-function renderSemana(){
-  semana.innerHTML = "";
+function parseLocalDate(key) {
+  const [y, m, d] = key.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
 
-  let hoy = new Date();
-  hoy.setHours(12);
+/* ─── Estado global ─── */
 
-  let inicio = new Date(hoy);
-  inicio.setDate(hoy.getDate() - hoy.getDay());
+const DAYS_ES   = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+const MONTHS_ES = ['enero','febrero','marzo','abril','mayo','junio',
+                   'julio','agosto','septiembre','octubre','noviembre','diciembre'];
 
-  for(let i=0;i<7;i++){
-    let d = new Date(inicio);
-    d.setDate(inicio.getDate() + i);
+const CHECKLIST_ITEMS = [
+  '🌅 Despertar temprano',
+  '💧 Tomar agua al levantarse',
+  '🏋️ Ejercicio / movimiento',
+  '📖 Lectura o aprendizaje',
+  '🧘 Meditación / respiración',
+  '🍏 Comer bien',
+  '📵 Sin redes sociales por 1h',
+  '🌙 Dormir a tiempo',
+];
 
-    let f = fechaISO(d);
+let selectedDateKey = todayKey();
 
-    let div = document.createElement("div");
-    div.className = "dia";
-    if(f === fechaSeleccionada) div.classList.add("activo");
+/* ─── localStorage helpers ─── */
 
-    div.innerText = d.getDate();
+function load(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw !== null ? JSON.parse(raw) : fallback;
+  } catch { return fallback; }
+}
 
-    div.onclick = ()=>{
-      fechaSeleccionada = f;
-      renderSemana();
-      renderDia();
-    };
+function save(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+}
 
-    semana.appendChild(div);
+/* ─── TOAST ─── */
+
+let toastTimer = null;
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+/* ============================================================
+   CALENDARIO SEMANAL
+   ============================================================ */
+
+function buildWeekGrid() {
+  const grid    = document.getElementById('weekGrid');
+  grid.innerHTML = '';
+
+  const today   = new Date();
+  const todayK  = todayKey();
+
+  // Semana que contiene selectedDateKey
+  const selDate = parseLocalDate(selectedDateKey);
+  const dow     = selDate.getDay(); // 0=dom
+  const startOfWeek = new Date(selDate);
+  startOfWeek.setDate(selDate.getDate() - dow);
+
+  const allEvents = load('aguilaEvents', {});
+
+  for (let i = 0; i < 7; i++) {
+    const d   = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + i);
+    const key = dateKey(d.getFullYear(), d.getMonth(), d.getDate());
+
+    const cell = document.createElement('div');
+    cell.className = 'day-cell';
+    if (key === todayK)         cell.classList.add('today');
+    if (key === selectedDateKey) cell.classList.add('selected');
+
+    const events = allEvents[key] || [];
+    if (events.length > 0)      cell.classList.add('has-events');
+
+    cell.innerHTML = `
+      <span class="day-abbr">${DAYS_ES[d.getDay()]}</span>
+      <span class="day-num">${d.getDate()}</span>
+      <span class="day-dot"></span>
+    `;
+
+    cell.addEventListener('click', () => selectDay(key));
+    grid.appendChild(cell);
   }
 }
 
-/* DIA */
-function renderDia(){
-  let p = fechaSeleccionada.split("-");
-  let f = new Date(p[0], p[1]-1, p[2]);
+function selectDay(key) {
+  selectedDateKey = key;
+  buildWeekGrid();
+  renderDayView();
+  renderEvents();
+}
 
-  fechaTexto.innerText = f.toLocaleDateString("es-MX", {
-    weekday:"long",
-    day:"numeric",
-    month:"long"
-  });
+/* ============================================================
+   VISTA DEL DÍA
+   ============================================================ */
 
-  listaEventos.innerHTML = "";
+function renderDayView() {
+  const d     = parseLocalDate(selectedDateKey);
+  const dayN  = document.getElementById('dayName');
+  const dayF  = document.getElementById('dayFullDate');
+  const btn   = document.getElementById('streakBtn');
 
-  let eventos = db.eventos
-    .filter(e => e.fecha === fechaSeleccionada)
-    .sort((a,b)=> a.hora.localeCompare(b.hora));
+  const dayName = DAYS_ES[d.getDay()];
+  const full    = `${d.getDate()} de ${MONTHS_ES[d.getMonth()]} de ${d.getFullYear()}`;
 
-  if(eventos.length){
-    eventos.forEach(ev=>{
-      let div = document.createElement("div");
-      div.className = "evento";
+  dayN.textContent = dayName.toUpperCase();
+  dayF.textContent = full;
 
-      div.innerHTML = `
-        <span>${ev.hora} ${ev.texto}</span>
-
-        <div style="display:flex; gap:8px;">
-          <input type="checkbox" ${ev.done?"checked":""}
-          onchange="toggleEvento(${ev.id})">
-
-          <button onclick="eliminarEvento(${ev.id})" class="btn-delete">✕</button>
-        </div>
-      `;
-
-      listaEventos.appendChild(div);
-    });
-  }else{
-    listaEventos.innerText = "Sin pendientes";
+  // Mostrar si la racha ya fue marcada hoy
+  const streakData = load('aguilaStreak', { count: 0, lastDate: '' });
+  if (selectedDateKey === todayKey() && streakData.lastDate === todayKey()) {
+    btn.textContent = '✅ Día marcado';
+    btn.classList.add('done');
+  } else {
+    btn.textContent = '✅ Marcar día';
+    btn.classList.remove('done');
   }
 }
 
-/* EVENTOS */
-function agregarEvento(){
-  if(!fecha.value || !hora.value || !texto.value) return;
+/* ============================================================
+   RACHA / STREAK
+   ============================================================ */
 
-  let existe = db.eventos.find(e =>
-    e.fecha === fecha.value &&
-    e.hora === hora.value &&
-    e.texto === texto.value
-  );
-
-  if(existe){
-    alert("Ya existe");
+function registerStreak() {
+  const tk  = todayKey();
+  if (selectedDateKey !== tk) {
+    showToast('Solo puedes marcar el día de hoy 🗓');
     return;
   }
 
-  db.eventos.push({
-    id: Date.now(),
-    fecha: fecha.value,
-    hora: hora.value,
-    texto: texto.value,
-    done: false
+  const streakData = load('aguilaStreak', { count: 0, lastDate: '' });
+
+  if (streakData.lastDate === tk) {
+    showToast('¡Ya marcaste hoy! 🔥');
+    return;
+  }
+
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yKey = dateKey(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+
+  const newCount = streakData.lastDate === yKey ? streakData.count + 1 : 1;
+  save('aguilaStreak', { count: newCount, lastDate: tk });
+
+  renderStreak();
+  renderDayView();
+  showToast(`🔥 Racha: ${newCount} día${newCount > 1 ? 's' : ''}`);
+}
+
+function renderStreak() {
+  const streakData = load('aguilaStreak', { count: 0, lastDate: '' });
+  document.getElementById('streakCount').textContent = streakData.count;
+}
+
+/* ============================================================
+   EVENTOS
+   ============================================================ */
+
+function addEvent() {
+  const timeEl = document.getElementById('eventTime');
+  const textEl = document.getElementById('eventText');
+  const time   = timeEl.value.trim();
+  const text   = textEl.value.trim();
+
+  if (!time) { showToast('Selecciona una hora ⏰'); return; }
+  if (!text)  { showToast('Escribe la descripción 📝'); return; }
+
+  const allEvents  = load('aguilaEvents', {});
+  const dayEvents  = allEvents[selectedDateKey] || [];
+
+  // Evitar duplicados
+  const duplicate = dayEvents.some(e => e.time === time && e.text === text);
+  if (duplicate) { showToast('Ese evento ya existe 🚫'); return; }
+
+  dayEvents.push({ time, text, done: false, id: Date.now() });
+  dayEvents.sort((a, b) => a.time.localeCompare(b.time));
+  allEvents[selectedDateKey] = dayEvents;
+  save('aguilaEvents', allEvents);
+
+  timeEl.value = '';
+  textEl.value = '';
+
+  renderEvents();
+  buildWeekGrid();
+  showToast('Evento agregado 🗂');
+}
+
+function toggleEvent(id) {
+  const allEvents = load('aguilaEvents', {});
+  const dayEvents = allEvents[selectedDateKey] || [];
+  const ev = dayEvents.find(e => e.id === id);
+  if (ev) ev.done = !ev.done;
+  allEvents[selectedDateKey] = dayEvents;
+  save('aguilaEvents', allEvents);
+  renderEvents();
+}
+
+function deleteEvent(id) {
+  const allEvents = load('aguilaEvents', {});
+  const dayEvents = (allEvents[selectedDateKey] || []).filter(e => e.id !== id);
+  allEvents[selectedDateKey] = dayEvents;
+  save('aguilaEvents', allEvents);
+  renderEvents();
+  buildWeekGrid();
+  showToast('Evento eliminado 🗑');
+}
+
+function renderEvents() {
+  const list     = document.getElementById('eventList');
+  const allEvents = load('aguilaEvents', {});
+  const dayEvents = (allEvents[selectedDateKey] || []).slice();
+  dayEvents.sort((a, b) => a.time.localeCompare(b.time));
+  list.innerHTML = '';
+
+  if (dayEvents.length === 0) {
+    list.innerHTML = '<p class="empty-msg">Sin eventos para este día</p>';
+    return;
+  }
+
+  dayEvents.forEach(ev => {
+    const li = document.createElement('li');
+    li.className = 'event-item' + (ev.done ? ' done' : '');
+    li.innerHTML = `
+      <input type="checkbox" class="event-cb" ${ev.done ? 'checked' : ''} onchange="toggleEvent(${ev.id})" />
+      <span class="event-time">${ev.time}</span>
+      <span class="event-text">${escapeHtml(ev.text)}</span>
+      <button class="btn btn-icon" onclick="deleteEvent(${ev.id})" title="Eliminar">✕</button>
+    `;
+    list.appendChild(li);
+  });
+}
+
+/* ============================================================
+   CHECKLIST DIARIO
+   ============================================================ */
+
+function renderChecklist() {
+  const ul    = document.getElementById('checklist');
+  const state = load('aguilaChecklist', {});
+  ul.innerHTML = '';
+
+  CHECKLIST_ITEMS.forEach((label, i) => {
+    const checked = !!state[i];
+    const li = document.createElement('li');
+    li.className = 'check-item' + (checked ? ' checked' : '');
+
+    li.innerHTML = `
+      <input type="checkbox" class="check-cb" id="chk${i}" ${checked ? 'checked' : ''} onchange="toggleCheck(${i})" />
+      <label class="check-label" for="chk${i}">${label}</label>
+    `;
+
+    ul.appendChild(li);
   });
 
-  save();
-  renderDia();
+  updateEagleState();
 }
 
-function toggleEvento(id){
-  let ev = db.eventos.find(e => e.id === id);
-  ev.done = !ev.done;
-  save();
+function toggleCheck(index) {
+  const state = load('aguilaChecklist', {});
+  state[index] = !state[index];
+  save('aguilaChecklist', state);
+  renderChecklist();
 }
 
-function eliminarEvento(id){
-  if(!confirm("Eliminar evento?")) return;
-  db.eventos = db.eventos.filter(e => e.id !== id);
-  save();
-  renderDia();
+/* ============================================================
+   ESTADO ÁGUILA
+   ============================================================ */
+
+const EAGLE_LEVELS = [
+  { min: 0,   max: 2,  icon: '🥚',  label: 'Inicio',  cls: '' },
+  { min: 3,   max: 4,  icon: '🐣',  label: 'Despertando', cls: '' },
+  { min: 5,   max: 6,  icon: '🦤',  label: 'Creciendo', cls: '' },
+  { min: 7,   max: 8,  icon: '🦅',  label: 'Águila', cls: 'aguila' },
+];
+
+function updateEagleState() {
+  const state     = load('aguilaChecklist', {});
+  const completed = Object.values(state).filter(Boolean).length;
+  const total     = CHECKLIST_ITEMS.length;
+  const pct       = total ? (completed / total) * 100 : 0;
+
+  // Determinar nivel
+  let level = EAGLE_LEVELS[0];
+  for (const lv of EAGLE_LEVELS) {
+    if (completed >= lv.min) level = lv;
+  }
+
+  // Header
+  document.getElementById('stateIcon').textContent  = level.icon;
+  document.getElementById('stateLabel').textContent = level.label;
+
+  // Disciplina card
+  const bigState = document.getElementById('eagleBigState');
+  bigState.textContent = level.icon;
+  bigState.className   = 'eagle-big-state' + (level.cls ? ` ${level.cls}` : '');
+  document.getElementById('eagleBigLabel').textContent  = level.label;
+  document.getElementById('progressBar').style.width    = pct + '%';
+  document.getElementById('progressText').textContent   = `${completed} / ${total} tareas`;
 }
 
-/* CHECKLIST + DISCIPLINA */
-document.querySelectorAll("[data-id]").forEach(el=>{
-  let id = el.dataset.id;
+/* ============================================================
+   AGUA
+   ============================================================ */
 
-  el.checked = db.checks[id] || false;
+function addWater() {
+  const tk    = todayKey();
+  const water = load('aguilaWater', {});
+  water[tk]   = (water[tk] || 0) + 250;
+  save('aguilaWater', water);
+  renderWater();
+  showToast('💧 +250 ml');
+}
 
-  el.onchange = ()=>{
-    db.checks[id] = el.checked;
+function resetWater() {
+  const tk    = todayKey();
+  const water = load('aguilaWater', {});
+  water[tk]   = 0;
+  save('aguilaWater', water);
+  renderWater();
+  showToast('Reiniciado 💧');
+}
 
-    let hoy = new Date().toDateString();
+function renderWater() {
+  const tk      = todayKey();
+  const water   = load('aguilaWater', {});
+  const total   = water[tk] || 0;
+  const goal    = 2000;
+  const pct     = Math.min((total / goal) * 100, 100);
 
-    if(db.lastCheck !== hoy){
-      db.streak++;
-      db.lastCheck = hoy;
-    }
+  document.getElementById('waterTotal').textContent = `${total} ml`;
+  document.getElementById('waterBar').style.width   = pct + '%';
+}
 
-    save();
-    actualizarEstado();
-    actualizarUI();
-  };
-});
+/* ============================================================
+   GASTOS
+   ============================================================ */
 
-/* ESTADO */
-function actualizarEstado(){
-  let total = Object.values(db.checks).filter(v=>v).length;
+function addExpense() {
+  const amtEl  = document.getElementById('expenseAmount');
+  const catEl  = document.getElementById('expenseCategory');
+  const amount = parseFloat(amtEl.value);
+  const cat    = catEl.value;
 
-  if(total >= 3){
-    estadoTexto.innerText = "🦅 Modo Águila";
-  }else if(total >= 1){
-    estadoTexto.innerText = "⚖️ En progreso";
-  }else{
-    estadoTexto.innerText = "❄️ Bajo";
+  if (!amount || amount <= 0) { showToast('Ingresa un monto válido 💰'); return; }
+
+  const expenses = load('aguilaExpenses', []);
+  expenses.unshift({ amount, cat, id: Date.now() });
+  save('aguilaExpenses', expenses);
+
+  amtEl.value = '';
+  renderExpenses();
+  showToast(`Gasto registrado: $${amount.toFixed(2)}`);
+}
+
+function deleteExpense(id) {
+  const expenses = load('aguilaExpenses', []).filter(e => e.id !== id);
+  save('aguilaExpenses', expenses);
+  renderExpenses();
+}
+
+function renderExpenses() {
+  const list     = document.getElementById('expenseList');
+  const totalEl  = document.getElementById('expenseTotal');
+  const expenses = load('aguilaExpenses', []);
+  list.innerHTML  = '';
+
+  let total = 0;
+  expenses.forEach(e => {
+    total += e.amount;
+    const li = document.createElement('li');
+    li.className = 'expense-item';
+    li.innerHTML = `
+      <div>
+        <div class="expense-cat">${escapeHtml(e.cat)}</div>
+      </div>
+      <span class="expense-amt">$${e.amount.toFixed(2)}</span>
+      <button class="btn btn-icon" onclick="deleteExpense(${e.id})" title="Eliminar">✕</button>
+    `;
+    list.appendChild(li);
+  });
+
+  totalEl.textContent = total.toFixed(2);
+
+  if (expenses.length === 0) {
+    list.innerHTML = '<p class="empty-msg">Sin gastos registrados</p>';
   }
 }
 
-/* AGUA */
-function sumarAgua(){
-  db.agua += 250;
-  save();
-  actualizarUI();
+/* ============================================================
+   SEGURIDAD — escapeHtml
+   ============================================================ */
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
-/* GASTOS */
-function agregarGasto(){
-  let m = parseFloat(monto.value);
-  let c = categoria.value;
+/* ============================================================
+   INICIALIZACIÓN
+   ============================================================ */
 
-  if(!m) return;
-
-  db.gastos.push({m,c});
-  save();
-  renderGastos();
+function init() {
+  buildWeekGrid();
+  renderDayView();
+  renderEvents();
+  renderChecklist();
+  renderStreak();
+  renderWater();
+  renderExpenses();
 }
 
-function renderGastos(){
-  listaGastos.innerHTML = "";
-  let t = 0;
-
-  db.gastos.forEach(g=>{
-    let li = document.createElement("li");
-    li.innerText = `${g.c} - $${g.m}`;
-    listaGastos.appendChild(li);
-    t += g.m;
-  });
-
-  total.innerText = t;
-}
-
-/* UI */
-function actualizarUI(){
-  agua.innerText = db.agua + " ml";
-  streak.innerText = db.streak;
-}
-
-/* INIT */
-renderSemana();
-renderDia();
-renderGastos();
-actualizarUI();
-actualizarEstado();
+document.addEventListener('DOMContentLoaded', init);
