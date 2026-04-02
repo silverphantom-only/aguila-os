@@ -13,7 +13,7 @@ function save(){
   localStorage.setItem(KEY,JSON.stringify(db));
 }
 
-// 🔥 FECHA LOCAL REAL (SIN UTC BUG)
+/* FECHA CORRECTA */
 function getFechaLocal(date = new Date()) {
   let d = new Date(date);
   d.setHours(12,0,0,0);
@@ -22,7 +22,7 @@ function getFechaLocal(date = new Date()) {
 
 let fechaSeleccionada = getFechaLocal();
 
-// 📆 SEMANA
+/* SEMANA */
 function generarSemana(){
   let cont=document.getElementById("semana");
   cont.innerHTML="";
@@ -41,6 +41,7 @@ function generarSemana(){
 
     let div=document.createElement("div");
     div.className="dia";
+
     if(fecha===fechaSeleccionada) div.classList.add("activo");
 
     div.innerText=d.getDate();
@@ -56,24 +57,21 @@ function generarSemana(){
   }
 }
 
-// 📅 TEXTO DÍA (SIN ERROR)
+/* TEXTO DÍA */
 function mostrarFecha(){
-  let p = fechaSeleccionada.split("-");
-  let fecha = new Date(p[0], p[1]-1, p[2]);
+  let p=fechaSeleccionada.split("-");
+  let f=new Date(p[0],p[1]-1,p[2]);
 
-  let texto = fecha.toLocaleDateString("es-MX",{
+  fechaTexto.innerText=f.toLocaleDateString("es-MX",{
     weekday:"long",
     day:"numeric",
     month:"long"
   });
-
-  document.getElementById("fechaTexto").innerText = texto;
 }
 
-// 📋 EVENTOS
+/* EVENTOS */
 function renderDia(){
-  let cont=document.getElementById("hoy");
-  cont.innerHTML="";
+  hoy.innerHTML="";
 
   let eventos=db.eventos.filter(e=>e.fecha===fechaSeleccionada);
 
@@ -83,41 +81,33 @@ function renderDia(){
 
       div.innerHTML=`
       <label>
+      <span>${ev.hora} ${ev.evento}</span>
       <input type="checkbox" ${ev.done?"checked":""}
       onclick="toggleEvento('${ev.id}')">
-      ${ev.hora} ${ev.evento}
       </label>`;
 
-      cont.appendChild(div);
+      hoy.appendChild(div);
     });
   }else{
-    cont.innerText="Sin pendientes";
+    hoy.innerText="Sin pendientes";
   }
 }
 
-// ✔ toggle
 function toggleEvento(id){
-  let ev=db.eventos.find(e=>e.id===id);
+  let ev=db.eventos.find(e=>e.id==id);
   ev.done=!ev.done;
   save();
 }
 
-// ➕ agregar
+/* AGREGAR EVENTO */
 function agregarEvento(){
-  let f=fecha.value;
-  let h=hora.value;
-  let e=evento.value;
-
-  if(!f||!h||!e){
-    alert("Completa todo");
-    return;
-  }
+  if(!fecha.value||!hora.value||!evento.value)return;
 
   db.eventos.push({
     id:Date.now(),
-    fecha:f,
-    hora:h,
-    evento:e,
+    fecha:fecha.value,
+    hora:hora.value,
+    evento:evento.value,
     done:false
   });
 
@@ -125,7 +115,7 @@ function agregarEvento(){
   renderDia();
 }
 
-// ✔ CHECKLIST + RACHA
+/* CHECKLIST */
 document.querySelectorAll("[data-check]").forEach(el=>{
   let k=el.dataset.check;
   el.checked=db.checks[k]||false;
@@ -147,24 +137,30 @@ document.querySelectorAll("[data-check]").forEach(el=>{
   }
 });
 
-// 📊 ESTADO
+/* ESTADO PRO */
 function estado(){
   let c=Object.values(db.checks).filter(v=>v).length;
+
+  estadoCard.className="card";
 
   if(c>=6){
     estadoTexto.innerText="🔥 Águila";
     estadoImg.src="aguila.png";
+    estadoCard.classList.add("aguila");
   }else if(c>=3){
     estadoTexto.innerText="⚖️ Medio";
     estadoImg.src="medio.png";
+    estadoCard.classList.add("medio");
   }else{
     estadoTexto.innerText="❄️ Balgham";
     estadoImg.src="balgham.png";
+    estadoCard.classList.add("balgham");
   }
 }
+
 estado();
 
-// 🧠 MENSAJE
+/* MENSAJE */
 function mensaje(){
   let h=new Date().getHours();
 
@@ -172,17 +168,19 @@ function mensaje(){
   else if(h<18) mensaje.innerText="Enfócate";
   else mensaje.innerText="Descansa";
 }
+
 mensaje();
 
-// 💧 AGUA
+/* AGUA */
 function agregarAgua(){
   db.agua+=250;
   save();
   agua.innerText=db.agua+" ml";
 }
+
 agua.innerText=db.agua+" ml";
 
-// 💰 GASTOS
+/* GASTOS */
 function addGasto(){
   let m=parseFloat(monto.value);
   let c=categoria.value;
@@ -207,9 +205,10 @@ function renderGastos(){
 
   total.innerText=t;
 }
+
 renderGastos();
 
-// 🚀 INIT
+/* INIT */
 generarSemana();
 mostrarFecha();
 renderDia();
