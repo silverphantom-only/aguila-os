@@ -480,6 +480,16 @@ option { background: var(--card); }
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.water-pct {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  align-self: flex-start;
+}
+
+.water-pct.done { color: var(--green); }
+
 .water-goal {
   font-size: 11px;
   color: var(--text-muted);
@@ -695,3 +705,26 @@ option { background: var(--card); }
 .eagle-big-state.aguila {
   animation: pulse-gold 2.5s ease-in-out infinite;
 }
+
+/* ===== NOTES ===== */
+.notes-textarea {
+  width: 100%;
+  min-height: 110px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 12px 14px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.18s;
+}
+
+.notes-textarea:focus { border-color: var(--gold); }
+.notes-textarea::placeholder { color: var(--text-muted); }
+
+/* ===== WORK CHECKLIST ===== */
+.work-card.hidden { display: none; }
