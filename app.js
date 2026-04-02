@@ -114,6 +114,7 @@ function selectDay(key) {
   buildWeekGrid();
   renderDayView();
   renderEvents();
+  syncEventDateInput();
 }
 
 /* ============================================================
@@ -182,25 +183,40 @@ function renderStreak() {
    EVENTOS
    ============================================================ */
 
+/* Pre-carga la fecha del día seleccionado en el input de fecha */
+function syncEventDateInput() {
+  const el = document.getElementById('eventDate');
+  if (el) el.value = selectedDateKey;
+}
+
 function addEvent() {
+  const dateEl = document.getElementById('eventDate');
   const timeEl = document.getElementById('eventTime');
   const textEl = document.getElementById('eventText');
-  const time   = timeEl.value.trim();
-  const text   = textEl.value.trim();
 
-  if (!time) { showToast('Selecciona una hora ⏰'); return; }
-  if (!text)  { showToast('Escribe la descripción 📝'); return; }
+  const dateVal = dateEl.value.trim();
+  const time    = timeEl.value.trim();
+  const text    = textEl.value.trim();
 
+  if (!dateVal) { showToast('Selecciona una fecha 📅'); return; }
+  if (!time)    { showToast('Selecciona una hora ⏰');  return; }
+  if (!text)    { showToast('Escribe la descripción 📝'); return; }
+
+  // dateVal viene del input como "YYYY-MM-DD" — lo usamos directamente como key
+  // (el input type="date" siempre devuelve ISO local, sin conversión UTC)
+  const targetKey  = dateVal;
   const allEvents  = load('aguilaEvents', {});
-  const dayEvents  = allEvents[selectedDateKey] || [];
+  const dayEvents  = allEvents[targetKey] || [];
 
-  // Evitar duplicados
-  const duplicate = dayEvents.some(e => e.time === time && e.text === text);
+  // Evitar duplicados: misma fecha + hora + texto
+  const duplicate = dayEvents.some(e => e.time === time && e.text.toLowerCase() === text.toLowerCase());
   if (duplicate) { showToast('Ese evento ya existe 🚫'); return; }
 
-  dayEvents.push({ time, text, done: false, id: Date.now() });
+  // Cada evento guarda su propia dateKey para que toggle/delete no dependan
+  // del día seleccionado en el calendario
+  dayEvents.push({ date: targetKey, time, text, done: false, id: Date.now() });
   dayEvents.sort((a, b) => a.time.localeCompare(b.time));
-  allEvents[selectedDateKey] = dayEvents;
+  allEvents[targetKey] = dayEvents;
   save('aguilaEvents', allEvents);
 
   timeEl.value = '';
@@ -211,20 +227,30 @@ function addEvent() {
   showToast('Evento agregado 🗂');
 }
 
-function toggleEvent(id) {
+/* Busca el evento por ID en TODAS las fechas para no depender de selectedDateKey */
+function _findEvent(id) {
   const allEvents = load('aguilaEvents', {});
-  const dayEvents = allEvents[selectedDateKey] || [];
-  const ev = dayEvents.find(e => e.id === id);
-  if (ev) ev.done = !ev.done;
-  allEvents[selectedDateKey] = dayEvents;
+  for (const key of Object.keys(allEvents)) {
+    const idx = allEvents[key].findIndex(e => e.id === id);
+    if (idx !== -1) return { allEvents, key, idx };
+  }
+  return null;
+}
+
+function toggleEvent(id) {
+  const found = _findEvent(id);
+  if (!found) return;
+  const { allEvents, key, idx } = found;
+  allEvents[key][idx].done = !allEvents[key][idx].done;
   save('aguilaEvents', allEvents);
   renderEvents();
 }
 
 function deleteEvent(id) {
-  const allEvents = load('aguilaEvents', {});
-  const dayEvents = (allEvents[selectedDateKey] || []).filter(e => e.id !== id);
-  allEvents[selectedDateKey] = dayEvents;
+  const found = _findEvent(id);
+  if (!found) return;
+  const { allEvents, key } = found;
+  allEvents[key] = allEvents[key].filter(e => e.id !== id);
   save('aguilaEvents', allEvents);
   renderEvents();
   buildWeekGrid();
@@ -232,26 +258,55 @@ function deleteEvent(id) {
 }
 
 function renderEvents() {
-  const list     = document.getElementById('eventList');
+  const list      = document.getElementById('eventList');
   const allEvents = load('aguilaEvents', {});
+
+  // Ordenar los del día seleccionado por hora
   const dayEvents = (allEvents[selectedDateKey] || []).slice();
   dayEvents.sort((a, b) => a.time.localeCompare(b.time));
+
   list.innerHTML = '';
 
   if (dayEvents.length === 0) {
-    list.innerHTML = '<p class="empty-msg">Sin eventos para este día</p>';
+    const empty = document.createElement('p');
+    empty.className   = 'empty-msg';
+    empty.textContent = 'Sin eventos para este día';
+    list.appendChild(empty);
     return;
   }
 
   dayEvents.forEach(ev => {
     const li = document.createElement('li');
     li.className = 'event-item' + (ev.done ? ' done' : '');
-    li.innerHTML = `
-      <input type="checkbox" class="event-cb" ${ev.done ? 'checked' : ''} onchange="toggleEvent(${ev.id})" />
-      <span class="event-time">${ev.time}</span>
-      <span class="event-text">${escapeHtml(ev.text)}</span>
-      <button class="btn btn-icon" onclick="deleteEvent(${ev.id})" title="Eliminar">✕</button>
-    `;
+
+    // Checkbox
+    const cb = document.createElement('input');
+    cb.type      = 'checkbox';
+    cb.className = 'event-cb';
+    cb.checked   = !!ev.done;
+    cb.addEventListener('change', () => toggleEvent(ev.id));
+
+    // Hora
+    const timeSpan = document.createElement('span');
+    timeSpan.className   = 'event-time';
+    timeSpan.textContent = ev.time;
+
+    // Texto (sin innerHTML para evitar XSS)
+    const textSpan = document.createElement('span');
+    textSpan.className   = 'event-text';
+    textSpan.textContent = ev.text;
+
+    // Botón eliminar
+    const delBtn = document.createElement('button');
+    delBtn.className = 'btn btn-icon';
+    delBtn.title     = 'Eliminar';
+    delBtn.textContent = '✕';
+    delBtn.addEventListener('click', () => deleteEvent(ev.id));
+
+    li.appendChild(cb);
+    li.appendChild(timeSpan);
+    li.appendChild(textSpan);
+    li.appendChild(delBtn);
     list.appendChild(li);
   });
 }
@@ -433,6 +488,7 @@ function init() {
   buildWeekGrid();
   renderDayView();
   renderEvents();
+  syncEventDateInput();
   renderChecklist();
   renderStreak();
   renderWater();
