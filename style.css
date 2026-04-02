@@ -328,13 +328,13 @@ option { background: var(--card); }
 /* ===== EVENTS ===== */
 .event-form {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-bottom: 14px;
-  align-items: center;
 }
 
-.event-form .input:first-child { width: 110px; }
+.event-text-input  { grid-column: 1 / -1; }
+.event-add-btn     { grid-column: 1 / -1; width: 100%; }
 
 .event-list {
   list-style: none;
@@ -695,4 +695,3 @@ option { background: var(--card); }
 .eagle-big-state.aguila {
   animation: pulse-gold 2.5s ease-in-out infinite;
 }
-
