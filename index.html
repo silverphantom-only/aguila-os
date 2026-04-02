@@ -11,71 +11,62 @@
 
 <h1>🦅 Aguila OS</h1>
 
-<!-- SEMANA -->
 <div class="card">
   <h2>📆 Semana</h2>
   <div id="semana"></div>
 </div>
 
-<!-- DÍA -->
 <div class="card">
   <h2>📍 Día</h2>
   <p id="fechaTexto"></p>
   <div id="hoy"></div>
 </div>
 
-<!-- DISCIPLINA -->
 <div class="card">
   <h2>🔥 Disciplina</h2>
   <p>Racha: <span id="streak">0</span></p>
 </div>
 
-<!-- MENSAJE -->
 <div class="card">
   <h2>🧠 Tonatiuh</h2>
   <p id="mensaje"></p>
 </div>
 
-<!-- ESTADO -->
-<div class="card">
+<div class="card" id="estadoCard">
   <h2>📊 Estado</h2>
   <img id="estadoImg" src="balgham.png">
   <p id="estadoTexto"></p>
 </div>
 
-<!-- CHECKLIST -->
 <div class="card">
   <h2>✔️ Checklist Diario</h2>
 
-  <label><input type="checkbox" data-check="resp"> Respiración</label>
-  <label><input type="checkbox" data-check="entreno"> Entrenamiento</label>
-  <label><input type="checkbox" data-check="des"> Desayuno</label>
+  <label><span>Respiración</span><input type="checkbox" data-check="resp"></label>
+  <label><span>Entrenamiento</span><input type="checkbox" data-check="entreno"></label>
+  <label><span>Desayuno</span><input type="checkbox" data-check="des"></label>
 
-  <label><input type="checkbox" data-check="wa"> WhatsApp</label>
-  <label><input type="checkbox" data-check="gm"> Gmail</label>
-  <label><input type="checkbox" data-check="res"> Reservas</label>
-  <label><input type="checkbox" data-check="gas"> Gasolina</label>
-  <label><input type="checkbox" data-check="cier"> Cierre</label>
-  <label><input type="checkbox" data-check="ctrl"> Control</label>
+  <label><span>WhatsApp</span><input type="checkbox" data-check="wa"></label>
+  <label><span>Gmail</span><input type="checkbox" data-check="gm"></label>
+  <label><span>Reservas</span><input type="checkbox" data-check="res"></label>
+  <label><span>Gasolina</span><input type="checkbox" data-check="gas"></label>
+  <label><span>Cierre</span><input type="checkbox" data-check="cier"></label>
+  <label><span>Control</span><input type="checkbox" data-check="ctrl"></label>
 </div>
 
-<!-- EVENTOS -->
 <div class="card">
-  <h2>➕ Agendar Evento</h2>
+  <h2>➕ Evento</h2>
   <input type="date" id="fecha">
   <input type="time" id="hora">
   <input type="text" id="evento" placeholder="Ej: Dentista">
   <button onclick="agregarEvento()">Agregar</button>
 </div>
 
-<!-- AGUA -->
 <div class="card">
   <h2>💧 Agua</h2>
   <p id="agua">0 ml</p>
   <button onclick="agregarAgua()">+250 ml</button>
 </div>
 
-<!-- GASTOS -->
 <div class="card">
   <h2>💰 Gastos</h2>
   <input id="monto" placeholder="Monto">
