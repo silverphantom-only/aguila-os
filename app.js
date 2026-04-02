@@ -62,18 +62,24 @@ function renderDia(){
 
   listaEventos.innerHTML = "";
 
-  let eventos = db.eventos.filter(e => e.fecha === fechaSeleccionada);
+  let eventos = db.eventos
+    .filter(e => e.fecha === fechaSeleccionada)
+    .sort((a,b)=> a.hora.localeCompare(b.hora));
 
   if(eventos.length){
     eventos.forEach(ev=>{
       let div = document.createElement("div");
+      div.className = "evento";
 
       div.innerHTML = `
-      <label>
         <span>${ev.hora} ${ev.texto}</span>
-        <input type="checkbox" ${ev.done?"checked":""}
-        onchange="toggleEvento(${ev.id})">
-      </label>
+
+        <div style="display:flex; gap:8px;">
+          <input type="checkbox" ${ev.done?"checked":""}
+          onchange="toggleEvento(${ev.id})">
+
+          <button onclick="eliminarEvento(${ev.id})" class="btn-delete">✕</button>
+        </div>
       `;
 
       listaEventos.appendChild(div);
@@ -83,9 +89,20 @@ function renderDia(){
   }
 }
 
-/* EVENTOS */
+/* AGREGAR EVENTO */
 function agregarEvento(){
   if(!fecha.value || !hora.value || !texto.value) return;
+
+  let existe = db.eventos.find(e =>
+    e.fecha === fecha.value &&
+    e.hora === hora.value &&
+    e.texto === texto.value
+  );
+
+  if(existe){
+    alert("Este evento ya existe");
+    return;
+  }
 
   db.eventos.push({
     id: Date.now(),
@@ -99,10 +116,20 @@ function agregarEvento(){
   renderDia();
 }
 
+/* TOGGLE */
 function toggleEvento(id){
   let ev = db.eventos.find(e => e.id === id);
   ev.done = !ev.done;
   save();
+}
+
+/* ELIMINAR */
+function eliminarEvento(id){
+  if(!confirm("¿Eliminar este evento?")) return;
+
+  db.eventos = db.eventos.filter(e => e.id !== id);
+  save();
+  renderDia();
 }
 
 /* CHECKLIST */
