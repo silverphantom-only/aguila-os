@@ -39,6 +39,16 @@ const CHECKLIST_ITEMS = [
   '🌙 Dormir a tiempo',
 ];
 
+// Checklist de trabajo: id único + etiqueta
+const WORK_ITEMS = [
+  { id: 'whatsapp',  label: '💬 WhatsApp'  },
+  { id: 'gmail',     label: '📧 Gmail'     },
+  { id: 'reservas',  label: '📋 Reservas'  },
+  { id: 'gasolina',  label: '⛽ Gasolina'  },
+  { id: 'cierre',    label: '🔒 Cierre'    },
+  { id: 'control',   label: '📊 Control'   },
+];
+
 let selectedDateKey = todayKey();
 
 /* ─── localStorage helpers ─── */
@@ -66,24 +76,34 @@ function showToast(msg) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
 }
 
+/* ─── Seguridad ─── */
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 /* ============================================================
    CALENDARIO SEMANAL
    ============================================================ */
 
 function buildWeekGrid() {
-  const grid    = document.getElementById('weekGrid');
+  const grid   = document.getElementById('weekGrid');
   grid.innerHTML = '';
 
-  const today   = new Date();
-  const todayK  = todayKey();
-
-  // Semana que contiene selectedDateKey
-  const selDate = parseLocalDate(selectedDateKey);
-  const dow     = selDate.getDay(); // 0=dom
+  const todayK     = todayKey();
+  const selDate    = parseLocalDate(selectedDateKey);
+  const dow        = selDate.getDay();
   const startOfWeek = new Date(selDate);
   startOfWeek.setDate(selDate.getDate() - dow);
 
-  const allEvents = load('aguilaEvents', {});
+  // Eventos: array plano → indexar por fecha para punto verde
+  const allEvents = load('aguilaEvents', []);
+  const datesWithEvents = new Set(allEvents.map(e => e.date));
 
   for (let i = 0; i < 7; i++) {
     const d   = new Date(startOfWeek);
@@ -92,11 +112,9 @@ function buildWeekGrid() {
 
     const cell = document.createElement('div');
     cell.className = 'day-cell';
-    if (key === todayK)         cell.classList.add('today');
+    if (key === todayK)          cell.classList.add('today');
     if (key === selectedDateKey) cell.classList.add('selected');
-
-    const events = allEvents[key] || [];
-    if (events.length > 0)      cell.classList.add('has-events');
+    if (datesWithEvents.has(key)) cell.classList.add('has-events');
 
     cell.innerHTML = `
       <span class="day-abbr">${DAYS_ES[d.getDay()]}</span>
@@ -115,6 +133,8 @@ function selectDay(key) {
   renderDayView();
   renderEvents();
   syncEventDateInput();
+  renderNotes();
+  renderWorkChecklist();
 }
 
 /* ============================================================
@@ -122,26 +142,18 @@ function selectDay(key) {
    ============================================================ */
 
 function renderDayView() {
-  const d     = parseLocalDate(selectedDateKey);
-  const dayN  = document.getElementById('dayName');
-  const dayF  = document.getElementById('dayFullDate');
-  const btn   = document.getElementById('streakBtn');
+  const d    = parseLocalDate(selectedDateKey);
+  const dayN = document.getElementById('dayName');
+  const dayF = document.getElementById('dayFullDate');
+  const btn  = document.getElementById('streakBtn');
 
-  const dayName = DAYS_ES[d.getDay()];
-  const full    = `${d.getDate()} de ${MONTHS_ES[d.getMonth()]} de ${d.getFullYear()}`;
+  dayN.textContent = DAYS_ES[d.getDay()].toUpperCase();
+  dayF.textContent = `${d.getDate()} de ${MONTHS_ES[d.getMonth()]} de ${d.getFullYear()}`;
 
-  dayN.textContent = dayName.toUpperCase();
-  dayF.textContent = full;
-
-  // Mostrar si la racha ya fue marcada hoy
   const streakData = load('aguilaStreak', { count: 0, lastDate: '' });
-  if (selectedDateKey === todayKey() && streakData.lastDate === todayKey()) {
-    btn.textContent = '✅ Día marcado';
-    btn.classList.add('done');
-  } else {
-    btn.textContent = '✅ Marcar día';
-    btn.classList.remove('done');
-  }
+  const markedToday = selectedDateKey === todayKey() && streakData.lastDate === todayKey();
+  btn.textContent = markedToday ? '✅ Día marcado' : '✅ Marcar día';
+  btn.classList.toggle('done', markedToday);
 }
 
 /* ============================================================
@@ -149,14 +161,13 @@ function renderDayView() {
    ============================================================ */
 
 function registerStreak() {
-  const tk  = todayKey();
+  const tk = todayKey();
   if (selectedDateKey !== tk) {
     showToast('Solo puedes marcar el día de hoy 🗓');
     return;
   }
 
   const streakData = load('aguilaStreak', { count: 0, lastDate: '' });
-
   if (streakData.lastDate === tk) {
     showToast('¡Ya marcaste hoy! 🔥');
     return;
@@ -180,10 +191,10 @@ function renderStreak() {
 }
 
 /* ============================================================
-   EVENTOS
+   EVENTOS — array plano único en localStorage
+   Estructura: aguilaEvents = [{ id, date, time, text, done }, …]
    ============================================================ */
 
-/* Pre-carga la fecha del día seleccionado en el input de fecha */
 function syncEventDateInput() {
   const el = document.getElementById('eventDate');
   if (el) el.value = selectedDateKey;
@@ -194,30 +205,24 @@ function addEvent() {
   const timeEl = document.getElementById('eventTime');
   const textEl = document.getElementById('eventText');
 
-  const dateVal = dateEl.value.trim();
-  const time    = timeEl.value.trim();
-  const text    = textEl.value.trim();
+  const date = dateEl.value.trim();
+  const time = timeEl.value.trim();
+  const text = textEl.value.trim();
 
-  if (!dateVal) { showToast('Selecciona una fecha 📅'); return; }
-  if (!time)    { showToast('Selecciona una hora ⏰');  return; }
-  if (!text)    { showToast('Escribe la descripción 📝'); return; }
+  if (!date) { showToast('Selecciona una fecha 📅'); return; }
+  if (!time) { showToast('Selecciona una hora ⏰');  return; }
+  if (!text) { showToast('Escribe la descripción 📝'); return; }
 
-  // dateVal viene del input como "YYYY-MM-DD" — lo usamos directamente como key
-  // (el input type="date" siempre devuelve ISO local, sin conversión UTC)
-  const targetKey  = dateVal;
-  const allEvents  = load('aguilaEvents', {});
-  const dayEvents  = allEvents[targetKey] || [];
+  const events = load('aguilaEvents', []);
 
-  // Evitar duplicados: misma fecha + hora + texto
-  const duplicate = dayEvents.some(e => e.time === time && e.text.toLowerCase() === text.toLowerCase());
-  if (duplicate) { showToast('Ese evento ya existe 🚫'); return; }
+  // Evitar duplicados: misma fecha + hora + texto (case-insensitive)
+  const dup = events.some(
+    e => e.date === date && e.time === time && e.text.toLowerCase() === text.toLowerCase()
+  );
+  if (dup) { showToast('Ese evento ya existe 🚫'); return; }
 
-  // Cada evento guarda su propia dateKey para que toggle/delete no dependan
-  // del día seleccionado en el calendario
-  dayEvents.push({ date: targetKey, time, text, done: false, id: Date.now() });
-  dayEvents.sort((a, b) => a.time.localeCompare(b.time));
-  allEvents[targetKey] = dayEvents;
-  save('aguilaEvents', allEvents);
+  events.push({ id: Date.now(), date, time, text, done: false });
+  save('aguilaEvents', events);
 
   timeEl.value = '';
   textEl.value = '';
@@ -227,79 +232,61 @@ function addEvent() {
   showToast('Evento agregado 🗂');
 }
 
-/* Busca el evento por ID en TODAS las fechas para no depender de selectedDateKey */
-function _findEvent(id) {
-  const allEvents = load('aguilaEvents', {});
-  for (const key of Object.keys(allEvents)) {
-    const idx = allEvents[key].findIndex(e => e.id === id);
-    if (idx !== -1) return { allEvents, key, idx };
-  }
-  return null;
-}
-
 function toggleEvent(id) {
-  const found = _findEvent(id);
-  if (!found) return;
-  const { allEvents, key, idx } = found;
-  allEvents[key][idx].done = !allEvents[key][idx].done;
-  save('aguilaEvents', allEvents);
+  const events = load('aguilaEvents', []);
+  const ev = events.find(e => e.id === id);
+  if (!ev) return;
+  ev.done = !ev.done;
+  save('aguilaEvents', events);
   renderEvents();
 }
 
 function deleteEvent(id) {
-  const found = _findEvent(id);
-  if (!found) return;
-  const { allEvents, key } = found;
-  allEvents[key] = allEvents[key].filter(e => e.id !== id);
-  save('aguilaEvents', allEvents);
+  const events = load('aguilaEvents', []).filter(e => e.id !== id);
+  save('aguilaEvents', events);
   renderEvents();
   buildWeekGrid();
   showToast('Evento eliminado 🗑');
 }
 
 function renderEvents() {
-  const list      = document.getElementById('eventList');
-  const allEvents = load('aguilaEvents', {});
-
-  // Ordenar los del día seleccionado por hora
-  const dayEvents = (allEvents[selectedDateKey] || []).slice();
-  dayEvents.sort((a, b) => a.time.localeCompare(b.time));
-
+  const list = document.getElementById('eventList');
   list.innerHTML = '';
 
-  if (dayEvents.length === 0) {
-    const empty = document.createElement('p');
-    empty.className   = 'empty-msg';
-    empty.textContent = 'Sin eventos para este día';
-    list.appendChild(empty);
+  // Filtrar por día seleccionado y ordenar por hora
+  const events = load('aguilaEvents', [])
+    .filter(e => e.date === selectedDateKey)
+    .sort((a, b) => a.time.localeCompare(b.time));
+
+  if (events.length === 0) {
+    const p = document.createElement('p');
+    p.className   = 'empty-msg';
+    p.textContent = 'Sin eventos para este día';
+    list.appendChild(p);
     return;
   }
 
-  dayEvents.forEach(ev => {
+  events.forEach(ev => {
     const li = document.createElement('li');
     li.className = 'event-item' + (ev.done ? ' done' : '');
 
-    // Checkbox
     const cb = document.createElement('input');
     cb.type      = 'checkbox';
     cb.className = 'event-cb';
     cb.checked   = !!ev.done;
     cb.addEventListener('change', () => toggleEvent(ev.id));
 
-    // Hora
     const timeSpan = document.createElement('span');
     timeSpan.className   = 'event-time';
     timeSpan.textContent = ev.time;
 
-    // Texto (sin innerHTML para evitar XSS)
     const textSpan = document.createElement('span');
     textSpan.className   = 'event-text';
     textSpan.textContent = ev.text;
 
-    // Botón eliminar
     const delBtn = document.createElement('button');
-    delBtn.className = 'btn btn-icon';
-    delBtn.title     = 'Eliminar';
+    delBtn.className   = 'btn btn-icon';
+    delBtn.title       = 'Eliminar';
     delBtn.textContent = '✕';
     delBtn.addEventListener('click', () => deleteEvent(ev.id));
 
@@ -312,7 +299,28 @@ function renderEvents() {
 }
 
 /* ============================================================
-   CHECKLIST DIARIO
+   NOTAS DEL DÍA
+   Estructura: aguilaNotes = { "YYYY-MM-DD": "texto…", … }
+   ============================================================ */
+
+function saveNotes() {
+  const text  = document.getElementById('dayNotes').value;
+  const notes = load('aguilaNotes', {});
+  if (text.trim() === '') {
+    delete notes[selectedDateKey];          // limpia entradas vacías
+  } else {
+    notes[selectedDateKey] = text;
+  }
+  save('aguilaNotes', notes);
+}
+
+function renderNotes() {
+  const notes = load('aguilaNotes', {});
+  document.getElementById('dayNotes').value = notes[selectedDateKey] || '';
+}
+
+/* ============================================================
+   CHECKLIST DIARIO (global, no por día)
    ============================================================ */
 
 function renderChecklist() {
@@ -325,11 +333,20 @@ function renderChecklist() {
     const li = document.createElement('li');
     li.className = 'check-item' + (checked ? ' checked' : '');
 
-    li.innerHTML = `
-      <input type="checkbox" class="check-cb" id="chk${i}" ${checked ? 'checked' : ''} onchange="toggleCheck(${i})" />
-      <label class="check-label" for="chk${i}">${label}</label>
-    `;
+    const cb = document.createElement('input');
+    cb.type      = 'checkbox';
+    cb.className = 'check-cb';
+    cb.id        = `chk${i}`;
+    cb.checked   = checked;
+    cb.addEventListener('change', () => toggleCheck(i));
 
+    const lbl = document.createElement('label');
+    lbl.className   = 'check-label';
+    lbl.htmlFor     = `chk${i}`;
+    lbl.textContent = label;
+
+    li.appendChild(cb);
+    li.appendChild(lbl);
     ul.appendChild(li);
   });
 
@@ -344,37 +361,71 @@ function toggleCheck(index) {
 }
 
 /* ============================================================
+   CHECKLIST DE TRABAJO
+   Solo lunes (1) a sábado (6). Se reinicia cada día automáticamente.
+   Estructura: aguilaWork = { "YYYY-MM-DD": { whatsapp: true, … }, … }
+   ============================================================ */
+
+function renderWorkChecklist() {
+  const card = document.getElementById('workCard');
+  const d    = parseLocalDate(selectedDateKey);
+  const dow  = d.getDay(); // 0=dom, 6=sáb
+
+  // Ocultar en domingo
+  if (dow === 0) {
+    card.classList.add('hidden');
+    return;
+  }
+  card.classList.remove('hidden');
+
+  const allWork  = load('aguilaWork', {});
+  const dayState = allWork[selectedDateKey] || {};
+
+  const ul = document.getElementById('workChecklist');
+  ul.innerHTML = '';
+
+  WORK_ITEMS.forEach(item => {
+    const checked = !!dayState[item.id];
+    const li = document.createElement('li');
+    li.className = 'check-item' + (checked ? ' checked' : '');
+
+    const cb = document.createElement('input');
+    cb.type      = 'checkbox';
+    cb.className = 'check-cb';
+    cb.id        = `work-${item.id}`;
+    cb.checked   = checked;
+    cb.addEventListener('change', () => toggleWorkItem(item.id));
+
+    const lbl = document.createElement('label');
+    lbl.className   = 'check-label';
+    lbl.htmlFor     = `work-${item.id}`;
+    lbl.textContent = item.label;
+
+    li.appendChild(cb);
+    li.appendChild(lbl);
+    ul.appendChild(li);
+  });
+}
+
+function toggleWorkItem(itemId) {
+  const allWork  = load('aguilaWork', {});
+  if (!allWork[selectedDateKey]) allWork[selectedDateKey] = {};
+  allWork[selectedDateKey][itemId] = !allWork[selectedDateKey][itemId];
+  save('aguilaWork', allWork);
+  renderWorkChecklist();
+}
+
+/* ============================================================
    ESTADO ÁGUILA
    ============================================================ */
 
-// Exactamente 3 niveles según los requisitos:
-// 0–2 tareas → Bajo | 3–5 → Medio | 6+ → Águila
 const EAGLE_LEVELS = [
-  {
-    minTasks: 0,
-    icon:     '❄️',
-    label:    'Bajo',
-    sub:      'Empieza completando tareas del checklist',
-    cls:      '',
-  },
-  {
-    minTasks: 3,
-    icon:     '⚖️',
-    label:    'Medio',
-    sub:      'Buen avance — sigue empujando',
-    cls:      '',
-  },
-  {
-    minTasks: 6,
-    icon:     '🦅',
-    label:    'Águila',
-    sub:      '¡Modo Águila activado! Racha imparable',
-    cls:      'aguila',
-  },
+  { minTasks: 0, icon: '❄️', label: 'Bajo',   sub: 'Empieza completando tareas del checklist', cls: '' },
+  { minTasks: 3, icon: '⚖️', label: 'Medio',  sub: 'Buen avance — sigue empujando',            cls: '' },
+  { minTasks: 6, icon: '🦅', label: 'Águila', sub: '¡Modo Águila activado! Racha imparable',   cls: 'aguila' },
 ];
 
 function _getLevel(completed) {
-  // Recorre de mayor a menor para devolver el nivel más alto alcanzado
   for (let i = EAGLE_LEVELS.length - 1; i >= 0; i--) {
     if (completed >= EAGLE_LEVELS[i].minTasks) return EAGLE_LEVELS[i];
   }
@@ -386,32 +437,23 @@ function updateEagleState() {
   const completed = Object.values(state).filter(Boolean).length;
   const total     = CHECKLIST_ITEMS.length;
   const pct       = total ? Math.round((completed / total) * 100) : 0;
+  const level     = _getLevel(completed);
 
-  const level = _getLevel(completed);
-
-  // ── Header (ícono + etiqueta pequeña) ──
   document.getElementById('stateIcon').textContent  = level.icon;
   document.getElementById('stateLabel').textContent = level.label;
 
-  // ── Card "Nivel Águila" ──
   const bigState = document.getElementById('eagleBigState');
   bigState.textContent = level.icon;
   bigState.className   = 'eagle-big-state' + (level.cls ? ` ${level.cls}` : '');
 
   document.getElementById('eagleBigLabel').textContent = level.label;
 
-  // Texto dinámico de contexto
   const subEl = document.querySelector('.eagle-sub');
   if (subEl) subEl.textContent = level.sub;
 
-  // Barra de progreso porcentual
   document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${completed} / ${total} tareas (${pct}%)`;
 
-  // Progreso numérico: "4 / 8 tareas (50%)"
-  document.getElementById('progressText').textContent =
-    `${completed} / ${total} tareas (${pct}%)`;
-
-  // Guardar snapshot del estado en localStorage para persistencia
   save('aguilaEagleState', { completed, total, label: level.label, pct });
 }
 
@@ -445,20 +487,16 @@ function renderWater() {
   const pct   = Math.min(Math.round((total / GOAL) * 100), 100);
   const done  = total >= GOAL;
 
-  document.getElementById('waterTotal').textContent   = `${total} / ${GOAL} ml`;
-  document.getElementById('waterBar').style.width     = pct + '%';
+  document.getElementById('waterTotal').textContent = `${total} / ${GOAL} ml`;
+  document.getElementById('waterBar').style.width   = pct + '%';
 
   const pctEl = document.getElementById('waterPct');
   pctEl.textContent = pct + '%';
   pctEl.classList.toggle('done', done);
 
-  const goalEl = document.getElementById('waterGoalMsg');
-  if (done) {
-    goalEl.textContent = '✅ ¡Meta diaria alcanzada!';
-  } else {
-    const remaining = GOAL - total;
-    goalEl.textContent = `Faltan ${remaining} ml para la meta`;
-  }
+  document.getElementById('waterGoalMsg').textContent = done
+    ? '✅ ¡Meta diaria alcanzada!'
+    : `Faltan ${GOAL - total} ml para la meta`;
 }
 
 /* ============================================================
@@ -492,7 +530,7 @@ function renderExpenses() {
   const list     = document.getElementById('expenseList');
   const totalEl  = document.getElementById('expenseTotal');
   const expenses = load('aguilaExpenses', []);
-  list.innerHTML  = '';
+  list.innerHTML = '';
 
   let total = 0;
   expenses.forEach(e => {
@@ -500,9 +538,7 @@ function renderExpenses() {
     const li = document.createElement('li');
     li.className = 'expense-item';
     li.innerHTML = `
-      <div>
-        <div class="expense-cat">${escapeHtml(e.cat)}</div>
-      </div>
+      <div><div class="expense-cat">${escapeHtml(e.cat)}</div></div>
       <span class="expense-amt">$${e.amount.toFixed(2)}</span>
       <button class="btn btn-icon" onclick="deleteExpense(${e.id})" title="Eliminar">✕</button>
     `;
@@ -517,19 +553,6 @@ function renderExpenses() {
 }
 
 /* ============================================================
-   SEGURIDAD — escapeHtml
-   ============================================================ */
-
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-/* ============================================================
    INICIALIZACIÓN
    ============================================================ */
 
@@ -538,7 +561,9 @@ function init() {
   renderDayView();
   renderEvents();
   syncEventDateInput();
+  renderNotes();
   renderChecklist();
+  renderWorkChecklist();
   renderStreak();
   renderWater();
   renderExpenses();
