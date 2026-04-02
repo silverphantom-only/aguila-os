@@ -54,9 +54,10 @@
     <section class="card events-card">
       <h2 class="card-title">🗂 Eventos del día</h2>
       <div class="event-form">
+        <input type="date" id="eventDate" class="input" />
         <input type="time" id="eventTime" class="input" />
-        <input type="text" id="eventText" class="input" placeholder="Descripción del evento…" />
-        <button class="btn btn-green" onclick="addEvent()">+ Agregar</button>
+        <input type="text" id="eventText" class="input event-text-input" placeholder="Descripción del evento…" />
+        <button class="btn btn-green event-add-btn" onclick="addEvent()">+ Agregar</button>
       </div>
       <ul class="event-list" id="eventList"></ul>
     </section>
@@ -128,4 +129,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-
