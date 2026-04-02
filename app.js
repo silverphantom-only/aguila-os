@@ -1,15 +1,19 @@
-const KEY = "aguila_base";
+const KEY = "aguila_pro";
 
 let db = JSON.parse(localStorage.getItem(KEY)) || {
   eventos: [],
-  checks: {}
+  checks: {},
+  agua: 0,
+  gastos: [],
+  streak: 0,
+  lastCheck: null
 };
 
 function save(){
   localStorage.setItem(KEY, JSON.stringify(db));
 }
 
-/* FECHA SEGURA */
+/* FECHA */
 function fechaISO(d = new Date()){
   d.setHours(12);
   return d.toISOString().split("T")[0];
@@ -89,7 +93,7 @@ function renderDia(){
   }
 }
 
-/* AGREGAR EVENTO */
+/* EVENTOS */
 function agregarEvento(){
   if(!fecha.value || !hora.value || !texto.value) return;
 
@@ -100,7 +104,7 @@ function agregarEvento(){
   );
 
   if(existe){
-    alert("Este evento ya existe");
+    alert("Ya existe");
     return;
   }
 
@@ -116,23 +120,20 @@ function agregarEvento(){
   renderDia();
 }
 
-/* TOGGLE */
 function toggleEvento(id){
   let ev = db.eventos.find(e => e.id === id);
   ev.done = !ev.done;
   save();
 }
 
-/* ELIMINAR */
 function eliminarEvento(id){
-  if(!confirm("¿Eliminar este evento?")) return;
-
+  if(!confirm("Eliminar evento?")) return;
   db.eventos = db.eventos.filter(e => e.id !== id);
   save();
   renderDia();
 }
 
-/* CHECKLIST */
+/* CHECKLIST + DISCIPLINA */
 document.querySelectorAll("[data-id]").forEach(el=>{
   let id = el.dataset.id;
 
@@ -140,10 +141,75 @@ document.querySelectorAll("[data-id]").forEach(el=>{
 
   el.onchange = ()=>{
     db.checks[id] = el.checked;
+
+    let hoy = new Date().toDateString();
+
+    if(db.lastCheck !== hoy){
+      db.streak++;
+      db.lastCheck = hoy;
+    }
+
     save();
+    actualizarEstado();
+    actualizarUI();
   };
 });
+
+/* ESTADO */
+function actualizarEstado(){
+  let total = Object.values(db.checks).filter(v=>v).length;
+
+  if(total >= 3){
+    estadoTexto.innerText = "🦅 Modo Águila";
+  }else if(total >= 1){
+    estadoTexto.innerText = "⚖️ En progreso";
+  }else{
+    estadoTexto.innerText = "❄️ Bajo";
+  }
+}
+
+/* AGUA */
+function sumarAgua(){
+  db.agua += 250;
+  save();
+  actualizarUI();
+}
+
+/* GASTOS */
+function agregarGasto(){
+  let m = parseFloat(monto.value);
+  let c = categoria.value;
+
+  if(!m) return;
+
+  db.gastos.push({m,c});
+  save();
+  renderGastos();
+}
+
+function renderGastos(){
+  listaGastos.innerHTML = "";
+  let t = 0;
+
+  db.gastos.forEach(g=>{
+    let li = document.createElement("li");
+    li.innerText = `${g.c} - $${g.m}`;
+    listaGastos.appendChild(li);
+    t += g.m;
+  });
+
+  total.innerText = t;
+}
+
+/* UI */
+function actualizarUI(){
+  agua.innerText = db.agua + " ml";
+  streak.innerText = db.streak;
+}
 
 /* INIT */
 renderSemana();
 renderDia();
+renderGastos();
+actualizarUI();
+actualizarEstado();
