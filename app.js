@@ -438,14 +438,27 @@ function resetWater() {
 }
 
 function renderWater() {
-  const tk      = todayKey();
-  const water   = load('aguilaWater', {});
-  const total   = water[tk] || 0;
-  const goal    = 2000;
-  const pct     = Math.min((total / goal) * 100, 100);
+  const tk    = todayKey();
+  const water = load('aguilaWater', {});
+  const total = water[tk] || 0;
+  const GOAL  = 2000;
+  const pct   = Math.min(Math.round((total / GOAL) * 100), 100);
+  const done  = total >= GOAL;
 
-  document.getElementById('waterTotal').textContent = `${total} ml`;
-  document.getElementById('waterBar').style.width   = pct + '%';
+  document.getElementById('waterTotal').textContent   = `${total} / ${GOAL} ml`;
+  document.getElementById('waterBar').style.width     = pct + '%';
+
+  const pctEl = document.getElementById('waterPct');
+  pctEl.textContent = pct + '%';
+  pctEl.classList.toggle('done', done);
+
+  const goalEl = document.getElementById('waterGoalMsg');
+  if (done) {
+    goalEl.textContent = '✅ ¡Meta diaria alcanzada!';
+  } else {
+    const remaining = GOAL - total;
+    goalEl.textContent = `Faltan ${remaining} ml para la meta`;
+  }
 }
 
 /* ============================================================
