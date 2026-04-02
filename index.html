@@ -19,61 +19,23 @@
 <div class="card">
   <h2>📍 Día</h2>
   <p id="fechaTexto"></p>
-  <div id="hoy"></div>
+  <div id="listaEventos"></div>
 </div>
 
 <div class="card">
-  <h2>🔥 Disciplina</h2>
-  <p>Racha: <span id="streak">0</span></p>
-</div>
-
-<div class="card">
-  <h2>🧠 Tonatiuh</h2>
-  <p id="mensaje"></p>
-</div>
-
-<div class="card" id="estadoCard">
-  <h2>📊 Estado</h2>
-  <img id="estadoImg" src="balgham.png">
-  <p id="estadoTexto"></p>
-</div>
-
-<div class="card">
-  <h2>✔️ Checklist Diario</h2>
-
-  <label><span>Respiración</span><input type="checkbox" data-check="resp"></label>
-  <label><span>Entrenamiento</span><input type="checkbox" data-check="entreno"></label>
-  <label><span>Desayuno</span><input type="checkbox" data-check="des"></label>
-
-  <label><span>WhatsApp</span><input type="checkbox" data-check="wa"></label>
-  <label><span>Gmail</span><input type="checkbox" data-check="gm"></label>
-  <label><span>Reservas</span><input type="checkbox" data-check="res"></label>
-  <label><span>Gasolina</span><input type="checkbox" data-check="gas"></label>
-  <label><span>Cierre</span><input type="checkbox" data-check="cier"></label>
-  <label><span>Control</span><input type="checkbox" data-check="ctrl"></label>
-</div>
-
-<div class="card">
-  <h2>➕ Evento</h2>
+  <h2>➕ Nuevo Evento</h2>
   <input type="date" id="fecha">
   <input type="time" id="hora">
-  <input type="text" id="evento" placeholder="Ej: Dentista">
+  <input type="text" id="texto" placeholder="Ej: Dentista">
   <button onclick="agregarEvento()">Agregar</button>
 </div>
 
 <div class="card">
-  <h2>💧 Agua</h2>
-  <p id="agua">0 ml</p>
-  <button onclick="agregarAgua()">+250 ml</button>
-</div>
+  <h2>✔ Checklist Diario</h2>
 
-<div class="card">
-  <h2>💰 Gastos</h2>
-  <input id="monto" placeholder="Monto">
-  <input id="categoria" placeholder="Categoría">
-  <button onclick="addGasto()">Agregar</button>
-  <ul id="listaGastos"></ul>
-  <p>Total: $<span id="total">0</span></p>
+  <label><span>Respiración</span><input type="checkbox" data-id="resp"></label>
+  <label><span>Entrenamiento</span><input type="checkbox" data-id="entreno"></label>
+  <label><span>Desayuno</span><input type="checkbox" data-id="des"></label>
 </div>
 
 <script src="app.js"></script>
