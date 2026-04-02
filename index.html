@@ -18,8 +18,8 @@
     </div>
     <div class="header-right">
       <div class="eagle-state" id="eagleState">
-        <span class="state-icon" id="stateIcon">🥚</span>
-        <span class="state-label" id="stateLabel">Inicio</span>
+        <span class="state-icon" id="stateIcon">❄️</span>
+        <span class="state-label" id="stateLabel">Bajo</span>
       </div>
       <div class="streak-badge">
         <span class="streak-fire">🔥</span>
@@ -62,10 +62,27 @@
       <ul class="event-list" id="eventList"></ul>
     </section>
 
+    <!-- NOTAS DEL DÍA -->
+    <section class="card notes-card">
+      <h2 class="card-title">📝 Notas del día</h2>
+      <textarea
+        id="dayNotes"
+        class="notes-textarea"
+        placeholder="Escribe tus notas para este día…"
+        oninput="saveNotes()"
+      ></textarea>
+    </section>
+
     <!-- CHECKLIST DIARIO -->
     <section class="card checklist-card">
       <h2 class="card-title">✔ Checklist diario</h2>
       <ul class="checklist" id="checklist"></ul>
+    </section>
+
+    <!-- CHECKLIST DE TRABAJO (lunes–sábado) -->
+    <section class="card work-card" id="workCard">
+      <h2 class="card-title">💼 Trabajo</h2>
+      <ul class="checklist" id="workChecklist"></ul>
     </section>
 
     <!-- AGUA Y GASTOS ROW -->
@@ -110,10 +127,10 @@
     <section class="card discipline-card">
       <h2 class="card-title">🦅 Nivel Águila</h2>
       <div class="eagle-progress">
-        <div class="eagle-big-state" id="eagleBigState">🥚</div>
+        <div class="eagle-big-state" id="eagleBigState">❄️</div>
         <div class="eagle-info">
-          <div class="eagle-big-label" id="eagleBigLabel">Inicio</div>
-          <div class="eagle-sub">Completa tu checklist para evolucionar</div>
+          <div class="eagle-big-label" id="eagleBigLabel">Bajo</div>
+          <div class="eagle-sub">Empieza completando tareas del checklist</div>
           <div class="progress-bar-wrap">
             <div class="progress-bar" id="progressBar"></div>
           </div>
