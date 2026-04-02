@@ -39,6 +39,32 @@
 
 </div>
 
+<div class="card">
+  <h2>🔥 Disciplina</h2>
+  <p>Racha: <span id="streak">0</span></p>
+</div>
+
+<div class="card">
+  <h2>🦅 Estado</h2>
+  <p id="estadoTexto"></p>
+</div>
+
+<div class="card">
+  <h2>💧 Agua</h2>
+  <p id="agua">0 ml</p>
+  <button onclick="sumarAgua()">+250 ml</button>
+</div>
+
+<div class="card">
+  <h2>💰 Gastos</h2>
+  <input id="monto" placeholder="Monto">
+  <input id="categoria" placeholder="Categoría">
+  <button onclick="agregarGasto()">Agregar</button>
+
+  <ul id="listaGastos"></ul>
+  <p>Total: $<span id="total">0</span></p>
+</div>
+
 <script src="app.js"></script>
 
 </body>
