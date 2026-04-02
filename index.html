@@ -1,71 +1,131 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aguila OS</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Águila OS</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 </head>
-
 <body>
 
-<h1>🦅 Aguila OS</h1>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <span class="logo-icon">🦅</span>
+      <span class="logo-text">ÁGUILA OS</span>
+    </div>
+    <div class="header-right">
+      <div class="eagle-state" id="eagleState">
+        <span class="state-icon" id="stateIcon">🥚</span>
+        <span class="state-label" id="stateLabel">Inicio</span>
+      </div>
+      <div class="streak-badge">
+        <span class="streak-fire">🔥</span>
+        <span class="streak-count" id="streakCount">0</span>
+      </div>
+    </div>
+  </header>
 
-<div class="card">
-  <h2>📆 Semana</h2>
-  <div id="semana"></div>
-</div>
+  <!-- MAIN CONTENT -->
+  <main class="main">
 
-<div class="card">
-  <h2>📍 Día</h2>
-  <p id="fechaTexto"></p>
-  <div id="listaEventos"></div>
-</div>
+    <!-- CALENDARIO SEMANAL -->
+    <section class="card calendar-card">
+      <h2 class="card-title">📆 Semana</h2>
+      <div class="week-grid" id="weekGrid"></div>
+    </section>
 
-<div class="card">
-  <h2>➕ Nuevo Evento</h2>
-  <input type="date" id="fecha">
-  <input type="time" id="hora">
-  <input type="text" id="texto" placeholder="Ej: Dentista">
-  <button onclick="agregarEvento()">Agregar</button>
-</div>
+    <!-- VISTA DEL DÍA -->
+    <section class="card day-card">
+      <div class="day-header">
+        <div>
+          <div class="day-name" id="dayName">—</div>
+          <div class="day-full-date" id="dayFullDate">—</div>
+        </div>
+        <button class="streak-btn" id="streakBtn" onclick="registerStreak()">
+          ✅ Marcar día
+        </button>
+      </div>
+    </section>
 
-<div class="card">
-  <h2>✔ Checklist Diario</h2>
+    <!-- EVENTOS -->
+    <section class="card events-card">
+      <h2 class="card-title">🗂 Eventos del día</h2>
+      <div class="event-form">
+        <input type="time" id="eventTime" class="input" />
+        <input type="text" id="eventText" class="input" placeholder="Descripción del evento…" />
+        <button class="btn btn-green" onclick="addEvent()">+ Agregar</button>
+      </div>
+      <ul class="event-list" id="eventList"></ul>
+    </section>
 
-  <label><span>Respiración</span><input type="checkbox" data-id="resp"></label>
-  <label><span>Entrenamiento</span><input type="checkbox" data-id="entreno"></label>
-  <label><span>Desayuno</span><input type="checkbox" data-id="des"></label>
+    <!-- CHECKLIST DIARIO -->
+    <section class="card checklist-card">
+      <h2 class="card-title">✔ Checklist diario</h2>
+      <ul class="checklist" id="checklist"></ul>
+    </section>
 
-</div>
+    <!-- AGUA Y GASTOS ROW -->
+    <div class="two-col">
 
-<div class="card">
-  <h2>🔥 Disciplina</h2>
-  <p>Racha: <span id="streak">0</span></p>
-</div>
+      <!-- AGUA -->
+      <section class="card water-card">
+        <h2 class="card-title">💧 Agua</h2>
+        <div class="water-display">
+          <div class="water-total" id="waterTotal">0 ml</div>
+          <div class="water-bar-wrap">
+            <div class="water-bar" id="waterBar"></div>
+          </div>
+          <div class="water-goal">Meta: 2000 ml</div>
+        </div>
+        <button class="btn btn-green full-btn" onclick="addWater()">+250 ml</button>
+        <button class="btn btn-ghost full-btn" onclick="resetWater()">Reiniciar</button>
+      </section>
 
-<div class="card">
-  <h2>🦅 Estado</h2>
-  <p id="estadoTexto"></p>
-</div>
+      <!-- GASTOS -->
+      <section class="card expenses-card">
+        <h2 class="card-title">💰 Gastos</h2>
+        <div class="expense-form">
+          <input type="number" id="expenseAmount" class="input" placeholder="Monto $" min="0" />
+          <select id="expenseCategory" class="input">
+            <option value="Comida">🍔 Comida</option>
+            <option value="Transporte">🚗 Transporte</option>
+            <option value="Salud">💊 Salud</option>
+            <option value="Ocio">🎮 Ocio</option>
+            <option value="Otro">📦 Otro</option>
+          </select>
+          <button class="btn btn-green" onclick="addExpense()">+</button>
+        </div>
+        <div class="expense-total">Total: $<span id="expenseTotal">0</span></div>
+        <ul class="expense-list" id="expenseList"></ul>
+      </section>
 
-<div class="card">
-  <h2>💧 Agua</h2>
-  <p id="agua">0 ml</p>
-  <button onclick="sumarAgua()">+250 ml</button>
-</div>
+    </div>
 
-<div class="card">
-  <h2>💰 Gastos</h2>
-  <input id="monto" placeholder="Monto">
-  <input id="categoria" placeholder="Categoría">
-  <button onclick="agregarGasto()">Agregar</button>
+    <!-- DISCIPLINA / ESTADO ÁGUILA -->
+    <section class="card discipline-card">
+      <h2 class="card-title">🦅 Nivel Águila</h2>
+      <div class="eagle-progress">
+        <div class="eagle-big-state" id="eagleBigState">🥚</div>
+        <div class="eagle-info">
+          <div class="eagle-big-label" id="eagleBigLabel">Inicio</div>
+          <div class="eagle-sub">Completa tu checklist para evolucionar</div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+          <div class="progress-text" id="progressText">0 / 0 tareas</div>
+        </div>
+      </div>
+    </section>
 
-  <ul id="listaGastos"></ul>
-  <p>Total: $<span id="total">0</span></p>
-</div>
+  </main>
 
-<script src="app.js"></script>
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
 
+  <script src="app.js"></script>
 </body>
 </html>
+
