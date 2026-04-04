@@ -19,6 +19,11 @@ body {
   padding: 20px;
 }
 
+h1 {
+  text-align: center;
+}
+
+/* CARDS */
 .card {
   background: #111a2b;
   padding: 15px;
@@ -26,21 +31,24 @@ body {
   margin-bottom: 15px;
 }
 
+/* INPUTS */
 input, button {
   width: 100%;
   padding: 10px;
   margin-top: 8px;
   border-radius: 8px;
   border: none;
+  font-size: 14px;
 }
 
 button {
   background: #22c55e;
   color: white;
   font-weight: bold;
+  cursor: pointer;
 }
 
-/* LISTA */
+/* LISTAS */
 ul {
   list-style: none;
   padding: 0;
@@ -56,16 +64,21 @@ li {
   justify-content: space-between;
 }
 
-/* CHECK */
+/* CHECK LISTA */
 .item {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
+.item input {
+  width: auto;
+}
+
+/* COMPLETADO */
 .done {
   text-decoration: line-through;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 /* PROGRESO */
@@ -74,12 +87,26 @@ li {
   background: #1e293b;
   border-radius: 10px;
   overflow: hidden;
+  margin-top: 10px;
 }
 
 .bar {
   height: 100%;
   width: 0%;
   background: #22c55e;
+  transition: 0.3s;
+}
+
+/* CHECK TRABAJO */
+.checklist label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.checklist input {
+  width: auto;
 }
 </style>
 
@@ -111,26 +138,26 @@ li {
   <h2>📌 Eventos</h2>
 
   <input type="time" id="hora">
-  <input type="text" id="evento" placeholder="Evento">
+  <input type="text" id="evento" placeholder="Descripción del evento">
 
   <button onclick="agregarEvento()">Agregar</button>
 
   <ul id="listaEventos"></ul>
 </div>
 
-<!-- 🧠 TRABAJO (CHECKLIST REAL) -->
-<div class="card">
+<!-- 🧠 TRABAJO -->
+<div class="card checklist">
   <h2>🧠 Trabajo</h2>
 
-  <label><input type="checkbox" onchange="toggleCheck('whatsapp')"> WhatsApp</label><br>
-  <label><input type="checkbox" onchange="toggleCheck('gmail')"> Gmail</label><br>
-  <label><input type="checkbox" onchange="toggleCheck('reservas')"> Reservas</label><br>
-  <label><input type="checkbox" onchange="toggleCheck('gasolina')"> Gasolina</label><br>
-  <label><input type="checkbox" onchange="toggleCheck('cierre')"> Cierre</label><br>
+  <label><input type="checkbox" onchange="toggleCheck('whatsapp')"> WhatsApp</label>
+  <label><input type="checkbox" onchange="toggleCheck('gmail')"> Gmail</label>
+  <label><input type="checkbox" onchange="toggleCheck('reservas')"> Reservas</label>
+  <label><input type="checkbox" onchange="toggleCheck('gasolina')"> Gasolina</label>
+  <label><input type="checkbox" onchange="toggleCheck('cierre')"> Cierre</label>
   <label><input type="checkbox" onchange="toggleCheck('control')"> Control</label>
 </div>
 
-<!-- 📌 PENDIENTES (CON CHECK) -->
+<!-- 📌 PENDIENTES -->
 <div class="card">
   <h2>📌 Pendientes</h2>
 
