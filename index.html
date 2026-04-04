@@ -19,8 +19,8 @@
 <nav class="topnav">
   <div class="topnav-brand"><span class="brandico">🦅</span>MODO ÁGUILA</div>
   <div class="topnav-links">
-    <a href="index.html"      class="topnav-link active">Hoy</a>
-    <a href="calendario.html" class="topnav-link">Cal</a>
+    <a href="index.html"      class="topnav-link active">HOY</a>
+    <a href="calendario.html" class="topnav-link">CAL</a>
   </div>
 </nav>
 
@@ -50,12 +50,11 @@
     <button class="ico-btn del" id="installClose">✕</button>
   </div>
 
-  <!-- 🎯 FOCO DEL DÍA -->
+  <!-- 🎯 FOCO -->
   <div class="sec"><div class="sec-ico">🎯</div><div class="sec-title">Foco del Día</div></div>
   <div class="card">
     <div class="foco-display" id="focoDisplay"></div>
-    <textarea class="foco-edit-area" id="focoInput" rows="2"
-              placeholder="Escribe tu objetivo principal del día..."></textarea>
+    <textarea class="foco-edit-area" id="focoInput" rows="2" placeholder="Escribe tu objetivo principal del día..."></textarea>
     <div class="foco-actions">
       <button class="btn btn-gold"  id="focoSaveBtn"   onclick="saveFoco()"   style="display:none">✓ Guardar</button>
       <button class="btn btn-ghost" id="focoEditBtn"   onclick="editFoco()">✏️ Editar foco</button>
@@ -63,61 +62,88 @@
     </div>
   </div>
 
-  <!-- ✅ CHECKLIST DIARIO -->
+  <!-- 📖 ESTUDIO BÍBLICO -->
   <div class="sec">
-    <div class="sec-ico">✅</div>
-    <div class="sec-title">Checklist Diario</div>
+    <div class="sec-ico">📖</div>
+    <div class="sec-title">Estudio Bíblico</div>
+    <div class="sec-badge" id="bibliaBadge">—</div>
+  </div>
+  <div class="card biblia-card">
+
+    <div class="biblia-field-group">
+      <label class="biblia-label">📌 Pasaje del día</label>
+      <input type="text" class="field" id="bibliaPasaje"
+             placeholder="Ej: Juan 3:16  /  Salmos 23:1-6..."
+             oninput="autosaveBiblia()"/>
+    </div>
+
+    <div class="biblia-field-group">
+      <label class="biblia-label">📜 Versículo</label>
+      <textarea class="field biblia-textarea" id="bibliaVersiculo" rows="3"
+                placeholder="Escribe el texto bíblico aquí..."
+                oninput="autosaveBiblia()"></textarea>
+    </div>
+
+    <div class="biblia-field-group biblia-exegesis-wrap">
+      <label class="biblia-label biblia-label-gold">✍️ Exégesis personal</label>
+      <div class="biblia-exegesis-hint">Contexto · Significado original · Interpretación</div>
+      <textarea class="field biblia-textarea biblia-exegesis" id="bibliaExegesis" rows="5"
+                placeholder="¿Qué dice el texto? ¿En qué contexto fue escrito?&#10;¿Qué significa para ti hoy?"
+                oninput="autosaveBiblia()"></textarea>
+    </div>
+
+    <div class="biblia-field-group">
+      <label class="biblia-label">🔑 Palabras clave</label>
+      <input type="text" class="field" id="bibliaPalabras"
+             placeholder="Ej: fe, gracia, salvación, amor..."
+             oninput="autosaveBiblia()"/>
+    </div>
+
+    <div class="biblia-field-group" style="margin-bottom:0">
+      <label class="biblia-label">🌱 Aplicación práctica</label>
+      <textarea class="field biblia-textarea" id="bibliaAplicacion" rows="3"
+                placeholder="¿Cómo aplicarás este pasaje hoy en tu vida?"
+                oninput="autosaveBiblia()"></textarea>
+    </div>
+
+    <div class="biblia-footer">
+      <span class="biblia-saved" id="bibliaSaved">✓ Guardado</span>
+      <button class="btn btn-ghost btn-sm" onclick="clearBiblia()">↺ Limpiar día</button>
+    </div>
+  </div>
+
+  <!-- ✅ CHECKLIST -->
+  <div class="sec">
+    <div class="sec-ico">✅</div><div class="sec-title">Checklist Diario</div>
     <div class="sec-badge" id="chkBadge">0/9</div>
   </div>
   <div class="card">
     <div class="chk-group">
       <div class="chk-group-label">🌅 Rutina Matutina</div>
       <div class="chk-row" data-id="respiracion" onclick="toggleChk(this)">
-        <div class="chk-box"></div><span class="chk-emoji">🫁</span>
-        <span class="chk-label">Respiración</span>
+        <div class="chk-box"></div><span class="chk-emoji">🫁</span><span class="chk-label">Respiración</span>
       </div>
       <div class="chk-row" data-id="calistenia" onclick="toggleChk(this)">
-        <div class="chk-box"></div><span class="chk-emoji">💪</span>
-        <span class="chk-label">Calistenia</span>
+        <div class="chk-box"></div><span class="chk-emoji">💪</span><span class="chk-label">Calistenia</span>
       </div>
       <div class="chk-row" data-id="desayuno" onclick="toggleChk(this)">
-        <div class="chk-box"></div><span class="chk-emoji">🥗</span>
-        <span class="chk-label">Desayuno</span>
+        <div class="chk-box"></div><span class="chk-emoji">🥗</span><span class="chk-label">Desayuno</span>
       </div>
     </div>
     <div class="chk-group" style="margin-bottom:0">
       <div class="chk-group-label">💼 Trabajo</div>
-      <div class="chk-row" data-id="whatsapp"  onclick="toggleChk(this)">
-        <div class="chk-box"></div><span class="chk-emoji">📱</span>
-        <span class="chk-label">WhatsApp (chat por chat)</span>
-      </div>
-      <div class="chk-row" data-id="gmail"     onclick="toggleChk(this)">
-        <div class="chk-box"></div><span class="chk-emoji">📧</span>
-        <span class="chk-label">Gmail</span>
-      </div>
-      <div class="chk-row" data-id="reservas"  onclick="toggleChk(this)">
-        <div class="chk-box"></div><span class="chk-emoji">📋</span>
-        <span class="chk-label">Reservas</span>
-      </div>
-      <div class="chk-row" data-id="gasolinas" onclick="toggleChk(this)">
-        <div class="chk-box"></div><span class="chk-emoji">⛽</span>
-        <span class="chk-label">Gasolinas</span>
-      </div>
-      <div class="chk-row" data-id="cierre"    onclick="toggleChk(this)">
-        <div class="chk-box"></div><span class="chk-emoji">🔒</span>
-        <span class="chk-label">Cierre</span>
-      </div>
-      <div class="chk-row" data-id="control"   onclick="toggleChk(this)">
-        <div class="chk-box"></div><span class="chk-emoji">📊</span>
-        <span class="chk-label">Control día siguiente</span>
-      </div>
+      <div class="chk-row" data-id="whatsapp"  onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-emoji">📱</span><span class="chk-label">WhatsApp (chat por chat)</span></div>
+      <div class="chk-row" data-id="gmail"     onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-emoji">📧</span><span class="chk-label">Gmail</span></div>
+      <div class="chk-row" data-id="reservas"  onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-emoji">📋</span><span class="chk-label">Reservas</span></div>
+      <div class="chk-row" data-id="gasolinas" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-emoji">⛽</span><span class="chk-label">Gasolinas</span></div>
+      <div class="chk-row" data-id="cierre"    onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-emoji">🔒</span><span class="chk-label">Cierre</span></div>
+      <div class="chk-row" data-id="control"   onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-emoji">📊</span><span class="chk-label">Control día siguiente</span></div>
     </div>
   </div>
 
-  <!-- ⏰ AGENDA DEL DÍA -->
+  <!-- ⏰ AGENDA -->
   <div class="sec" id="agenda">
-    <div class="sec-ico">⏰</div>
-    <div class="sec-title">Agenda del Día</div>
+    <div class="sec-ico">⏰</div><div class="sec-title">Agenda del Día</div>
     <div class="sec-badge" id="agendaBadge">0</div>
   </div>
   <div class="card">
@@ -131,10 +157,9 @@
     </div>
   </div>
 
-  <!-- 📌 PENDIENTES -->
+  <!-- 📌 PENDIENTES con checklist -->
   <div class="sec">
-    <div class="sec-ico">📌</div>
-    <div class="sec-title">Pendientes</div>
+    <div class="sec-ico">📌</div><div class="sec-title">Pendientes</div>
     <div class="sec-badge" id="pendBadge">0</div>
   </div>
   <div class="card">
@@ -142,38 +167,41 @@
       <input type="text" class="field" id="pendText" placeholder="Agregar pendiente..." maxlength="160"/>
       <button class="btn btn-gold btn-sq" onclick="addPend()">+</button>
     </div>
-    <div class="list-stack" id="pendList">
-      <div class="empty-msg"><span class="emi">✨</span>Todo al día</div>
+    <!-- Activos -->
+    <div id="pendActiveSection">
+      <div class="pend-section-label">⬜ Por completar</div>
+      <div class="list-stack" id="pendActiveList">
+        <div class="empty-msg"><span class="emi">✨</span>Todo al día</div>
+      </div>
+    </div>
+    <!-- Completados -->
+    <div class="hidden" id="pendDoneSection">
+      <div class="pend-section-label" style="color:var(--green);margin-top:14px">✅ Completados</div>
+      <div class="list-stack" id="pendDoneList"></div>
     </div>
   </div>
 
-  <!-- 📝 NOTAS DEL DÍA -->
+  <!-- 📝 NOTAS -->
   <div class="sec"><div class="sec-ico">📝</div><div class="sec-title">Notas del Día</div></div>
   <div class="card">
-    <textarea class="notes-area" id="notesArea"
-              placeholder="Escribe libremente… ideas, reflexiones, recordatorios..."></textarea>
+    <textarea class="notes-area" id="notesArea" placeholder="Escribe libremente… ideas, reflexiones, recordatorios..."></textarea>
     <div class="notes-saved" id="notesSaved">✓ Guardado</div>
   </div>
 
   <!-- 💧 AGUA -->
   <div class="sec">
-    <div class="sec-ico">💧</div>
-    <div class="sec-title">Hidratación</div>
+    <div class="sec-ico">💧</div><div class="sec-title">Hidratación</div>
     <div class="sec-badge" id="waterBadge">0/2000ml</div>
   </div>
   <div class="card">
     <div class="water-layout">
       <div class="water-vessel">
-        <div class="vessel-body">
-          <div class="vessel-fill" id="vesselFill" style="height:0%"></div>
-        </div>
+        <div class="vessel-body"><div class="vessel-fill" id="vesselFill" style="height:0%"></div></div>
       </div>
       <div class="water-stats">
         <div class="water-val" id="waterVal">0 ml</div>
         <div class="water-sub">Meta diaria: 2,000 ml</div>
-        <div class="water-mini-bar">
-          <div class="water-mini-fill" id="waterMiniFill" style="width:0%"></div>
-        </div>
+        <div class="water-mini-bar"><div class="water-mini-fill" id="waterMiniFill" style="width:0%"></div></div>
       </div>
     </div>
     <div class="water-btns">
@@ -196,10 +224,10 @@
       </defs>
     </svg>
     <div class="dur-chips">
-      <button class="chip on" data-m="10" onclick="setDur(10,this)">10 min</button>
-      <button class="chip"    data-m="25" onclick="setDur(25,this)">25 min</button>
-      <button class="chip"    data-m="45" onclick="setDur(45,this)">45 min</button>
-      <button class="chip"    data-m="60" onclick="setDur(60,this)">1 hora</button>
+      <button class="chip on" onclick="setDur(10,this)">10 min</button>
+      <button class="chip"    onclick="setDur(25,this)">25 min</button>
+      <button class="chip"    onclick="setDur(45,this)">45 min</button>
+      <button class="chip"    onclick="setDur(60,this)">1 hora</button>
     </div>
     <div class="timer-ring">
       <svg viewBox="0 0 148 148">
@@ -218,7 +246,7 @@
     <div class="focus-msg" id="focusMsg">NO MULTITAREA · TERMINA LO QUE EMPIEZAS</div>
   </div>
 
-  <!-- 🧠 RECOMENDACIÓN DEL DÍA -->
+  <!-- 🧠 RECOMENDACIÓN -->
   <div class="sec"><div class="sec-ico">🧠</div><div class="sec-title">Recomendación del Día</div></div>
   <div id="recContainer"></div>
   <div style="text-align:center;margin-top:8px">
@@ -229,21 +257,9 @@
   <div class="sec"><div class="sec-ico">🫁</div><div class="sec-title">Respiración Sanguíneo</div></div>
   <div class="card">
     <div class="breath-phases">
-      <div class="phase-box">
-        <div class="phase-num">4</div>
-        <div class="phase-lbl">Inhalar</div>
-        <div class="phase-desc">Por la nariz</div>
-      </div>
-      <div class="phase-box">
-        <div class="phase-num">4</div>
-        <div class="phase-lbl">Sostener</div>
-        <div class="phase-desc">Retener aire</div>
-      </div>
-      <div class="phase-box">
-        <div class="phase-num">6</div>
-        <div class="phase-lbl">Exhalar</div>
-        <div class="phase-desc">Por la boca</div>
-      </div>
+      <div class="phase-box"><div class="phase-num">4</div><div class="phase-lbl">Inhalar</div><div class="phase-desc">Por la nariz</div></div>
+      <div class="phase-box"><div class="phase-num">4</div><div class="phase-lbl">Sostener</div><div class="phase-desc">Retener aire</div></div>
+      <div class="phase-box"><div class="phase-num">6</div><div class="phase-lbl">Exhalar</div><div class="phase-desc">Por la boca</div></div>
     </div>
     <div class="breath-btn-wrap">
       <button class="btn btn-gold" id="breathBtn" onclick="toggleBreath()">▶ Iniciar guía</button>
@@ -263,18 +279,10 @@
 </main>
 
 <nav class="botnav">
-  <a href="#hero"    class="botnav-item on">
-    <span class="botnav-ico">🦅</span><span class="botnav-lbl">Estado</span>
-  </a>
-  <a href="#agenda"  class="botnav-item">
-    <span class="botnav-ico">⏰</span><span class="botnav-lbl">Agenda</span>
-  </a>
-  <a href="calendario.html" class="botnav-item">
-    <span class="botnav-ico">📅</span><span class="botnav-lbl">Cal</span>
-  </a>
-  <a href="#focosec" class="botnav-item">
-    <span class="botnav-ico">🔥</span><span class="botnav-lbl">Foco</span>
-  </a>
+  <a href="#hero"    class="botnav-item on"><span class="botnav-ico">🦅</span><span class="botnav-lbl">Estado</span></a>
+  <a href="#agenda"  class="botnav-item"><span class="botnav-ico">⏰</span><span class="botnav-lbl">Agenda</span></a>
+  <a href="calendario.html" class="botnav-item"><span class="botnav-ico">📅</span><span class="botnav-lbl">Cal</span></a>
+  <a href="#focosec" class="botnav-item"><span class="botnav-ico">🔥</span><span class="botnav-lbl">Foco</span></a>
 </nav>
 
 <div class="toasts" id="toasts"></div>
