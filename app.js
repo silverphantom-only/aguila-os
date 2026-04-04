@@ -1,675 +1,428 @@
-/* ══════════════════════════════════════════════════════════
-   ÁGUILA OS — app.js
-   ══════════════════════════════════════════════════════════ */
+'use strict';
 
-/* ── ESTADO GLOBAL ── */
-var fechaActiva; // "YYYY-MM-DD"
+const SK       = 'ma2';
+const WATER_G  = 2000;
+const CHK_IDS  = ['respiracion','calistenia','desayuno',
+                  'whatsapp','gmail','reservas','gasolinas','cierre','control'];
+const CIRC     = 2 * Math.PI * 65;
 
-/* ── DEFINICIONES ── */
-var ACTIVACION_ITEMS = [
-  { id: 'respiracion', label: '🌬️ Respiración' },
-  { id: 'calistenia',  label: '💪 Calistenia'  },
-  { id: 'desayuno',    label: '🍳 Desayuno'     }
+const ESTADOS = [
+  { min:0,  max:25,  name:'SOMBRA',       img:'eagle1.png', cls:'s-sombra'    },
+  { min:25, max:50,  name:'DESPERTAR',    img:'eagle2.png', cls:'s-despertar' },
+  { min:50, max:75,  name:'ASCENSO',      img:'eagle3.png', cls:'s-ascenso'   },
+  { min:75, max:101, name:'MODO ÁGUILA',  img:'eagle4.png', cls:'s-aguila'    },
 ];
 
-var SALUD_ITEMS = [
-  { id: 'fluoxetina',  label: '💊 Tomé fluoxetina' },
-  { id: 'hidratacion', label: '💧 Hidratación'      }
+const RECS = [
+  { ico:'☀️', txt:'Sal al sol',            sub:'10 minutos de luz solar activan la serotonina. Sal ahora.' },
+  { ico:'🫁', txt:'Respira profundo',       sub:'Tres respiraciones 4-4-6. Activa tu sistema nervioso central.' },
+  { ico:'🎯', txt:'Una tarea a la vez',     sub:'El multitasking reduce el rendimiento 40%. Enfócate en una sola cosa.' },
+  { ico:'✅', txt:'Termina lo que empiezas',sub:'No abras nada nuevo sin cerrar lo anterior. La disciplina es terminar.' },
+  { ico:'📵', txt:'Evita distracciones',    sub:'Silencia notificaciones. Los primeros 90 min del día son oro puro.' },
+  { ico:'💧', txt:'Toma agua ahora',        sub:'La deshidratación leve reduce la concentración. Bebe un vaso.' },
+  { ico:'🚶', txt:'Mueve el cuerpo',        sub:'Levántate 2 minutos. Tu cerebro oxigenado rinde mejor.' },
+  { ico:'📓', txt:'Revisa tu foco',         sub:'¿Estás haciendo lo que importa? Vuelve a tu objetivo principal.' },
+  { ico:'🧘', txt:'Modo calma activa',      sub:'Relaja mandíbula, hombros y manos. La tensión bloquea el pensamiento.' },
+  { ico:'⚡', txt:'Actúa sin esperar',      sub:'El águila no espera motivación. La disciplina precede al sentimiento.' },
 ];
 
-var TRABAJO_ITEMS = [
-  { id: 'whatsapp', label: '💬 WhatsApp'  },
-  { id: 'gmail',    label: '📧 Gmail'     },
-  { id: 'reservas', label: '📋 Reservas'  },
-  { id: 'gasolina', label: '⛽ Gasolina'  },
-  { id: 'cierre',   label: '🔒 Cierre'    },
-  { id: 'control',  label: '📊 Control'   }
+let breathRunning  = false;
+let breathInterval = null;
+let breathPhaseIdx = 0;
+let breathSecLeft  = 0;
+const BREATH_PHASES = [
+  { lbl:'INHALA',  secs:4, cls:'inhale' },
+  { lbl:'SOSTÉN',  secs:4, cls:'hold'   },
+  { lbl:'EXHALA',  secs:6, cls:'exhale' },
 ];
 
-var VIDA_ITEMS = [
-  { id: 'esposa',  label: '👫 Tiempo con esposa' },
-  { id: 'familia', label: '👨‍👩‍👧 Familia'           },
-  { id: 'social',  label: '🤝 Social'             }
-];
+let focusRunning  = false;
+let focusTimer    = null;
+let focusDurSecs  = 10 * 60;
+let focusLeft     = 10 * 60;
 
-var MODOS = {
-  manana:  { icon: '🌅', label: 'Modo Mañana',  msg: 'Activa tu cuerpo y mente' },
-  trabajo: { icon: '💼', label: 'Modo Trabajo',  msg: 'Enfoca tu energía laboral' },
-  noche:   { icon: '🌙', label: 'Modo Noche',    msg: 'Estudia y reflexiona' },
-  dia:     { icon: '☀️', label: 'Modo Día',      msg: 'Mantén el ritmo' }
+let installEvt = null;
+let recIdx = Math.floor(Math.random() * RECS.length);
+
+/* ── Storage ── */
+const todayKey = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+const load = () => { try{ return JSON.parse(localStorage.getItem(SK)||'{}'); }catch{ return {}; } };
+const save = d => { try{ localStorage.setItem(SK,JSON.stringify(d)); }catch(e){} };
+const day  = () => {
+  const data=load(), k=todayKey();
+  if (!data[k]) data[k]={ checks:{}, foco:'', agenda:[], pending:[], notes:'', water:0 };
+  return { data, k, d: data[k] };
 };
 
-var ESTADOS = [
-  { min: 0,  icon: '❄️', label: 'Balgham', sub: 'Activa tus hábitos del día',     cls: '' },
-  { min: 35, icon: '⚖️', label: 'Medio',   sub: 'Buen avance, sigue adelante',     cls: '' },
-  { min: 70, icon: '🦅', label: 'Águila',  sub: '¡Modo Águila activado!',          cls: 'aguila' }
-];
+/* ── Boot ── */
+document.addEventListener('DOMContentLoaded', () => {
+  setDate();
+  initFoco();
+  initChecklist();
+  initAgenda();
+  initPending();
+  initNotes();
+  initWater();
+  initFocusTimer();
+  renderRec();
+  updateProgress();
 
-/* ══════════════════════════════════════════════════════════
-   UTILIDADES DE FECHA (sin bugs de zona horaria)
-   ══════════════════════════════════════════════════════════ */
+  q('#agText')?.addEventListener('keydown',  e => e.key==='Enter' && addAgenda());
+  q('#pendText')?.addEventListener('keydown', e => e.key==='Enter' && addPend());
+  q('#focoInput')?.addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); saveFoco(); } });
 
-function pad(n) { return String(n).padStart(2, '0'); }
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault(); installEvt=e;
+    q('#installBar')?.classList.remove('hide');
+  });
+  window.addEventListener('appinstalled', () => {
+    q('#installBar')?.classList.add('hide'); installEvt=null; toast('🦅 App instalada','ok');
+  });
+  q('#installBtn')?.addEventListener('click', doInstall);
+  q('#installClose')?.addEventListener('click', () => q('#installBar').classList.add('hide'));
 
-function hoy() {
-  var d = new Date();
-  return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  if ('serviceWorker' in navigator)
+    navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+});
+
+/* ── Utils ── */
+const q  = sel => document.querySelector(sel);
+const qa = sel => [...document.querySelectorAll(sel)];
+const esc = s => { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; };
+const clamp = (v,mn,mx) => Math.max(mn,Math.min(mx,v));
+
+function toast(msg, type='info'){
+  const c=q('#toasts'); if(!c) return;
+  const el=document.createElement('div');
+  el.className=`toast ${type}`; el.innerHTML=msg;
+  c.appendChild(el);
+  setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>el.remove(),260); },3200);
 }
 
-function fechaDesdeISO(iso) {
-  var p = iso.split('-');
-  return new Date(+p[0], +p[1] - 1, +p[2], 12, 0, 0);
+/* ── Date ── */
+function setDate(){
+  const el=q('#heroDate'); if(!el) return;
+  const d=new Date();
+  const dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  el.textContent=`${dias[d.getDay()]}, ${d.getDate()} de ${meses[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-function formatearFecha(iso) {
-  var d = fechaDesdeISO(iso);
-  var dias   = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-  var meses  = ['enero','febrero','marzo','abril','mayo','junio',
-                'julio','agosto','septiembre','octubre','noviembre','diciembre'];
-  return dias[d.getDay()] + ', ' + d.getDate() + ' de ' + meses[d.getMonth()] + ' ' + d.getFullYear();
+/* ── Progress ── */
+function calcProgress(){
+  const {d}=day();
+  const chkDone  = CHK_IDS.filter(id=>d.checks[id]).length;
+  const chkPct   = (chkDone/CHK_IDS.length)*50;
+  const waterPct = clamp(d.water/WATER_G,0,1)*20;
+  const agPct    = clamp(d.agenda.length/3,0,1)*15;
+  const focoPct  = d.foco.trim() ? 10 : 0;
+  const notesPct = d.notes.trim() ? 5  : 0;
+  return Math.round(clamp(chkPct+waterPct+agPct+focoPct+notesPct,0,100));
 }
 
-/* ══════════════════════════════════════════════════════════
-   LOCALSTORAGE
-   ══════════════════════════════════════════════════════════ */
-
-function guardar(clave, valor) {
-  try { localStorage.setItem(clave, JSON.stringify(valor)); } catch(e) {}
+function updateProgress(){
+  const pct    = calcProgress();
+  const estado = ESTADOS.find(e=>pct>=e.min&&pct<e.max)||ESTADOS[3];
+  const nameEl = q('#estadoName'), pctEl=q('#estadoPct'), barEl=q('#pbarFill');
+  if (nameEl) nameEl.textContent = estado.name;
+  if (pctEl)  pctEl.textContent  = pct+'%';
+  if (barEl)  barEl.style.width  = pct+'%';
+  const img=q('#eagleImg');
+  if (img) img.src = estado.img;
+  const ring=q('#eagleRing');
+  if (ring) ring.classList.toggle('active', pct>=75);
+  document.body.className = estado.cls;
 }
 
-function obtener(clave, porDefecto) {
-  try {
-    var raw = localStorage.getItem(clave);
-    return raw !== null ? JSON.parse(raw) : porDefecto;
-  } catch(e) { return porDefecto; }
+/* ── Foco ── */
+function initFoco(){ const {d}=day(); renderFocoDisplay(d.foco); }
+function renderFocoDisplay(text){
+  const el=q('#focoDisplay'); if(!el) return;
+  if (text&&text.trim()){ el.textContent=text; el.classList.remove('placeholder'); }
+  else { el.textContent='Sin foco definido hoy'; el.classList.add('placeholder'); }
+}
+function editFoco(){
+  const {d}=day();
+  const input=q('#focoInput'), saveBtn=q('#focoSaveBtn'), editBtn=q('#focoEditBtn');
+  const cancelBtn=q('#focoCancelBtn'), display=q('#focoDisplay');
+  input.value=d.foco||''; input.style.display='block'; display.style.display='none';
+  saveBtn.style.display='inline-flex'; cancelBtn.style.display='inline-flex'; editBtn.style.display='none';
+  input.focus();
+}
+function cancelFoco(){
+  const input=q('#focoInput'), saveBtn=q('#focoSaveBtn'), editBtn=q('#focoEditBtn');
+  const cancelBtn=q('#focoCancelBtn'), display=q('#focoDisplay');
+  input.style.display='none'; display.style.display='';
+  saveBtn.style.display='none'; cancelBtn.style.display='none'; editBtn.style.display='inline-flex';
+}
+function saveFoco(){
+  const input=q('#focoInput'); if(!input) return;
+  const text=input.value.trim();
+  const {data,k}=day(); data[k].foco=text; save(data);
+  renderFocoDisplay(text); cancelFoco(); updateProgress(); toast('🎯 Foco guardado','ok');
 }
 
-// Helpers para datos por fecha
-function getDia(seccion) {
-  var all = obtener('aguila_' + seccion, {});
-  return all[fechaActiva] || {};
+/* ── Checklist ── */
+function initChecklist(){
+  const {d}=day();
+  qa('.chk-row').forEach(row=>{ if(d.checks[row.dataset.id]) row.classList.add('done'); });
+  updateChkBadge();
+}
+function toggleChk(row){
+  row.classList.toggle('done');
+  const {data,k}=day(); data[k].checks[row.dataset.id]=row.classList.contains('done'); save(data);
+  updateChkBadge(); updateProgress();
+  if (row.classList.contains('done')){
+    row.style.transform='scale(.97)'; setTimeout(()=>row.style.transform='',140);
+    const done=CHK_IDS.filter(id=>data[k].checks[id]).length;
+    if (done===CHK_IDS.length) setTimeout(()=>toast('🦅 ¡Checklist completo!','ok'),300);
+  }
+}
+function updateChkBadge(){
+  const {d}=day();
+  const done=CHK_IDS.filter(id=>d.checks[id]).length;
+  const el=q('#chkBadge'); if(el) el.textContent=`${done}/${CHK_IDS.length}`;
 }
 
-function setDia(seccion, data) {
-  var all = obtener('aguila_' + seccion, {});
-  all[fechaActiva] = data;
-  guardar('aguila_' + seccion, all);
-}
-
-function getGlobal(clave, porDefecto) {
-  return obtener('aguila_' + clave, porDefecto);
-}
-
-function setGlobal(clave, valor) {
-  guardar('aguila_' + clave, valor);
-}
-
-/* ══════════════════════════════════════════════════════════
-   TOAST
-   ══════════════════════════════════════════════════════════ */
-
-var _tt = null;
-function toast(msg) {
-  var el = document.getElementById('toast');
-  if (!el) return;
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(_tt);
-  _tt = setTimeout(function() { el.classList.remove('show'); }, 2400);
-}
-
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-/* ══════════════════════════════════════════════════════════
-   RENDER GLOBAL
-   ══════════════════════════════════════════════════════════ */
-
-function renderTodo() {
-  renderFecha();
-  renderActivacion();
-  renderSalud();
-  renderAgua();
-  renderPendientes();
+/* ── Agenda ── */
+function initAgenda(){
+  const ti=q('#agTime');
+  if(ti){ const n=new Date(); ti.value=`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`; }
   renderAgenda();
-  renderTrabajo();
-  renderProyectos();
-  renderVida();
-  renderBibliaSaved();
-  renderEstado();
-  renderModo();
+}
+function addAgenda(){
+  const ti=q('#agTime'),tx=q('#agText'); if(!ti||!tx) return;
+  const text=tx.value.trim(); if(!text){ toast('⚠️ Escribe la actividad','warn'); return; }
+  const {data,k}=day();
+  data[k].agenda.push({ id:Date.now(), time:ti.value, text, done:false });
+  data[k].agenda.sort((a,b)=>a.time.localeCompare(b.time)); save(data);
+  tx.value=''; renderAgenda(); updateProgress();
+  saveToCalendar(k,{ id:Date.now(), time:ti.value, text, done:false });
+}
+function deleteAgenda(id){
+  const {data,k}=day(); data[k].agenda=data[k].agenda.filter(i=>i.id!==id);
+  save(data); renderAgenda(); updateProgress();
+}
+function toggleAgenda(id){
+  const {data,k}=day(); const it=data[k].agenda.find(i=>i.id===id);
+  if(it){ it.done=!it.done; save(data); renderAgenda(); }
+}
+function startEditAgenda(id){
+  const row=q(`[data-agid="${id}"]`); if(!row) return;
+  const {d}=day(); const it=d.agenda.find(i=>i.id===id); if(!it) return;
+  let er=row.querySelector('.item-edit-row');
+  if(er){ er.remove(); return; }
+  er=document.createElement('div'); er.className='item-edit-row';
+  er.innerHTML=`
+    <input type="time" class="field field-time" value="${it.time}" style="width:105px;flex:none"/>
+    <input type="text" class="field" value="${esc(it.text)}" placeholder="Actividad..."/>
+    <button class="btn btn-gold btn-sm" onclick="saveEditAgenda(${id},this)">✓</button>`;
+  row.appendChild(er); er.querySelector('input[type=text]').focus();
+}
+function saveEditAgenda(id,btn){
+  const er=btn.closest('.item-edit-row');
+  const time=er.querySelectorAll('input')[0].value;
+  const text=er.querySelectorAll('input')[1].value.trim();
+  if(!text){ toast('⚠️ Texto vacío','warn'); return; }
+  const {data,k}=day(); const it=data[k].agenda.find(i=>i.id===id);
+  if(it){ it.time=time; it.text=text; }
+  data[k].agenda.sort((a,b)=>a.time.localeCompare(b.time));
+  save(data); renderAgenda();
+}
+function renderAgenda(){
+  const list=q('#agendaList'); if(!list) return;
+  const {d}=day();
+  const badge=q('#agendaBadge'); if(badge) badge.textContent=d.agenda.length;
+  if(!d.agenda.length){ list.innerHTML='<div class="empty-msg"><span class="emi">📭</span>Sin actividades hoy</div>'; return; }
+  list.innerHTML=d.agenda.map(it=>`
+    <div class="agenda-item ${it.done?'done':''}" data-agid="${it.id}">
+      <button class="item-chk" onclick="toggleAgenda(${it.id})">${it.done?'✓':''}</button>
+      <span class="item-time">${it.time||'—'}</span>
+      <span class="item-text">${esc(it.text)}</span>
+      <div class="item-actions">
+        <button class="ico-btn edit" onclick="startEditAgenda(${it.id})">✏️</button>
+        <button class="ico-btn del"  onclick="deleteAgenda(${it.id})">✕</button>
+      </div>
+    </div>`).join('');
+}
+function saveToCalendar(dateKey,ev){
+  try{
+    const cd=JSON.parse(localStorage.getItem('ma2_cal')||'{}');
+    if(!cd[dateKey]) cd[dateKey]=[];
+    if(!cd[dateKey].find(e=>e.id===ev.id)) cd[dateKey].push(ev);
+    localStorage.setItem('ma2_cal',JSON.stringify(cd));
+  }catch(e){}
 }
 
-/* ══════════════════════════════════════════════════════════
-   FECHA
-   ══════════════════════════════════════════════════════════ */
-
-function renderFecha() {
-  var dd = document.getElementById('dateDisplay');
-  var di = document.getElementById('dateInput');
-  if (dd) dd.textContent = formatearFecha(fechaActiva);
-  if (di) di.value = fechaActiva;
+/* ── Pendientes ── */
+function initPending(){ renderPending(); }
+function addPend(){
+  const tx=q('#pendText'); if(!tx) return;
+  const text=tx.value.trim(); if(!text){ toast('⚠️ Escribe el pendiente','warn'); return; }
+  const {data,k}=day(); data[k].pending.push({ id:Date.now(), text, done:false }); save(data);
+  tx.value=''; renderPending(); updateProgress();
+}
+function togglePend(id){
+  const {data,k}=day(); const it=data[k].pending.find(i=>i.id===id);
+  if(it){ it.done=!it.done; save(data); renderPending(); if(it.done) toast('✅ Pendiente completado','ok'); }
+}
+function deletePend(id){
+  const {data,k}=day(); data[k].pending=data[k].pending.filter(i=>i.id!==id);
+  save(data); renderPending();
+}
+function renderPending(){
+  const list=q('#pendList'); if(!list) return;
+  const {d}=day();
+  const pending=d.pending.filter(i=>!i.done).length;
+  const badge=q('#pendBadge'); if(badge) badge.textContent=`${pending} pend.`;
+  if(!d.pending.length){ list.innerHTML='<div class="empty-msg"><span class="emi">✨</span>Todo al día</div>'; return; }
+  list.innerHTML=d.pending.map(it=>`
+    <div class="pend-item ${it.done?'done':''}">
+      <button class="item-chk" onclick="togglePend(${it.id})">${it.done?'✓':''}</button>
+      <span class="item-text">${esc(it.text)}</span>
+      <div class="item-actions"><button class="ico-btn del" onclick="deletePend(${it.id})">✕</button></div>
+    </div>`).join('');
 }
 
-function onFechaChange() {
-  var di = document.getElementById('dateInput');
-  if (di && di.value) {
-    fechaActiva = di.value;
-    renderTodo();
-  }
+/* ── Notas ── */
+let notesSaveTimer=null;
+function initNotes(){
+  const {d}=day(); const ta=q('#notesArea'); if(!ta) return;
+  ta.value=d.notes||'';
+  ta.addEventListener('input',()=>{ clearTimeout(notesSaveTimer); notesSaveTimer=setTimeout(autoSaveNotes,900); });
+}
+function autoSaveNotes(){
+  const ta=q('#notesArea'); if(!ta) return;
+  const {data,k}=day(); data[k].notes=ta.value; save(data);
+  const label=q('#notesSaved');
+  if(label){ label.classList.add('show'); setTimeout(()=>label.classList.remove('show'),2200); }
+  updateProgress();
 }
 
-/* ══════════════════════════════════════════════════════════
-   MODO AUTOMÁTICO
-   ══════════════════════════════════════════════════════════ */
-
-function renderModo() {
-  var h    = new Date().getHours();
-  var modo;
-  if (h >= 5  && h < 10) modo = MODOS.manana;
-  else if (h >= 10 && h < 19) modo = MODOS.trabajo;
-  else if (h >= 19 || h < 5)  modo = MODOS.noche;
-  else modo = MODOS.dia;
-
-  var el = document.getElementById('modePill');
-  if (el) el.textContent = modo.icon + ' ' + modo.label;
+/* ── Water ── */
+function initWater(){ const {d}=day(); renderWater(d.water); }
+function addWater(ml){
+  const {data,k}=day(); data[k].water=clamp(data[k].water+ml,0,WATER_G*1.5);
+  save(data); renderWater(data[k].water); updateProgress();
+  if(data[k].water>=WATER_G&&data[k].water-ml<WATER_G) toast('💧 ¡Meta de hidratación alcanzada!','ok');
+}
+function resetWater(){
+  const {data,k}=day(); data[k].water=0; save(data); renderWater(0); updateProgress();
+}
+function renderWater(ml){
+  const pct=clamp(ml/WATER_G*100,0,100);
+  const ve=q('#vesselFill'),wv=q('#waterVal'),wm=q('#waterMiniFill'),wb=q('#waterBadge');
+  if(ve) ve.style.height=pct+'%';
+  if(wv) wv.textContent=ml.toLocaleString('es')+' ml';
+  if(wm) wm.style.width=pct+'%';
+  if(wb) wb.textContent=`${ml}/${WATER_G}ml`;
 }
 
-/* ══════════════════════════════════════════════════════════
-   CHECKLIST GENÉRICO
-   ══════════════════════════════════════════════════════════ */
-
-function renderChecklist(ulId, items, seccion, onChange) {
-  var ul = document.getElementById(ulId);
-  if (!ul) return;
-  var state = getDia(seccion);
-  ul.innerHTML = '';
-
-  if (items.length === 0) {
-    ul.innerHTML = '<li class="empty-msg">Sin elementos</li>';
-    return;
-  }
-
-  items.forEach(function(item) {
-    var checked = !!state[item.id];
-    var li = document.createElement('li');
-    li.className = 'check-item' + (checked ? ' done-bg' : '');
-
-    var cb = document.createElement('input');
-    cb.type = 'checkbox'; cb.className = 'check-cb'; cb.checked = checked;
-    cb.addEventListener('change', function() {
-      var s = getDia(seccion);
-      s[item.id] = !s[item.id];
-      setDia(seccion, s);
-      renderChecklist(ulId, items, seccion, onChange);
-      if (onChange) onChange();
-    });
-
-    var lbl = document.createElement('label');
-    lbl.className = 'check-label'; lbl.textContent = item.label;
-
-    li.appendChild(cb);
-    li.appendChild(lbl);
-    ul.appendChild(li);
-  });
+/* ── Focus Timer ── */
+function initFocusTimer(){ renderTimer(focusLeft,focusDurSecs); }
+function setDur(min,btn){
+  if(focusRunning) return;
+  focusDurSecs=min*60; focusLeft=focusDurSecs; renderTimer(focusLeft,focusDurSecs);
+  qa('.dur-chips .chip').forEach(c=>c.classList.remove('on')); btn.classList.add('on');
 }
-
-function renderActivacion() {
-  renderChecklist('activacionList', ACTIVACION_ITEMS, 'activacion', renderEstado);
-}
-
-function renderSalud() {
-  renderChecklist('saludList', SALUD_ITEMS, 'salud', null);
-}
-
-function renderTrabajo() {
-  renderChecklist('trabajoList', TRABAJO_ITEMS, 'trabajo', renderEstado);
-}
-
-function renderVida() {
-  renderChecklist('vidaList', VIDA_ITEMS, 'vida', renderEstado);
-}
-
-/* ══════════════════════════════════════════════════════════
-   AGUA
-   ══════════════════════════════════════════════════════════ */
-
-function getAgua() {
-  var all = obtener('aguila_agua', {});
-  return all[fechaActiva] || 0;
-}
-
-function setAgua(ml) {
-  var all = obtener('aguila_agua', {});
-  all[fechaActiva] = ml;
-  guardar('aguila_agua', all);
-}
-
-function sumarAgua(ml) {
-  setAgua(getAgua() + ml);
-  renderAgua();
-  toast('💧 +' + ml + ' ml');
-}
-
-function resetAgua() {
-  setAgua(0);
-  renderAgua();
-  toast('Agua reiniciada');
-}
-
-function renderAgua() {
-  var total = getAgua();
-  var META  = 2000;
-  var pct   = Math.min(Math.round((total / META) * 100), 100);
-  var done  = total >= META;
-
-  var amt  = document.getElementById('aguaAmount');
-  var bar  = document.getElementById('aguaBar');
-  var pctE = document.getElementById('aguaPct');
-
-  if (amt)  amt.textContent  = total + ' ml';
-  if (bar)  bar.style.width  = pct + '%';
-  if (pctE) pctE.textContent = pct + '% — ' + (done ? '¡Meta alcanzada! ✅' : (META - total) + ' ml restantes');
-
-  if (bar) {
-    if (done) { bar.className = 'progress-bar progress-bar--green'; }
-    else      { bar.className = 'progress-bar'; }
-  }
-}
-
-/* ══════════════════════════════════════════════════════════
-   PENDIENTES
-   ══════════════════════════════════════════════════════════ */
-
-function agregarPendiente() {
-  var inp = document.getElementById('pendienteInput');
-  if (!inp) return;
-  var texto = inp.value.trim();
-  if (!texto) { toast('Escribe una tarea'); return; }
-
-  var list = getDia('pendientes');
-  if (!list.items) list.items = [];
-
-  // evitar duplicados exactos
-  for (var i = 0; i < list.items.length; i++) {
-    if (list.items[i].texto.toLowerCase() === texto.toLowerCase()) {
-      toast('Ya existe esa tarea'); return;
+function toggleFocus(){ focusRunning ? pauseFocus() : startFocus(); }
+function startFocus(){
+  if(focusLeft<=0) resetFocus(); focusRunning=true;
+  q('#focusToggleBtn').textContent='⏸ Pausar';
+  q('#focusCard').classList.add('focus-running');
+  focusTimer=setInterval(()=>{
+    focusLeft--; renderTimer(focusLeft,focusDurSecs);
+    if(focusLeft<=0){
+      clearInterval(focusTimer); focusRunning=false;
+      q('#focusToggleBtn').textContent='▶ Iniciar';
+      q('#focusCard').classList.remove('focus-running');
+      onFocusDone();
     }
-  }
-
-  list.items.push({ id: Date.now(), texto: texto, done: false });
-  setDia('pendientes', list);
-  inp.value = '';
-  renderPendientes();
-  renderEstado();
-  toast('Tarea agregada ✓');
+  },1000);
+}
+function pauseFocus(){
+  clearInterval(focusTimer); focusRunning=false;
+  q('#focusToggleBtn').textContent='▶ Continuar';
+  q('#focusCard').classList.remove('focus-running');
+}
+function resetFocus(){
+  clearInterval(focusTimer); focusRunning=false; focusLeft=focusDurSecs;
+  renderTimer(focusLeft,focusDurSecs);
+  q('#focusToggleBtn').textContent='▶ Iniciar';
+  q('#focusCard').classList.remove('focus-running');
+}
+function renderTimer(left,total){
+  const m=Math.floor(left/60),s=left%60;
+  const disp=q('#timerDisp');
+  if(disp) disp.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const ring=q('#trFill');
+  if(ring){ const prog=total>0?left/total:0; ring.style.strokeDasharray=CIRC; ring.style.strokeDashoffset=CIRC*(1-prog); }
+  const lbl=q('#timerLbl'); if(lbl) lbl.textContent=left>0?'FOCO':'¡LISTO!';
+}
+function onFocusDone(){
+  toast('🔥 ¡Sesión completada! Descansa.','ok');
+  if(Notification.permission==='granted')
+    new Notification('🦅 Modo Águila',{body:'¡Sesión de foco completada!',icon:'./icons/icon-192.png'});
 }
 
-function togglePendiente(id) {
-  var list = getDia('pendientes');
-  if (!list.items) return;
-  for (var i = 0; i < list.items.length; i++) {
-    if (list.items[i].id === id) { list.items[i].done = !list.items[i].done; break; }
-  }
-  setDia('pendientes', list);
-  renderPendientes();
-  renderEstado();
+/* ── Recomendaciones ── */
+function renderRec(){
+  const c=q('#recContainer'); if(!c) return;
+  const r=RECS[recIdx%RECS.length];
+  c.innerHTML=`<div class="rec-card">
+    <div class="rec-ico">${r.ico}</div>
+    <div class="rec-content">
+      <div class="rec-label">Acción recomendada</div>
+      <div class="rec-text">${r.txt}</div>
+      <div class="rec-sub">${r.sub}</div>
+    </div></div>`;
 }
+function nextRec(){ recIdx=(recIdx+1)%RECS.length; renderRec(); }
 
-function eliminarPendiente(id) {
-  var list = getDia('pendientes');
-  if (!list.items) return;
-  list.items = list.items.filter(function(t) { return t.id !== id; });
-  setDia('pendientes', list);
-  renderPendientes();
-  renderEstado();
-  toast('Tarea eliminada');
+/* ── Respiración ── */
+function toggleBreath(){ breathRunning ? stopBreath() : startBreath(); }
+function startBreath(){
+  breathRunning=true; breathPhaseIdx=0;
+  q('#breathBtn').textContent='⏹ Detener';
+  q('#breathCircle').classList.remove('hidden');
+  runBreathPhase();
 }
-
-function renderPendientes() {
-  var ul = document.getElementById('pendientesList');
-  if (!ul) return;
-  var list = getDia('pendientes');
-  var items = list.items || [];
-  ul.innerHTML = '';
-
-  if (items.length === 0) {
-    ul.innerHTML = '<li class="empty-msg">Sin pendientes</li>';
-    return;
-  }
-
-  items.forEach(function(t) {
-    var li = document.createElement('li');
-    li.className = 'check-item' + (t.done ? ' done-bg' : '');
-
-    var cb = document.createElement('input');
-    cb.type = 'checkbox'; cb.className = 'check-cb'; cb.checked = t.done;
-    (function(tid) {
-      cb.addEventListener('change', function() { togglePendiente(tid); });
-    })(t.id);
-
-    var lbl = document.createElement('label');
-    lbl.className = 'check-label' + (t.done ? ' done' : '');
-    lbl.textContent = t.texto;
-
-    var del = document.createElement('button');
-    del.className = 'btn btn-danger check-del'; del.textContent = '✕';
-    (function(tid) {
-      del.addEventListener('click', function() { eliminarPendiente(tid); });
-    })(t.id);
-
-    li.appendChild(cb); li.appendChild(lbl); li.appendChild(del);
-    ul.appendChild(li);
-  });
+function stopBreath(){
+  breathRunning=false; clearInterval(breathInterval);
+  q('#breathBtn').textContent='▶ Iniciar guía';
+  q('#breathCircle').classList.add('hidden');
 }
-
-/* ══════════════════════════════════════════════════════════
-   AGENDA
-   ══════════════════════════════════════════════════════════ */
-
-function agregarAgenda() {
-  var horaEl  = document.getElementById('agendaHora');
-  var textoEl = document.getElementById('agendaTexto');
-  if (!horaEl || !textoEl) return;
-
-  var hora  = horaEl.value.trim();
-  var texto = textoEl.value.trim();
-  if (!hora)  { toast('Selecciona una hora');  return; }
-  if (!texto) { toast('Escribe la actividad'); return; }
-
-  var agenda = getDia('agenda');
-  if (!agenda.items) agenda.items = [];
-
-  // Evitar duplicado exacto
-  for (var i = 0; i < agenda.items.length; i++) {
-    if (agenda.items[i].hora === hora && agenda.items[i].texto.toLowerCase() === texto.toLowerCase()) {
-      toast('Ya existe ese evento'); return;
+function runBreathPhase(){
+  if(!breathRunning) return;
+  const ph=BREATH_PHASES[breathPhaseIdx]; breathSecLeft=ph.secs;
+  const circle=q('#breathCircle'),phase=q('#breathPhase'),count=q('#breathCount');
+  if(circle){ circle.className='breath-anim '+ph.cls; }
+  if(phase) phase.textContent=ph.lbl;
+  if(count) count.textContent=ph.secs;
+  clearInterval(breathInterval);
+  breathInterval=setInterval(()=>{
+    breathSecLeft--; if(count) count.textContent=breathSecLeft;
+    if(breathSecLeft<=0){
+      clearInterval(breathInterval);
+      breathPhaseIdx=(breathPhaseIdx+1)%BREATH_PHASES.length;
+      if(breathRunning) runBreathPhase();
     }
-  }
-
-  agenda.items.push({ id: Date.now(), hora: hora, texto: texto });
-  agenda.items.sort(function(a, b) { return a.hora > b.hora ? 1 : -1; });
-  setDia('agenda', agenda);
-  horaEl.value  = '';
-  textoEl.value = '';
-  renderAgenda();
-  toast('Evento agregado 📋');
+  },1000);
 }
 
-function eliminarAgenda(id) {
-  var agenda = getDia('agenda');
-  if (!agenda.items) return;
-  agenda.items = agenda.items.filter(function(e) { return e.id !== id; });
-  setDia('agenda', agenda);
-  renderAgenda();
-  toast('Evento eliminado');
+/* ── PWA Install ── */
+function doInstall(){
+  if(!installEvt) return;
+  installEvt.prompt();
+  installEvt.userChoice.then(r=>{ if(r.outcome==='accepted') toast('🦅 Instalando...','ok'); installEvt=null; });
 }
 
-function renderAgenda() {
-  var ul = document.getElementById('agendaList');
-  if (!ul) return;
-  var agenda = getDia('agenda');
-  var items  = agenda.items || [];
-  ul.innerHTML = '';
-
-  if (items.length === 0) {
-    ul.innerHTML = '<li class="empty-msg">Sin eventos agendados</li>';
-    return;
-  }
-
-  items.forEach(function(ev) {
-    var li = document.createElement('li');
-    li.className = 'agenda-item';
-
-    var hora = document.createElement('span');
-    hora.className = 'agenda-hora'; hora.textContent = ev.hora;
-
-    var txt = document.createElement('span');
-    txt.className = 'agenda-texto'; txt.textContent = ev.texto;
-
-    var del = document.createElement('button');
-    del.className = 'btn btn-danger'; del.textContent = '✕';
-    (function(eid) {
-      del.addEventListener('click', function() { eliminarAgenda(eid); });
-    })(ev.id);
-
-    li.appendChild(hora); li.appendChild(txt); li.appendChild(del);
-    ul.appendChild(li);
-  });
-}
-
-/* ══════════════════════════════════════════════════════════
-   PROYECTOS (global)
-   ══════════════════════════════════════════════════════════ */
-
-function agregarProyecto() {
-  var inp = document.getElementById('proyectoInput');
-  if (!inp) return;
-  var texto = inp.value.trim();
-  if (!texto) { toast('Escribe el nombre del proyecto'); return; }
-
-  var proyectos = getGlobal('proyectos', []);
-  for (var i = 0; i < proyectos.length; i++) {
-    if (proyectos[i].nombre.toLowerCase() === texto.toLowerCase()) {
-      toast('Ya existe ese proyecto'); return;
-    }
-  }
-
-  proyectos.push({ id: Date.now(), nombre: texto });
-  setGlobal('proyectos', proyectos);
-  inp.value = '';
-  renderProyectos();
-  toast('Proyecto agregado 🚀');
-}
-
-function eliminarProyecto(id) {
-  var proyectos = getGlobal('proyectos', []).filter(function(p) { return p.id !== id; });
-  setGlobal('proyectos', proyectos);
-  renderProyectos();
-  toast('Proyecto eliminado');
-}
-
-function renderProyectos() {
-  var ul = document.getElementById('proyectosList');
-  if (!ul) return;
-  var proyectos = getGlobal('proyectos', []);
-  ul.innerHTML = '';
-
-  if (proyectos.length === 0) {
-    ul.innerHTML = '<li class="empty-msg">Sin proyectos activos</li>';
-    return;
-  }
-
-  proyectos.forEach(function(p) {
-    var li = document.createElement('li');
-    li.className = 'proyecto-item';
-
-    var dot = document.createElement('span');
-    dot.className = 'proyecto-dot';
-
-    var name = document.createElement('span');
-    name.className = 'proyecto-name'; name.textContent = p.nombre;
-
-    var del = document.createElement('button');
-    del.className = 'btn btn-danger'; del.textContent = '✕';
-    (function(pid) {
-      del.addEventListener('click', function() { eliminarProyecto(pid); });
-    })(p.id);
-
-    li.appendChild(dot); li.appendChild(name); li.appendChild(del);
-    ul.appendChild(li);
-  });
-}
-
-/* ══════════════════════════════════════════════════════════
-   ESTUDIO BÍBLICO
-   ══════════════════════════════════════════════════════════ */
-
-function guardarBiblia() {
-  var campos = ['Versiculo','Observacion','Interpretacion','Contexto','Aplicacion','Reflexion'];
-  var data   = {};
-  var versiculo = document.getElementById('bibliaVersiculo');
-
-  campos.forEach(function(c) {
-    var el = document.getElementById('biblia' + c);
-    if (el) data[c.toLowerCase()] = el.value.trim();
-  });
-
-  if (!data.versiculo) { toast('Ingresa el versículo'); return; }
-
-  setDia('biblia', data);
-  renderBibliaSaved();
-  renderEstado();
-  toast('Estudio guardado 📖');
-}
-
-function renderBibliaSaved() {
-  var savedEl = document.getElementById('bibliaSaved');
-  var data    = getDia('biblia');
-
-  if (!data.versiculo) {
-    if (savedEl) savedEl.textContent = '';
-    return;
-  }
-
-  // Rellenar campos con datos guardados
-  var campos = ['Versiculo','Observacion','Interpretacion','Contexto','Aplicacion','Reflexion'];
-  campos.forEach(function(c) {
-    var el = document.getElementById('biblia' + c);
-    if (el && data[c.toLowerCase()]) el.value = data[c.toLowerCase()];
-  });
-
-  if (savedEl) savedEl.textContent = '✓ Guardado: ' + data.versiculo;
-}
-
-/* ══════════════════════════════════════════════════════════
-   ESTADO ÁGUILA
-   ══════════════════════════════════════════════════════════ */
-
-function calcularPct() {
-  var checks = 0;
-  var total  = 0;
-
-  // Activación (3 items)
-  var act = getDia('activacion');
-  ACTIVACION_ITEMS.forEach(function(it) { total++; if (act[it.id]) checks++; });
-
-  // Trabajo (6 items)
-  var trab = getDia('trabajo');
-  TRABAJO_ITEMS.forEach(function(it) { total++; if (trab[it.id]) checks++; });
-
-  // Vida personal (3 items)
-  var vida = getDia('vida');
-  VIDA_ITEMS.forEach(function(it) { total++; if (vida[it.id]) checks++; });
-
-  // Pendientes: contar completados vs total
-  var pend  = getDia('pendientes');
-  var pitems = pend.items || [];
-  if (pitems.length > 0) {
-    total += pitems.length;
-    pitems.forEach(function(t) { if (t.done) checks++; });
-  }
-
-  // Estudio bíblico (cuenta como 3 puntos si tiene versículo)
-  var bib = getDia('biblia');
-  if (bib.versiculo) { checks += 3; total += 3; }
-
-  return total > 0 ? Math.round((checks / total) * 100) : 0;
-}
-
-function renderEstado() {
-  var pct   = calcularPct();
-  var nivel = ESTADOS[0];
-  for (var i = ESTADOS.length - 1; i >= 0; i--) {
-    if (pct >= ESTADOS[i].min) { nivel = ESTADOS[i]; break; }
-  }
-
-  // Header badge
-  var hi = document.getElementById('estadoIcon');
-  var hl = document.getElementById('estadoLabel');
-  if (hi) hi.textContent = nivel.icon;
-  if (hl) hl.textContent = nivel.label;
-
-  // Card estado
-  var bi  = document.getElementById('estadoBigIcon');
-  var bl  = document.getElementById('estadoBigLabel');
-  var bs  = document.getElementById('estadoSub');
-  var bar = document.getElementById('estadoBar');
-  var pt  = document.getElementById('estadoPct');
-
-  if (bi) { bi.textContent = nivel.icon; bi.className = 'estado-big-icon' + (nivel.cls ? ' ' + nivel.cls : ''); }
-  if (bl) bl.textContent   = nivel.label;
-  if (bs) bs.textContent   = nivel.sub;
-  if (bar) {
-    bar.style.width = pct + '%';
-    if (pct >= 70) bar.className = 'progress-bar progress-bar--green';
-    else if (pct >= 35) bar.className = 'progress-bar progress-bar--gold';
-    else bar.className = 'progress-bar';
-  }
-  if (pt) pt.textContent = pct + '% del día completado';
-}
-
-/* ══════════════════════════════════════════════════════════
-   EVENTOS DEL DOM
-   ══════════════════════════════════════════════════════════ */
-
-function setupEventos() {
-  var di = document.getElementById('dateInput');
-  if (di) di.addEventListener('change', onFechaChange);
-
-  var pendIn = document.getElementById('pendienteInput');
-  if (pendIn) {
-    pendIn.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') agregarPendiente();
-    });
-  }
-
-  var proyIn = document.getElementById('proyectoInput');
-  if (proyIn) {
-    proyIn.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') agregarProyecto();
-    });
-  }
-
-  var agTx = document.getElementById('agendaTexto');
-  if (agTx) {
-    agTx.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') agregarAgenda();
-    });
-  }
-}
-
-/* ══════════════════════════════════════════════════════════
-   SERVICE WORKER
-   ══════════════════════════════════════════════════════════ */
-
-function registrarSW() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').then(function(reg) {
-      console.log('SW registrado:', reg.scope);
-    }).catch(function(err) {
-      console.warn('SW error:', err);
-    });
-  }
-}
-
-/* ══════════════════════════════════════════════════════════
-   INIT
-   ══════════════════════════════════════════════════════════ */
-
-function init() {
-  fechaActiva = hoy();
-  setupEventos();
-  renderTodo();
-  registrarSW();
-
-  // Actualizar modo cada minuto
-  setInterval(renderModo, 60000);
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
+Object.assign(window,{
+  toggleChk,addAgenda,deleteAgenda,toggleAgenda,startEditAgenda,saveEditAgenda,
+  addPend,togglePend,deletePend,addWater,resetWater,
+  setDur,toggleFocus,resetFocus,saveFoco,editFoco,cancelFoco,
+  nextRec,toggleBreath,doInstall
+});
