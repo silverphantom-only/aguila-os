@@ -23,6 +23,7 @@ h1 {
   text-align: center;
 }
 
+/* CARDS */
 .card {
   background: #111a2b;
   padding: 15px;
@@ -30,6 +31,7 @@ h1 {
   margin-bottom: 15px;
 }
 
+/* INPUTS */
 input, textarea, button {
   width: 100%;
   margin-top: 8px;
@@ -42,8 +44,10 @@ button {
   background: #22c55e;
   color: white;
   font-weight: bold;
+  cursor: pointer;
 }
 
+/* LISTAS */
 ul {
   padding: 0;
   list-style: none;
@@ -52,10 +56,31 @@ ul {
 li {
   background: #0f172a;
   margin-top: 8px;
-  padding: 8px;
+  padding: 10px;
   border-radius: 8px;
   display: flex;
+  align-items: center;
   justify-content: space-between;
+}
+
+/* CHECK */
+.check {
+  margin-right: 10px;
+}
+
+/* PROGRESO */
+.progress-container {
+  background: #1e293b;
+  border-radius: 10px;
+  height: 20px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: #22c55e;
+  transition: 0.3s;
 }
 </style>
 
@@ -73,6 +98,15 @@ li {
   <input type="date" id="fecha">
 </div>
 
+<!-- 📊 PROGRESO -->
+<div class="card">
+  <h2>📊 Progreso del día</h2>
+  <div class="progress-container">
+    <div class="progress-bar" id="progreso"></div>
+  </div>
+  <p id="porcentaje">0%</p>
+</div>
+
 <!-- 📌 EVENTOS -->
 <div class="card">
   <h2>📌 Eventos</h2>
@@ -85,13 +119,13 @@ li {
   <ul id="listaEventos"></ul>
 </div>
 
-<!-- ✅ CHECKLIST -->
+<!-- 🧠 TRABAJO DIARIO -->
 <div class="card">
-  <h2>✅ Checklist</h2>
+  <h2>🧠 Trabajo Diario</h2>
 
-  <label><input type="checkbox" onchange="toggleCheck('respiracion')"> Respiración</label><br>
-  <label><input type="checkbox" onchange="toggleCheck('ejercicio')"> Ejercicio</label><br>
-  <label><input type="checkbox" onchange="toggleCheck('agua')"> Tomar agua</label>
+  <label><input type="checkbox" class="check" onchange="toggleCheck('trabajo1')"> Actividades laborales</label><br>
+  <label><input type="checkbox" class="check" onchange="toggleCheck('trabajo2')"> Organización</label><br>
+  <label><input type="checkbox" class="check" onchange="toggleCheck('trabajo3')"> Cierre</label>
 </div>
 
 <!-- 📌 PENDIENTES -->
