@@ -1,110 +1,105 @@
-// ===== STORAGE =====
+const checksBase = ["WhatsApp", "Gmail", "Reservas", "Gasolina", "Cierre", "Control"];
+
+/* =====================
+   UTILIDADES
+===================== */
 function getFecha() {
-  const input = document.getElementById("fecha");
-  return input.value || new Date().toISOString().split("T")[0];
+  return document.getElementById("fecha").value;
 }
 
 function getData() {
-  return JSON.parse(localStorage.getItem("aguila") || "{}");
+  return JSON.parse(localStorage.getItem("aguilaOS")) || {};
 }
 
 function saveData(data) {
-  localStorage.setItem("aguila", JSON.stringify(data));
+  localStorage.setItem("aguilaOS", JSON.stringify(data));
 }
 
 function getDia() {
-  const data = getData();
   const fecha = getFecha();
+  const data = getData();
 
   if (!data[fecha]) {
     data[fecha] = {
       eventos: [],
       pendientes: [],
       checks: {},
-      agua: 0
+      agua: 0,
+      biblia: {}
     };
+    saveData(data);
   }
 
-  return { data, fecha, dia: data[fecha] };
+  return data[fecha];
 }
 
-// ===== INICIO =====
-document.addEventListener("DOMContentLoaded", () => {
-  const fechaInput = document.getElementById("fecha");
-  const hoy = new Date().toISOString().split("T")[0];
-
-  fechaInput.value = hoy;
-
-  fechaInput.addEventListener("change", () => {
-    renderTodo();
-  });
-
-  renderTodo();
-});
-
-// ===== RENDER =====
+/* =====================
+   RENDER
+===================== */
 function renderTodo() {
   renderEventos();
   renderPendientes();
-  renderChecks();
+  renderChecklist();
   renderAgua();
+  renderBiblia();
   actualizarProgreso();
 }
 
-// ===== EVENTOS =====
+/* =====================
+   EVENTOS
+===================== */
 function agregarEvento() {
-  const hora = document.getElementById("hora").value;
-  const texto = document.getElementById("evento").value;
+  const hora = document.getElementById("horaEvento").value;
+  const texto = document.getElementById("textoEvento").value;
 
   if (!texto) return;
 
-  const { data, dia } = getDia();
+  const data = getData();
+  const dia = getDia();
 
-  dia.eventos.push({
-    id: Date.now(),
-    hora,
-    texto
-  });
+  dia.eventos.push({ hora, texto });
 
+  data[getFecha()] = dia;
   saveData(data);
+
   renderEventos();
-  actualizarProgreso();
 }
 
-function eliminarEvento(id) {
-  const { data, dia } = getDia();
+function eliminarEvento(i) {
+  const data = getData();
+  const dia = getDia();
 
-  dia.eventos = dia.eventos.filter(e => e.id !== id);
-
+  dia.eventos.splice(i, 1);
+  data[getFecha()] = dia;
   saveData(data);
+
   renderEventos();
-  actualizarProgreso();
 }
 
 function renderEventos() {
   const lista = document.getElementById("listaEventos");
-  const { dia } = getDia();
-
   lista.innerHTML = "";
 
-  dia.eventos.forEach(e => {
+  const dia = getDia();
+
+  dia.eventos.forEach((e, i) => {
     const li = document.createElement("li");
-
-    li.innerHTML = `
-      <span>${e.hora || "--"} - ${e.texto}</span>
-      <button onclick="eliminarEvento(${e.id})">❌</button>
-    `;
-
+    li.innerHTML = `${e.hora} - ${e.texto} <button onclick="eliminarEvento(${i})">X</button>`;
     lista.appendChild(li);
   });
 }
 
-// ===== PENDIENTES CON CHECK =====
+/* =====================
+   PENDIENTES
+===================== */
 function agregarPendiente() {
-  const texto = document.getElementById("pendiente").value;
+  const input = document.getElementById("inputPendiente");
+  const texto = input.value;
+
   if (!texto) return;
 
-  const { data, dia } = getDia();
+  const data = getData();
+  const dia = getDia();
 
   dia.pendientes.push({
     id: Date.now(),
@@ -112,116 +107,173 @@ function agregarPendiente() {
     done: false
   });
 
+  data[getFecha()] = dia;
   saveData(data);
+
+  input.value = "";
   renderPendientes();
-  actualizarProgreso();
 }
 
 function togglePendiente(id) {
-  const { data, dia } = getDia();
+  const data = getData();
+  const dia = getDia();
 
-  const p = dia.pendientes.find(x => x.id === id);
-  if (p) p.done = !p.done;
+  dia.pendientes = dia.pendientes.map(p =>
+    p.id === id ? { ...p, done: !p.done } : p
+  );
 
+  data[getFecha()] = dia;
   saveData(data);
+
   renderPendientes();
   actualizarProgreso();
 }
 
 function eliminarPendiente(id) {
-  const { data, dia } = getDia();
+  const data = getData();
+  const dia = getDia();
 
   dia.pendientes = dia.pendientes.filter(p => p.id !== id);
 
+  data[getFecha()] = dia;
   saveData(data);
+
   renderPendientes();
-  actualizarProgreso();
 }
 
 function renderPendientes() {
   const lista = document.getElementById("listaPendientes");
-  const { dia } = getDia();
-
   lista.innerHTML = "";
+
+  const dia = getDia();
 
   dia.pendientes.forEach(p => {
     const li = document.createElement("li");
 
     li.innerHTML = `
-      <div class="item ${p.done ? 'done' : ''}">
-        <input type="checkbox" ${p.done ? "checked" : ""}
-          onchange="togglePendiente(${p.id})">
-        <span>${p.texto}</span>
-      </div>
-      <button onclick="eliminarPendiente(${p.id})">❌</button>
+      <input type="checkbox" ${p.done ? "checked" : ""} 
+      onchange="togglePendiente(${p.id})">
+      <span class="${p.done ? "done" : ""}">${p.texto}</span>
+      <button onclick="eliminarPendiente(${p.id})">X</button>
     `;
 
     lista.appendChild(li);
   });
 }
 
-// ===== CHECK TRABAJO =====
-function toggleCheck(id) {
-  const { data, dia } = getDia();
+/* =====================
+   CHECKLIST
+===================== */
+function renderChecklist() {
+  const cont = document.getElementById("checklist");
+  cont.innerHTML = "";
 
-  dia.checks[id] = !dia.checks[id];
+  const dia = getDia();
 
-  saveData(data);
-  actualizarProgreso();
-}
+  checksBase.forEach(c => {
+    const checked = dia.checks[c] || false;
 
-function renderChecks() {
-  const { dia } = getDia();
-
-  document.querySelectorAll(".checklist input").forEach(input => {
-    const id = input.getAttribute("onchange").match(/'(.*?)'/)[1];
-    input.checked = !!dia.checks[id];
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <label>
+        <input type="checkbox" ${checked ? "checked" : ""}
+        onchange="toggleCheck('${c}')"> ${c}
+      </label>
+    `;
+    cont.appendChild(div);
   });
 }
 
-// ===== AGUA =====
+function toggleCheck(nombre) {
+  const data = getData();
+  const dia = getDia();
+
+  dia.checks[nombre] = !dia.checks[nombre];
+
+  data[getFecha()] = dia;
+  saveData(data);
+
+  actualizarProgreso();
+}
+
+/* =====================
+   AGUA
+===================== */
 function sumarAgua() {
-  const { data, dia } = getDia();
+  const data = getData();
+  const dia = getDia();
 
   dia.agua += 250;
 
+  data[getFecha()] = dia;
   saveData(data);
+
   renderAgua();
   actualizarProgreso();
 }
 
 function renderAgua() {
-  const { dia } = getDia();
-  document.getElementById("aguaTotal").textContent = dia.agua + " ml";
+  const dia = getDia();
+  document.getElementById("aguaTotal").innerText = dia.agua + " ml";
 }
 
-// ===== PROGRESO =====
+/* =====================
+   BIBLIA
+===================== */
+function guardarBiblia() {
+  const pasaje = document.getElementById("pasaje").value;
+  const nota = document.getElementById("nota").value;
+
+  const data = getData();
+  const dia = getDia();
+
+  dia.biblia = { pasaje, nota };
+
+  data[getFecha()] = dia;
+  saveData(data);
+}
+
+function renderBiblia() {
+  const dia = getDia();
+
+  document.getElementById("pasaje").value = dia.biblia.pasaje || "";
+  document.getElementById("nota").value = dia.biblia.nota || "";
+}
+
+/* =====================
+   PROGRESO
+===================== */
 function actualizarProgreso() {
-  const { dia } = getDia();
+  const dia = getDia();
 
-  let total = 0;
-  let completado = 0;
+  // checklist
+  const totalChecks = checksBase.length;
+  const doneChecks = checksBase.filter(c => dia.checks[c]).length;
 
-  // CHECKS TRABAJO
-  const checksKeys = ["whatsapp","gmail","reservas","gasolina","cierre","control"];
-  total += checksKeys.length;
+  // pendientes
+  const totalPend = dia.pendientes.length;
+  const donePend = dia.pendientes.filter(p => p.done).length;
 
-  checksKeys.forEach(k => {
-    if (dia.checks[k]) completado++;
-  });
+  // agua
+  const agua = Math.min(dia.agua, 2000);
 
-  // PENDIENTES
-  total += dia.pendientes.length;
-  dia.pendientes.forEach(p => {
-    if (p.done) completado++;
-  });
+  let progreso = 0;
 
-  // AGUA (meta 2000 ml)
-  total += 1;
-  if (dia.agua >= 2000) completado++;
+  if (totalChecks) progreso += (doneChecks / totalChecks) * 40;
+  if (totalPend) progreso += (donePend / totalPend) * 40;
+  progreso += (agua / 2000) * 20;
 
-  const porcentaje = total === 0 ? 0 : Math.round((completado / total) * 100);
+  progreso = Math.round(progreso);
 
-  document.getElementById("barra").style.width = porcentaje + "%";
-  document.getElementById("porcentaje").textContent = porcentaje + "%";
+  document.getElementById("barra").style.width = progreso + "%";
+  document.getElementById("porcentaje").innerText = progreso + "%";
 }
+
+/* =====================
+   INIT
+===================== */
+document.getElementById("fecha").valueAsDate = new Date();
+
+document.getElementById("fecha").addEventListener("change", renderTodo);
+
+renderTodo();
