@@ -1,182 +1,66 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Águila OS</title>
-
-<style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: #0b1220;
-  color: white;
-}
-
-.container {
-  max-width: 500px;
-  margin: auto;
-  padding: 20px;
-}
-
-h1 {
-  text-align: center;
-}
-
-/* CARDS */
-.card {
-  background: #111a2b;
-  padding: 15px;
-  border-radius: 12px;
-  margin-bottom: 15px;
-}
-
-/* INPUTS */
-input, button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 8px;
-  border-radius: 8px;
-  border: none;
-  font-size: 14px;
-}
-
-button {
-  background: #22c55e;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-/* LISTAS */
-ul {
-  list-style: none;
-  padding: 0;
-}
-
-li {
-  background: #0f172a;
-  margin-top: 8px;
-  padding: 10px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-/* CHECK LISTA */
-.item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.item input {
-  width: auto;
-}
-
-/* COMPLETADO */
-.done {
-  text-decoration: line-through;
-  opacity: 0.5;
-}
-
-/* PROGRESO */
-.progress {
-  height: 20px;
-  background: #1e293b;
-  border-radius: 10px;
-  overflow: hidden;
-  margin-top: 10px;
-}
-
-.bar {
-  height: 100%;
-  width: 0%;
-  background: #22c55e;
-  transition: 0.3s;
-}
-
-/* CHECK TRABAJO */
-.checklist label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 8px;
-}
-
-.checklist input {
-  width: auto;
-}
-</style>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Águila OS</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<div class="container">
+<div class="app">
 
-<h1>🦅 Águila OS</h1>
+  <h1>🦅 Águila OS</h1>
 
-<!-- 📅 FECHA -->
-<div class="card">
-  <h2>📅 Día</h2>
+  <!-- Fecha -->
   <input type="date" id="fecha">
-</div>
 
-<!-- 📊 PROGRESO -->
-<div class="card">
-  <h2>📊 Progreso</h2>
-  <div class="progress">
-    <div class="bar" id="barra"></div>
+  <!-- Progreso -->
+  <div class="progreso-container">
+    <div id="barra"></div>
   </div>
   <p id="porcentaje">0%</p>
-</div>
 
-<!-- 📌 EVENTOS -->
-<div class="card">
-  <h2>📌 Eventos</h2>
+  <!-- EVENTOS -->
+  <section>
+    <h2>📅 Eventos</h2>
+    <input type="time" id="horaEvento">
+    <input type="text" id="textoEvento" placeholder="Evento...">
+    <button onclick="agregarEvento()">Agregar</button>
+    <ul id="listaEventos"></ul>
+  </section>
 
-  <input type="time" id="hora">
-  <input type="text" id="evento" placeholder="Descripción del evento">
+  <!-- CHECKLIST -->
+  <section>
+    <h2>🧠 Checklist</h2>
+    <div id="checklist"></div>
+  </section>
 
-  <button onclick="agregarEvento()">Agregar</button>
+  <!-- PENDIENTES -->
+  <section>
+    <h2>📌 Pendientes</h2>
+    <input type="text" id="inputPendiente" placeholder="Nuevo pendiente...">
+    <button onclick="agregarPendiente()">Agregar</button>
+    <ul id="listaPendientes"></ul>
+  </section>
 
-  <ul id="listaEventos"></ul>
-</div>
+  <!-- AGUA -->
+  <section>
+    <h2>💧 Agua</h2>
+    <p id="aguaTotal">0 ml</p>
+    <button onclick="sumarAgua()">+250 ml</button>
+  </section>
 
-<!-- 🧠 TRABAJO -->
-<div class="card checklist">
-  <h2>🧠 Trabajo</h2>
-
-  <label><input type="checkbox" onchange="toggleCheck('whatsapp')"> WhatsApp</label>
-  <label><input type="checkbox" onchange="toggleCheck('gmail')"> Gmail</label>
-  <label><input type="checkbox" onchange="toggleCheck('reservas')"> Reservas</label>
-  <label><input type="checkbox" onchange="toggleCheck('gasolina')"> Gasolina</label>
-  <label><input type="checkbox" onchange="toggleCheck('cierre')"> Cierre</label>
-  <label><input type="checkbox" onchange="toggleCheck('control')"> Control</label>
-</div>
-
-<!-- 📌 PENDIENTES -->
-<div class="card">
-  <h2>📌 Pendientes</h2>
-
-  <input type="text" id="pendiente" placeholder="Nuevo pendiente">
-  <button onclick="agregarPendiente()">Agregar</button>
-
-  <ul id="listaPendientes"></ul>
-</div>
-
-<!-- 💧 AGUA -->
-<div class="card">
-  <h2>💧 Agua</h2>
-  <p id="aguaTotal">0 ml</p>
-  <button onclick="sumarAgua()">+250 ml</button>
-</div>
+  <!-- BIBLIA -->
+  <section>
+    <h2>📖 Estudio Bíblico</h2>
+    <input type="text" id="pasaje" placeholder="Pasaje">
+    <textarea id="nota" placeholder="Nota..."></textarea>
+    <button onclick="guardarBiblia()">Guardar</button>
+  </section>
 
 </div>
 
 <script src="app.js"></script>
-
 </body>
 </html>
