@@ -2,139 +2,161 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#07070f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Águila OS</title>
+  <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 </head>
 <body>
 
-  <!-- HEADER -->
+  <!-- ── HEADER ── -->
   <header class="header">
-    <div class="header-left">
-      <span class="logo-icon">🦅</span>
-      <span class="logo-text">ÁGUILA OS</span>
+    <div class="header-brand">
+      <span class="brand-eagle">🦅</span>
+      <span class="brand-name">ÁGUILA OS</span>
     </div>
     <div class="header-right">
-      <div class="eagle-state" id="eagleState">
-        <span class="state-icon" id="stateIcon">❄️</span>
-        <span class="state-label" id="stateLabel">Bajo</span>
-      </div>
-      <div class="streak-badge">
-        <span class="streak-fire">🔥</span>
-        <span class="streak-count" id="streakCount">0</span>
+      <div class="mode-pill" id="modePill">—</div>
+      <div class="estado-badge" id="estadoBadge">
+        <span id="estadoIcon">❄️</span>
+        <span id="estadoLabel">Balgham</span>
       </div>
     </div>
   </header>
 
-  <!-- MAIN CONTENT -->
+  <!-- ── MAIN ── -->
   <main class="main">
 
-    <!-- CALENDARIO SEMANAL -->
-    <section class="card calendar-card">
-      <h2 class="card-title">📆 Semana</h2>
-      <div class="week-grid" id="weekGrid"></div>
-    </section>
-
-    <!-- VISTA DEL DÍA -->
-    <section class="card day-card">
-      <div class="day-header">
+    <!-- FECHA -->
+    <section class="card date-card">
+      <div class="date-row">
         <div>
-          <div class="day-name" id="dayName">—</div>
-          <div class="day-full-date" id="dayFullDate">—</div>
+          <div class="date-label">Día activo</div>
+          <div class="date-display" id="dateDisplay">—</div>
         </div>
-        <button class="streak-btn" id="streakBtn" onclick="registerStreak()">
-          ✅ Marcar día
-        </button>
+        <input type="date" id="dateInput" class="date-input" />
       </div>
     </section>
 
-    <!-- EVENTOS -->
-    <section class="card events-card">
-      <h2 class="card-title">🗂 Eventos del día</h2>
-      <div class="event-form">
-        <input type="date" id="eventDate" class="input" />
-        <input type="time" id="eventTime" class="input" />
-        <input type="text" id="eventText" class="input event-text-input" placeholder="Descripción del evento…" />
-        <button class="btn btn-green event-add-btn" onclick="addEvent()">+ Agregar</button>
+    <!-- ACTIVACIÓN MAÑANA -->
+    <section class="card">
+      <h2 class="card-title">🌅 Activación mañana</h2>
+      <ul class="checklist" id="activacionList"></ul>
+    </section>
+
+    <!-- SALUD -->
+    <section class="card">
+      <h2 class="card-title">💊 Salud</h2>
+      <ul class="checklist" id="saludList"></ul>
+    </section>
+
+    <!-- AGUA -->
+    <section class="card">
+      <h2 class="card-title">💧 Agua</h2>
+      <div class="agua-display">
+        <div class="agua-amount" id="aguaAmount">0 ml</div>
+        <div class="agua-meta">Meta: 2000 ml</div>
       </div>
-      <ul class="event-list" id="eventList"></ul>
+      <div class="progress-wrap">
+        <div class="progress-bar" id="aguaBar"></div>
+      </div>
+      <div class="agua-pct" id="aguaPct">0%</div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="sumarAgua(250)">+250 ml</button>
+        <button class="btn btn-ghost" onclick="resetAgua()">Reiniciar</button>
+      </div>
     </section>
 
-    <!-- NOTAS DEL DÍA -->
-    <section class="card notes-card">
-      <h2 class="card-title">📝 Notas del día</h2>
-      <textarea
-        id="dayNotes"
-        class="notes-textarea"
-        placeholder="Escribe tus notas para este día…"
-        oninput="saveNotes()"
-      ></textarea>
+    <!-- PENDIENTES -->
+    <section class="card">
+      <h2 class="card-title">📌 Pendientes</h2>
+      <div class="input-row">
+        <input type="text" id="pendienteInput" class="field" placeholder="Nueva tarea…" />
+        <button class="btn btn-primary" onclick="agregarPendiente()">+</button>
+      </div>
+      <ul class="checklist" id="pendientesList"></ul>
     </section>
 
-    <!-- CHECKLIST DIARIO -->
-    <section class="card checklist-card">
-      <h2 class="card-title">✔ Checklist diario</h2>
-      <ul class="checklist" id="checklist"></ul>
+    <!-- AGENDA -->
+    <section class="card">
+      <h2 class="card-title">📋 Agenda</h2>
+      <div class="agenda-form">
+        <input type="time" id="agendaHora" class="field" />
+        <input type="text" id="agendaTexto" class="field" placeholder="Actividad…" />
+        <button class="btn btn-primary" onclick="agregarAgenda()">+ Agregar</button>
+      </div>
+      <ul class="agenda-list" id="agendaList"></ul>
     </section>
 
-    <!-- CHECKLIST DE TRABAJO (lunes–sábado) -->
-    <section class="card work-card" id="workCard">
+    <!-- TRABAJO -->
+    <section class="card">
       <h2 class="card-title">💼 Trabajo</h2>
-      <ul class="checklist" id="workChecklist"></ul>
+      <ul class="checklist" id="trabajoList"></ul>
     </section>
 
-    <!-- AGUA Y GASTOS ROW -->
-    <div class="two-col">
+    <!-- PROYECTOS -->
+    <section class="card">
+      <h2 class="card-title">🚀 Proyectos</h2>
+      <div class="input-row">
+        <input type="text" id="proyectoInput" class="field" placeholder="Nuevo proyecto…" />
+        <button class="btn btn-primary" onclick="agregarProyecto()">+</button>
+      </div>
+      <ul class="proyectos-list" id="proyectosList"></ul>
+    </section>
 
-      <!-- AGUA -->
-      <section class="card water-card">
-        <h2 class="card-title">💧 Agua</h2>
-        <div class="water-display">
-          <div class="water-total" id="waterTotal">0 / 2000 ml</div>
-          <div class="water-pct" id="waterPct">0%</div>
-          <div class="water-bar-wrap">
-            <div class="water-bar" id="waterBar"></div>
-          </div>
-          <div class="water-goal" id="waterGoalMsg">Meta: 2000 ml</div>
+    <!-- VIDA PERSONAL -->
+    <section class="card">
+      <h2 class="card-title">❤️ Vida personal</h2>
+      <ul class="checklist" id="vidaList"></ul>
+    </section>
+
+    <!-- ESTUDIO BÍBLICO -->
+    <section class="card biblia-card">
+      <h2 class="card-title">📖 Estudio bíblico exegético</h2>
+      <input type="text" id="bibliaVersiculo" class="field" placeholder="Versículo (ej: Juan 15:5)" />
+      <div class="biblia-fields">
+        <div class="biblia-field">
+          <label class="field-label">Observación</label>
+          <textarea id="bibliaObservacion" class="field field-textarea" placeholder="¿Qué dice el texto?"></textarea>
         </div>
-        <button class="btn btn-green full-btn" onclick="addWater()">+250 ml</button>
-        <button class="btn btn-ghost full-btn" onclick="resetWater()">Reiniciar</button>
-      </section>
-
-      <!-- GASTOS -->
-      <section class="card expenses-card">
-        <h2 class="card-title">💰 Gastos</h2>
-        <div class="expense-form">
-          <input type="number" id="expenseAmount" class="input" placeholder="Monto $" min="0" />
-          <select id="expenseCategory" class="input">
-            <option value="Comida">🍔 Comida</option>
-            <option value="Transporte">🚗 Transporte</option>
-            <option value="Salud">💊 Salud</option>
-            <option value="Ocio">🎮 Ocio</option>
-            <option value="Otro">📦 Otro</option>
-          </select>
-          <button class="btn btn-green" onclick="addExpense()">+</button>
+        <div class="biblia-field">
+          <label class="field-label">Interpretación</label>
+          <textarea id="bibliaInterpretacion" class="field field-textarea" placeholder="¿Qué significa?"></textarea>
         </div>
-        <div class="expense-total">Total: $<span id="expenseTotal">0</span></div>
-        <ul class="expense-list" id="expenseList"></ul>
-      </section>
+        <div class="biblia-field">
+          <label class="field-label">Contexto</label>
+          <textarea id="bibliaContexto" class="field field-textarea" placeholder="Contexto histórico y literario…"></textarea>
+        </div>
+        <div class="biblia-field">
+          <label class="field-label">Aplicación</label>
+          <textarea id="bibliaAplicacion" class="field field-textarea" placeholder="¿Cómo aplica hoy?"></textarea>
+        </div>
+        <div class="biblia-field">
+          <label class="field-label">Reflexión personal</label>
+          <textarea id="bibliaReflexion" class="field field-textarea" placeholder="Tu reflexión…"></textarea>
+        </div>
+      </div>
+      <button class="btn btn-primary full-btn" onclick="guardarBiblia()">💾 Guardar estudio</button>
+      <div class="biblia-saved" id="bibliaSaved"></div>
+    </section>
 
-    </div>
-
-    <!-- DISCIPLINA / ESTADO ÁGUILA -->
-    <section class="card discipline-card">
-      <h2 class="card-title">🦅 Nivel Águila</h2>
-      <div class="eagle-progress">
-        <div class="eagle-big-state" id="eagleBigState">❄️</div>
-        <div class="eagle-info">
-          <div class="eagle-big-label" id="eagleBigLabel">Bajo</div>
-          <div class="eagle-sub">Empieza completando tareas del checklist</div>
-          <div class="progress-bar-wrap">
-            <div class="progress-bar" id="progressBar"></div>
+    <!-- ESTADO ÁGUILA -->
+    <section class="card estado-card">
+      <h2 class="card-title">🦅 Estado del día</h2>
+      <div class="estado-display">
+        <div class="estado-big-icon" id="estadoBigIcon">❄️</div>
+        <div class="estado-info">
+          <div class="estado-big-label" id="estadoBigLabel">Balgham</div>
+          <div class="estado-sub" id="estadoSub">Activa tus hábitos del día</div>
+          <div class="progress-wrap" style="margin-top:10px">
+            <div class="progress-bar progress-bar--gold" id="estadoBar"></div>
           </div>
-          <div class="progress-text" id="progressText">0 / 0 tareas</div>
+          <div class="estado-pct" id="estadoPct">0%</div>
         </div>
       </div>
     </section>
