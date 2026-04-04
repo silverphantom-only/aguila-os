@@ -8,7 +8,7 @@
 <style>
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   background: #0b1220;
   color: white;
 }
@@ -19,11 +19,6 @@ body {
   padding: 20px;
 }
 
-h1 {
-  text-align: center;
-}
-
-/* CARDS */
 .card {
   background: #111a2b;
   padding: 15px;
@@ -31,11 +26,10 @@ h1 {
   margin-bottom: 15px;
 }
 
-/* INPUTS */
-input, textarea, button {
+input, button {
   width: 100%;
-  margin-top: 8px;
   padding: 10px;
+  margin-top: 8px;
   border-radius: 8px;
   border: none;
 }
@@ -44,13 +38,12 @@ button {
   background: #22c55e;
   color: white;
   font-weight: bold;
-  cursor: pointer;
 }
 
-/* LISTAS */
+/* LISTA */
 ul {
-  padding: 0;
   list-style: none;
+  padding: 0;
 }
 
 li {
@@ -64,23 +57,29 @@ li {
 }
 
 /* CHECK */
-.check {
-  margin-right: 10px;
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.done {
+  text-decoration: line-through;
+  opacity: 0.6;
 }
 
 /* PROGRESO */
-.progress-container {
+.progress {
+  height: 20px;
   background: #1e293b;
   border-radius: 10px;
-  height: 20px;
   overflow: hidden;
 }
 
-.progress-bar {
+.bar {
   height: 100%;
   width: 0%;
   background: #22c55e;
-  transition: 0.3s;
 }
 </style>
 
@@ -94,15 +93,15 @@ li {
 
 <!-- 📅 FECHA -->
 <div class="card">
-  <h2>📅 Día activo</h2>
+  <h2>📅 Día</h2>
   <input type="date" id="fecha">
 </div>
 
 <!-- 📊 PROGRESO -->
 <div class="card">
-  <h2>📊 Progreso del día</h2>
-  <div class="progress-container">
-    <div class="progress-bar" id="progreso"></div>
+  <h2>📊 Progreso</h2>
+  <div class="progress">
+    <div class="bar" id="barra"></div>
   </div>
   <p id="porcentaje">0%</p>
 </div>
@@ -112,23 +111,26 @@ li {
   <h2>📌 Eventos</h2>
 
   <input type="time" id="hora">
-  <input type="text" id="evento" placeholder="Descripción del evento">
+  <input type="text" id="evento" placeholder="Evento">
 
   <button onclick="agregarEvento()">Agregar</button>
 
   <ul id="listaEventos"></ul>
 </div>
 
-<!-- 🧠 TRABAJO DIARIO -->
+<!-- 🧠 TRABAJO (CHECKLIST REAL) -->
 <div class="card">
-  <h2>🧠 Trabajo Diario</h2>
+  <h2>🧠 Trabajo</h2>
 
-  <label><input type="checkbox" class="check" onchange="toggleCheck('trabajo1')"> Actividades laborales</label><br>
-  <label><input type="checkbox" class="check" onchange="toggleCheck('trabajo2')"> Organización</label><br>
-  <label><input type="checkbox" class="check" onchange="toggleCheck('trabajo3')"> Cierre</label>
+  <label><input type="checkbox" onchange="toggleCheck('whatsapp')"> WhatsApp</label><br>
+  <label><input type="checkbox" onchange="toggleCheck('gmail')"> Gmail</label><br>
+  <label><input type="checkbox" onchange="toggleCheck('reservas')"> Reservas</label><br>
+  <label><input type="checkbox" onchange="toggleCheck('gasolina')"> Gasolina</label><br>
+  <label><input type="checkbox" onchange="toggleCheck('cierre')"> Cierre</label><br>
+  <label><input type="checkbox" onchange="toggleCheck('control')"> Control</label>
 </div>
 
-<!-- 📌 PENDIENTES -->
+<!-- 📌 PENDIENTES (CON CHECK) -->
 <div class="card">
   <h2>📌 Pendientes</h2>
 
@@ -141,18 +143,8 @@ li {
 <!-- 💧 AGUA -->
 <div class="card">
   <h2>💧 Agua</h2>
-
   <p id="aguaTotal">0 ml</p>
-
   <button onclick="sumarAgua()">+250 ml</button>
-</div>
-
-<!-- 📖 ESTUDIO BÍBLICO -->
-<div class="card">
-  <h2>📖 Estudio Bíblico</h2>
-
-  <input type="text" id="pasaje" placeholder="Pasaje (ej: Juan 3)">
-  <textarea id="nota" placeholder="Reflexión"></textarea>
 </div>
 
 </div>
