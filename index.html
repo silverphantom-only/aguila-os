@@ -1,171 +1,324 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#07070f" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Águila OS</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="theme-color" content="#c9a227"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Modo Águila"/>
+  <meta name="description" content="Disciplina personal, productividad diaria y control total del día."/>
+  <title>Modo Águila</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 </head>
 <body>
 
-  <!-- ── HEADER ── -->
-  <header class="header">
-    <div class="header-brand">
-      <span class="brand-eagle">🦅</span>
-      <span class="brand-name">ÁGUILA OS</span>
+<!-- ═══════════ TOP NAV ═══════════ -->
+<nav class="topnav">
+  <div class="topnav-brand">
+    <span class="brandico">🦅</span>MODO ÁGUILA
+  </div>
+  <div class="topnav-links">
+    <a href="index.html"      class="topnav-link active">Hoy</a>
+    <a href="calendario.html" class="topnav-link">Cal</a>
+  </div>
+</nav>
+
+<!-- ═══════════ HERO ═══════════ -->
+<section class="hero" id="hero">
+  <div class="eagle-frame">
+    <div class="eagle-ring" id="eagleRing"></div>
+    <div class="eagle-img-wrap">
+      <img id="eagleImg" src="eagle1.png" alt="Estado Águila"/>
     </div>
-    <div class="header-right">
-      <div class="mode-pill" id="modePill">—</div>
-      <div class="estado-badge" id="estadoBadge">
-        <span id="estadoIcon">❄️</span>
-        <span id="estadoLabel">Balgham</span>
+  </div>
+  <div class="estado-eyebrow">ESTADO ACTUAL</div>
+  <div class="estado-name" id="estadoName">SOMBRA</div>
+  <div class="estado-pct"  id="estadoPct">0%</div>
+  <div class="pbar-wrap"><div class="pbar-fill" id="pbarFill" style="width:0%"></div></div>
+  <div class="hero-date"  id="heroDate"></div>
+</section>
+
+<main class="wrap">
+
+  <!-- ── Install Banner ── -->
+  <div class="install-bar hide" id="installBar">
+    <span style="font-size:1.8rem">📲</span>
+    <div class="install-bar-txt">
+      <div class="install-bar-h">Instalar Modo Águila</div>
+      <div class="install-bar-s">Agrega la app a tu pantalla de inicio</div>
+    </div>
+    <button class="btn btn-gold btn-sm" id="installBtn">Instalar</button>
+    <button class="ico-btn del" id="installClose">✕</button>
+  </div>
+
+  <!-- ═══════════════════════
+       🎯 FOCO DEL DÍA
+  ═══════════════════════ -->
+  <div class="sec"><div class="sec-ico">🎯</div><div class="sec-title">Foco del Día</div></div>
+  <div class="card">
+    <div class="foco-display" id="focoDisplay"></div>
+    <textarea class="foco-edit-area" id="focoInput" rows="2"
+              placeholder="Escribe tu objetivo principal del día..."></textarea>
+    <div class="foco-actions">
+      <button class="btn btn-gold"  id="focoSaveBtn"  onclick="saveFoco()"   style="display:none">✓ Guardar</button>
+      <button class="btn btn-ghost" id="focoEditBtn"  onclick="editFoco()">✏️ Editar foco</button>
+      <button class="btn btn-ghost" id="focoCancelBtn" onclick="cancelFoco()" style="display:none">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════
+       ✅ CHECKLIST DIARIO
+  ═══════════════════════ -->
+  <div class="sec">
+    <div class="sec-ico">✅</div>
+    <div class="sec-title">Checklist Diario</div>
+    <div class="sec-badge" id="chkBadge">0/9</div>
+  </div>
+
+  <div class="card">
+    <!-- Rutina Matutina -->
+    <div class="chk-group">
+      <div class="chk-group-label">🌅 Rutina Matutina</div>
+      <div class="chk-row" data-id="respiracion"  onclick="toggleChk(this)">
+        <div class="chk-box"></div><span class="chk-emoji">🫁</span>
+        <span class="chk-label">Respiración</span>
+      </div>
+      <div class="chk-row" data-id="calistenia" onclick="toggleChk(this)">
+        <div class="chk-box"></div><span class="chk-emoji">💪</span>
+        <span class="chk-label">Calistenia</span>
+      </div>
+      <div class="chk-row" data-id="desayuno" onclick="toggleChk(this)">
+        <div class="chk-box"></div><span class="chk-emoji">🥗</span>
+        <span class="chk-label">Desayuno</span>
       </div>
     </div>
-  </header>
-
-  <!-- ── MAIN ── -->
-  <main class="main">
-
-    <!-- FECHA -->
-    <section class="card date-card">
-      <div class="date-row">
-        <div>
-          <div class="date-label">Día activo</div>
-          <div class="date-display" id="dateDisplay">—</div>
-        </div>
-        <input type="date" id="dateInput" class="date-input" />
+    <!-- Trabajo -->
+    <div class="chk-group" style="margin-bottom:0">
+      <div class="chk-group-label">💼 Trabajo</div>
+      <div class="chk-row" data-id="whatsapp"  onclick="toggleChk(this)">
+        <div class="chk-box"></div><span class="chk-emoji">📱</span>
+        <span class="chk-label">WhatsApp (chat por chat)</span>
       </div>
-    </section>
-
-    <!-- ACTIVACIÓN MAÑANA -->
-    <section class="card">
-      <h2 class="card-title">🌅 Activación mañana</h2>
-      <ul class="checklist" id="activacionList"></ul>
-    </section>
-
-    <!-- SALUD -->
-    <section class="card">
-      <h2 class="card-title">💊 Salud</h2>
-      <ul class="checklist" id="saludList"></ul>
-    </section>
-
-    <!-- AGUA -->
-    <section class="card">
-      <h2 class="card-title">💧 Agua</h2>
-      <div class="agua-display">
-        <div class="agua-amount" id="aguaAmount">0 ml</div>
-        <div class="agua-meta">Meta: 2000 ml</div>
+      <div class="chk-row" data-id="gmail"     onclick="toggleChk(this)">
+        <div class="chk-box"></div><span class="chk-emoji">📧</span>
+        <span class="chk-label">Gmail</span>
       </div>
-      <div class="progress-wrap">
-        <div class="progress-bar" id="aguaBar"></div>
+      <div class="chk-row" data-id="reservas"  onclick="toggleChk(this)">
+        <div class="chk-box"></div><span class="chk-emoji">📋</span>
+        <span class="chk-label">Reservas</span>
       </div>
-      <div class="agua-pct" id="aguaPct">0%</div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="sumarAgua(250)">+250 ml</button>
-        <button class="btn btn-ghost" onclick="resetAgua()">Reiniciar</button>
+      <div class="chk-row" data-id="gasolinas" onclick="toggleChk(this)">
+        <div class="chk-box"></div><span class="chk-emoji">⛽</span>
+        <span class="chk-label">Gasolinas</span>
       </div>
-    </section>
-
-    <!-- PENDIENTES -->
-    <section class="card">
-      <h2 class="card-title">📌 Pendientes</h2>
-      <div class="input-row">
-        <input type="text" id="pendienteInput" class="field" placeholder="Nueva tarea…" />
-        <button class="btn btn-primary" onclick="agregarPendiente()">+</button>
+      <div class="chk-row" data-id="cierre"    onclick="toggleChk(this)">
+        <div class="chk-box"></div><span class="chk-emoji">🔒</span>
+        <span class="chk-label">Cierre</span>
       </div>
-      <ul class="checklist" id="pendientesList"></ul>
-    </section>
-
-    <!-- AGENDA -->
-    <section class="card">
-      <h2 class="card-title">📋 Agenda</h2>
-      <div class="agenda-form">
-        <input type="time" id="agendaHora" class="field" />
-        <input type="text" id="agendaTexto" class="field" placeholder="Actividad…" />
-        <button class="btn btn-primary" onclick="agregarAgenda()">+ Agregar</button>
+      <div class="chk-row" data-id="control"   onclick="toggleChk(this)">
+        <div class="chk-box"></div><span class="chk-emoji">📊</span>
+        <span class="chk-label">Control día siguiente</span>
       </div>
-      <ul class="agenda-list" id="agendaList"></ul>
-    </section>
+    </div>
+  </div>
 
-    <!-- TRABAJO -->
-    <section class="card">
-      <h2 class="card-title">💼 Trabajo</h2>
-      <ul class="checklist" id="trabajoList"></ul>
-    </section>
+  <!-- ═══════════════════════
+       ⏰ AGENDA DEL DÍA
+  ═══════════════════════ -->
+  <div class="sec" id="agenda">
+    <div class="sec-ico">⏰</div>
+    <div class="sec-title">Agenda del Día</div>
+    <div class="sec-badge" id="agendaBadge">0</div>
+  </div>
 
-    <!-- PROYECTOS -->
-    <section class="card">
-      <h2 class="card-title">🚀 Proyectos</h2>
-      <div class="input-row">
-        <input type="text" id="proyectoInput" class="field" placeholder="Nuevo proyecto…" />
-        <button class="btn btn-primary" onclick="agregarProyecto()">+</button>
-      </div>
-      <ul class="proyectos-list" id="proyectosList"></ul>
-    </section>
+  <div class="card">
+    <div class="row">
+      <input type="time"  class="field field-time" id="agTime"/>
+      <input type="text"  class="field" id="agText" placeholder="Actividad..." maxlength="120"/>
+      <button class="btn btn-gold btn-sq" onclick="addAgenda()">+</button>
+    </div>
+    <div class="list-stack" id="agendaList">
+      <div class="empty-msg"><span class="emi">📭</span>Sin actividades hoy</div>
+    </div>
+  </div>
 
-    <!-- VIDA PERSONAL -->
-    <section class="card">
-      <h2 class="card-title">❤️ Vida personal</h2>
-      <ul class="checklist" id="vidaList"></ul>
-    </section>
+  <!-- ═══════════════════════
+       📌 PENDIENTES
+  ═══════════════════════ -->
+  <div class="sec">
+    <div class="sec-ico">📌</div>
+    <div class="sec-title">Pendientes</div>
+    <div class="sec-badge" id="pendBadge">0</div>
+  </div>
 
-    <!-- ESTUDIO BÍBLICO -->
-    <section class="card biblia-card">
-      <h2 class="card-title">📖 Estudio bíblico exegético</h2>
-      <input type="text" id="bibliaVersiculo" class="field" placeholder="Versículo (ej: Juan 15:5)" />
-      <div class="biblia-fields">
-        <div class="biblia-field">
-          <label class="field-label">Observación</label>
-          <textarea id="bibliaObservacion" class="field field-textarea" placeholder="¿Qué dice el texto?"></textarea>
-        </div>
-        <div class="biblia-field">
-          <label class="field-label">Interpretación</label>
-          <textarea id="bibliaInterpretacion" class="field field-textarea" placeholder="¿Qué significa?"></textarea>
-        </div>
-        <div class="biblia-field">
-          <label class="field-label">Contexto</label>
-          <textarea id="bibliaContexto" class="field field-textarea" placeholder="Contexto histórico y literario…"></textarea>
-        </div>
-        <div class="biblia-field">
-          <label class="field-label">Aplicación</label>
-          <textarea id="bibliaAplicacion" class="field field-textarea" placeholder="¿Cómo aplica hoy?"></textarea>
-        </div>
-        <div class="biblia-field">
-          <label class="field-label">Reflexión personal</label>
-          <textarea id="bibliaReflexion" class="field field-textarea" placeholder="Tu reflexión…"></textarea>
+  <div class="card">
+    <div class="row">
+      <input type="text" class="field" id="pendText" placeholder="Agregar pendiente..." maxlength="160"/>
+      <button class="btn btn-gold btn-sq" onclick="addPend()">+</button>
+    </div>
+    <div class="list-stack" id="pendList">
+      <div class="empty-msg"><span class="emi">✨</span>Todo al día</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════
+       📝 NOTAS DEL DÍA
+  ═══════════════════════ -->
+  <div class="sec"><div class="sec-ico">📝</div><div class="sec-title">Notas del Día</div></div>
+  <div class="card">
+    <textarea class="notes-area" id="notesArea" placeholder="Escribe libremente… ideas, reflexiones, recordatorios..."></textarea>
+    <div class="notes-saved" id="notesSaved">✓ Guardado</div>
+  </div>
+
+  <!-- ═══════════════════════
+       💧 AGUA
+  ═══════════════════════ -->
+  <div class="sec">
+    <div class="sec-ico">💧</div>
+    <div class="sec-title">Hidratación</div>
+    <div class="sec-badge" id="waterBadge">0/2000ml</div>
+  </div>
+
+  <div class="card">
+    <div class="water-layout">
+      <div class="water-vessel">
+        <div class="vessel-body">
+          <div class="vessel-fill" id="vesselFill" style="height:0%"></div>
         </div>
       </div>
-      <button class="btn btn-primary full-btn" onclick="guardarBiblia()">💾 Guardar estudio</button>
-      <div class="biblia-saved" id="bibliaSaved"></div>
-    </section>
-
-    <!-- ESTADO ÁGUILA -->
-    <section class="card estado-card">
-      <h2 class="card-title">🦅 Estado del día</h2>
-      <div class="estado-display">
-        <div class="estado-big-icon" id="estadoBigIcon">❄️</div>
-        <div class="estado-info">
-          <div class="estado-big-label" id="estadoBigLabel">Balgham</div>
-          <div class="estado-sub" id="estadoSub">Activa tus hábitos del día</div>
-          <div class="progress-wrap" style="margin-top:10px">
-            <div class="progress-bar progress-bar--gold" id="estadoBar"></div>
-          </div>
-          <div class="estado-pct" id="estadoPct">0%</div>
+      <div class="water-stats">
+        <div class="water-val" id="waterVal">0 ml</div>
+        <div class="water-sub">Meta diaria: 2,000 ml</div>
+        <div class="water-mini-bar">
+          <div class="water-mini-fill" id="waterMiniFill" style="width:0%"></div>
         </div>
       </div>
-    </section>
+    </div>
+    <div class="water-btns">
+      <button class="wbtn" onclick="addWater(250)">+250ml</button>
+      <button class="wbtn" onclick="addWater(500)">+500ml</button>
+      <button class="wbtn" onclick="addWater(750)">+750ml</button>
+      <button class="wbtn rst" onclick="resetWater()">↺</button>
+    </div>
+  </div>
 
-  </main>
+  <!-- ═══════════════════════
+       🔥 MODO FOCO
+  ═══════════════════════ -->
+  <div class="sec" id="focosec"><div class="sec-ico">🔥</div><div class="sec-title">Modo Foco</div></div>
 
-  <!-- TOAST -->
-  <div class="toast" id="toast"></div>
+  <div class="card focus-wrap" id="focusCard">
+    <svg width="0" height="0" style="position:absolute;pointer-events:none">
+      <defs>
+        <linearGradient id="tg" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stop-color="#c9a227"/>
+          <stop offset="100%" stop-color="#ff6b20"/>
+        </linearGradient>
+      </defs>
+    </svg>
 
-  <script src="app.js"></script>
+    <div class="dur-chips">
+      <button class="chip on" data-m="10" onclick="setDur(10,this)">10 min</button>
+      <button class="chip"    data-m="25" onclick="setDur(25,this)">25 min</button>
+      <button class="chip"    data-m="45" onclick="setDur(45,this)">45 min</button>
+      <button class="chip"    data-m="60" onclick="setDur(60,this)">1 hora</button>
+    </div>
+
+    <div class="timer-ring">
+      <svg viewBox="0 0 148 148">
+        <circle class="tr-bg"   cx="74" cy="74" r="65"/>
+        <circle class="tr-fill" cx="74" cy="74" r="65" id="trFill"/>
+      </svg>
+      <div class="timer-inner">
+        <div class="timer-time" id="timerDisp">10:00</div>
+        <div class="timer-lbl"  id="timerLbl">FOCO</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:0">
+      <button class="btn btn-gold"  id="focusToggleBtn" onclick="toggleFocus()">▶ Iniciar</button>
+      <button class="btn btn-ghost" onclick="resetFocus()">↺</button>
+    </div>
+
+    <div class="focus-msg" id="focusMsg">NO MULTITAREA · TERMINA LO QUE EMPIEZAS</div>
+  </div>
+
+  <!-- ═══════════════════════
+       🧠 RECOMENDACIÓN DEL DÍA
+  ═══════════════════════ -->
+  <div class="sec"><div class="sec-ico">🧠</div><div class="sec-title">Recomendación del Día</div></div>
+  <div id="recContainer"></div>
+  <div style="text-align:center;margin-top:8px">
+    <button class="btn btn-ghost btn-sm" onclick="nextRec()">→ Siguiente</button>
+  </div>
+
+  <!-- ═══════════════════════
+       🫁 RESPIRACIÓN
+  ═══════════════════════ -->
+  <div class="sec"><div class="sec-ico">🫁</div><div class="sec-title">Respiración Sanguíneo</div></div>
+
+  <div class="card">
+    <!-- 4-4-6 technique display -->
+    <div class="breath-phases">
+      <div class="phase-box">
+        <div class="phase-num">4</div>
+        <div class="phase-lbl">Inhalar</div>
+        <div class="phase-desc">Por la nariz</div>
+      </div>
+      <div class="phase-box">
+        <div class="phase-num">4</div>
+        <div class="phase-lbl">Sostener</div>
+        <div class="phase-desc">Retener aire</div>
+      </div>
+      <div class="phase-box">
+        <div class="phase-num">6</div>
+        <div class="phase-lbl">Exhalar</div>
+        <div class="phase-desc">Por la boca</div>
+      </div>
+    </div>
+
+    <!-- Animated guide -->
+    <div class="breath-btn-wrap">
+      <button class="btn btn-gold" id="breathBtn" onclick="toggleBreath()">▶ Iniciar guía</button>
+    </div>
+
+    <div class="breath-anim hidden" id="breathCircle">
+      <div class="breath-anim-label">
+        <div class="breath-anim-phase" id="breathPhase">INHALA</div>
+        <div class="breath-anim-count" id="breathCount">4</div>
+      </div>
+    </div>
+
+    <div class="mt12" style="font-size:.82rem;color:var(--t2);line-height:1.6">
+      <strong style="color:var(--amber);font-size:.8rem;letter-spacing:.1em">TÉCNICA NASAL LENTA:</strong><br/>
+      Respira únicamente por la nariz. Mantén el diafragma activo. Repite 5–10 ciclos. Activa el nervio vago y reduce el cortisol.
+    </div>
+  </div>
+
+</main><!-- /wrap -->
+
+<!-- ═══════════ BOTTOM NAV ═══════════ -->
+<nav class="botnav">
+  <a href="#hero"    class="botnav-item on">
+    <span class="botnav-ico">🦅</span><span class="botnav-lbl">Estado</span>
+  </a>
+  <a href="#agenda"  class="botnav-item">
+    <span class="botnav-ico">⏰</span><span class="botnav-lbl">Agenda</span>
+  </a>
+  <a href="calendario.html" class="botnav-item">
+    <span class="botnav-ico">📅</span><span class="botnav-lbl">Cal</span>
+  </a>
+  <a href="#focosec" class="botnav-item">
+    <span class="botnav-ico">🔥</span><span class="botnav-lbl">Foco</span>
+  </a>
+</nav>
+
+<div class="toasts" id="toasts"></div>
+
+<script src="app.js"></script>
 </body>
 </html>
