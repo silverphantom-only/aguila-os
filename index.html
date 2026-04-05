@@ -5,88 +5,62 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Águila OS</title>
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f172a">
-
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div class="app">
+<!-- HOME -->
+<div id="home" class="screen active">
+  <div class="header">
+    <h1>🦅 Águila OS</h1>
+    <span id="streak">🔥 0</span>
+  </div>
 
-<div id="panel">
-<h2 id="streak">🔥 Racha: 0</h2>
-<p id="estadoDia"></p>
+  <div class="grid">
+    <div class="card" onclick="goTo('app')">📆<p>Mi Día</p></div>
+    <div class="card" onclick="goTo('app')">📌<p>Pendientes</p></div>
+    <div class="card" onclick="goTo('app')">🧘<p>Hábitos</p></div>
+    <div class="card" onclick="goTo('app')">📊<p>Progreso</p></div>
+  </div>
 </div>
 
-<h1>🦅 Águila OS</h1>
+<!-- APP -->
+<div id="app" class="screen">
 
-<input type="date" id="fecha">
+  <div class="topbar">
+    <button onclick="goTo('home')">←</button>
+    <h2 id="mesTitulo"></h2>
+  </div>
 
-<div class="progreso-container">
-<div id="barra"></div>
-</div>
-<p id="porcentaje">0%</p>
+  <input type="date" id="fecha">
 
-<div id="nivelContainer">
-<img id="nivelImg">
-<p id="nivelTexto"></p>
-</div>
+  <div id="calendar"></div>
 
-<section>
-<h2>📆 Calendario</h2>
-<div id="calendar"></div>
-</section>
+  <!-- PROGRESO -->
+  <div class="progressCard">
+    <div class="progressBar">
+      <div id="barra"></div>
+    </div>
+    <p id="porcentaje">0%</p>
+  </div>
 
-<section>
-<h2>📅 Eventos</h2>
-<input type="time" id="horaEvento">
-<input type="text" id="textoEvento">
-<button id="btnEvento">Agregar</button>
-<ul id="listaEventos"></ul>
-</section>
+  <!-- PENDIENTES -->
+  <section>
+    <h3>📌 Pendientes</h3>
+    <input id="inputPendiente" placeholder="Nueva tarea...">
+    <button onclick="addTask()">Agregar</button>
+    <ul id="lista"></ul>
+  </section>
 
-<section>
-<h2>🧠 Trabajo</h2>
-<div id="checklist"></div>
-</section>
-
-<section>
-<h2>🧘 Hábitos</h2>
-<div id="habitos"></div>
-</section>
-
-<section>
-<h2>📌 Pendientes</h2>
-<input type="text" id="inputPendiente">
-<input type="date" id="fechaPendiente">
-<button id="btnPendiente">Agregar</button>
-<ul id="listaPendientes"></ul>
-</section>
-
-<section>
-<h2>💧 Agua</h2>
-<p id="aguaTotal">0 ml</p>
-<button id="btnAgua">+250 ml</button>
-</section>
-
-<section>
-<h2>📖 Biblia</h2>
-<input id="pasaje">
-<textarea id="nota"></textarea>
-<button id="btnBiblia">Guardar</button>
-</section>
+  <!-- HABITOS -->
+  <section>
+    <h3>🧘 Hábitos</h3>
+    <div id="habitosList"></div>
+  </section>
 
 </div>
 
 <script src="app.js"></script>
-
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js");
-}
-</script>
-
 </body>
 </html>
