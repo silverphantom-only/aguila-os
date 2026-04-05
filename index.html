@@ -1,82 +1,92 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Águila OS</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Águila OS</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f172a">
+
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <div class="app">
-  <h1>🦅 Águila OS</h1>
 
-  <input type="date" id="fecha">
+<div id="panel">
+<h2 id="streak">🔥 Racha: 0</h2>
+<p id="estadoDia"></p>
+</div>
 
-  <!-- PROGRESO -->
-  <div class="progreso-container">
-    <div id="barra"></div>
-  </div>
-  <p id="porcentaje">0%</p>
+<h1>🦅 Águila OS</h1>
 
-  <div id="nivelContainer">
-    <img id="nivelImg">
-    <p id="nivelTexto"></p>
-  </div>
+<input type="date" id="fecha">
 
-  <!-- CALENDARIO PRO -->
-  <section>
-    <h2>📆 Calendario</h2>
-    <div id="calendar"></div>
-  </section>
+<div class="progreso-container">
+<div id="barra"></div>
+</div>
+<p id="porcentaje">0%</p>
 
-  <!-- EVENTOS -->
-  <section>
-    <h2>📅 Eventos</h2>
-    <input type="time" id="horaEvento">
-    <input type="text" id="textoEvento" placeholder="Evento...">
-    <button onclick="agregarEvento()">Agregar</button>
-    <ul id="listaEventos"></ul>
-  </section>
+<div id="nivelContainer">
+<img id="nivelImg">
+<p id="nivelTexto"></p>
+</div>
 
-  <!-- CHECKLIST -->
-  <section>
-    <h2>🧠 Checklist</h2>
-    <div id="checklist"></div>
-  </section>
+<section>
+<h2>📆 Calendario</h2>
+<div id="calendar"></div>
+</section>
 
-  <!-- HABITOS -->
-  <section>
-    <h2>🧘 Hábitos</h2>
-    <div id="habitos"></div>
-  </section>
+<section>
+<h2>📅 Eventos</h2>
+<input type="time" id="horaEvento">
+<input type="text" id="textoEvento">
+<button id="btnEvento">Agregar</button>
+<ul id="listaEventos"></ul>
+</section>
 
-  <!-- PENDIENTES -->
-  <section>
-    <h2>📌 Pendientes</h2>
-    <input type="text" id="inputPendiente">
-    <input type="date" id="fechaPendiente">
-    <button onclick="agregarPendiente()">Agregar</button>
-    <ul id="listaPendientes"></ul>
-  </section>
+<section>
+<h2>🧠 Trabajo</h2>
+<div id="checklist"></div>
+</section>
 
-  <!-- AGUA -->
-  <section>
-    <h2>💧 Agua</h2>
-    <p id="aguaTotal">0 ml</p>
-    <button onclick="sumarAgua()">+250 ml</button>
-  </section>
+<section>
+<h2>🧘 Hábitos</h2>
+<div id="habitos"></div>
+</section>
 
-  <!-- BIBLIA -->
-  <section>
-    <h2>📖 Biblia</h2>
-    <input id="pasaje">
-    <textarea id="nota"></textarea>
-    <button onclick="guardarBiblia()">Guardar</button>
-  </section>
+<section>
+<h2>📌 Pendientes</h2>
+<input type="text" id="inputPendiente">
+<input type="date" id="fechaPendiente">
+<button id="btnPendiente">Agregar</button>
+<ul id="listaPendientes"></ul>
+</section>
+
+<section>
+<h2>💧 Agua</h2>
+<p id="aguaTotal">0 ml</p>
+<button id="btnAgua">+250 ml</button>
+</section>
+
+<section>
+<h2>📖 Biblia</h2>
+<input id="pasaje">
+<textarea id="nota"></textarea>
+<button id="btnBiblia">Guardar</button>
+</section>
 
 </div>
 
 <script src="app.js"></script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+
 </body>
 </html>
