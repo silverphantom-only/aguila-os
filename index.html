@@ -9,39 +9,42 @@
 
 <body>
 
-<h1>🦅 Águila OS</h1>
+<div class="panel">
 
-<input type="date" id="fecha">
+  <h1>🦅 Águila OS</h1>
 
-<!-- PROGRESO -->
-<div class="progress">
-  <div id="barra"></div>
+  <div class="top">
+    <input type="date" id="fecha">
+    <div id="racha">🔥 0</div>
+    <div id="nivel">🧬 Balgham</div>
+  </div>
+
+  <div class="progress">
+    <div id="barra"></div>
+  </div>
+  <p id="porcentaje">0%</p>
+
 </div>
-<p id="porcentaje">0%</p>
 
-<!-- CHECKLIST TRABAJO -->
 <section>
-  <h2>🧠 Trabajo Diario</h2>
-  <div id="checksTrabajo"></div>
+  <h2>🧠 Trabajo</h2>
+  <div id="trabajo"></div>
 </section>
 
-<!-- HÁBITOS -->
 <section>
   <h2>💪 Disciplina Física</h2>
-  <div id="habitos"></div>
+  <div id="fisico"></div>
 </section>
 
-<!-- VIDA -->
 <section>
   <h2>❤️ Vida</h2>
   <div id="vida"></div>
 </section>
 
-<!-- NOTAS -->
 <section>
   <h2>📖 Bitácora</h2>
-  <input id="biblia" placeholder="Pasaje bíblico">
-  <textarea id="nota" placeholder="Nota del día"></textarea>
+  <input id="biblia" placeholder="Pasaje">
+  <textarea id="nota" placeholder="Reflexión"></textarea>
   <button onclick="guardarNotas()">Guardar</button>
 </section>
 
