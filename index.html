@@ -9,44 +9,70 @@
 
 <body>
 
-<div class="panel">
+<nav>
+  <button onclick="go('inicio')">🏠</button>
+  <button onclick="go('dia')">📅</button>
+  <button onclick="go('agenda')">🗓️</button>
+  <button onclick="go('biblia')">📖</button>
+  <button onclick="go('disciplina')">🧠</button>
+</nav>
 
+<div id="app">
+
+<!-- INICIO -->
+<section id="inicio" class="view active">
   <h1>🦅 Águila OS</h1>
+  <div id="estado"></div>
+  <div class="progress"><div id="barra"></div></div>
+  <h2 id="porcentaje"></h2>
+</section>
 
-  <div class="top">
-    <input type="date" id="fecha">
-    <div id="racha">🔥 0</div>
-    <div id="nivel">🧬 Balgham</div>
-  </div>
+<!-- DIA -->
+<section id="dia" class="view">
 
-  <div class="progress">
-    <div id="barra"></div>
-  </div>
-  <p id="porcentaje">0%</p>
+<input type="date" id="fecha">
+
+<h3>📌 Agenda</h3>
+<input id="hora" type="time">
+<input id="eventoTexto" placeholder="Evento">
+<button onclick="addEvento()">Agregar</button>
+<ul id="listaEventos"></ul>
+
+<h3>📋 Pendientes</h3>
+<input id="pendienteTexto">
+<button onclick="addPendiente()">Agregar</button>
+<ul id="listaPendientes"></ul>
+
+<h3>🧠 Trabajo</h3>
+<div id="checks"></div>
+
+</section>
+
+<!-- AGENDA -->
+<section id="agenda" class="view">
+  <h3>🗓️ Calendario</h3>
+  <div id="calendar"></div>
+</section>
+
+<!-- BIBLIA -->
+<section id="biblia" class="view">
+  <input id="pasaje" placeholder="Pasaje">
+  <textarea id="obs" placeholder="Observación"></textarea>
+  <textarea id="interp" placeholder="Interpretación"></textarea>
+  <textarea id="aplic" placeholder="Aplicación"></textarea>
+</section>
+
+<!-- DISCIPLINA -->
+<section id="disciplina" class="view">
+  <button onclick="sumarAgua()">💧 +250ml</button>
+  <p id="agua"></p>
+
+  <label><input type="checkbox" onchange="toggleDisc('resp')"> Respiración</label>
+  <label><input type="checkbox" onchange="toggleDisc('ejercicio')"> Ejercicio</label>
+  <label><input type="checkbox" onchange="toggleDisc('pastilla')"> Pastilla</label>
+</section>
 
 </div>
-
-<section>
-  <h2>🧠 Trabajo</h2>
-  <div id="trabajo"></div>
-</section>
-
-<section>
-  <h2>💪 Disciplina Física</h2>
-  <div id="fisico"></div>
-</section>
-
-<section>
-  <h2>❤️ Vida</h2>
-  <div id="vida"></div>
-</section>
-
-<section>
-  <h2>📖 Bitácora</h2>
-  <input id="biblia" placeholder="Pasaje">
-  <textarea id="nota" placeholder="Reflexión"></textarea>
-  <button onclick="guardarNotas()">Guardar</button>
-</section>
 
 <script src="app.js"></script>
 </body>
