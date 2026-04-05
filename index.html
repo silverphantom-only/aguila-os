@@ -14,7 +14,7 @@
   <input type="date" id="fecha">
   <div id="estado"></div>
   <div class="progress"><div id="barra"></div></div>
-  <h3 id="porcentaje"></h3>
+  <h3 id="porcentaje">0%</h3>
 </header>
 
 <div id="calendarBar"></div>
@@ -28,7 +28,7 @@
   <h2>➕ Agendar Pendiente</h2>
   <input id="pendienteTexto" placeholder="Ej: Llamar cliente">
   <input type="date" id="pendienteFecha">
-  <button onclick="addPendiente()">Guardar</button>
+  <button id="btnPendiente">Guardar</button>
 </section>
 
 <section class="card">
@@ -43,15 +43,15 @@
 
 <section class="card">
   <h2>💧 Agua</h2>
-  <p id="agua"></p>
-  <button onclick="sumarAgua()">+250 ml</button>
+  <p id="agua">0 ml</p>
+  <button id="btnAgua">+250 ml</button>
 </section>
 
 <section class="card">
   <h2>🧠 Disciplina</h2>
-  <label><input type="checkbox" onchange="toggleDisc('resp')"> Respiración (diario)</label>
-  <label><input type="checkbox" onchange="toggleDisc('calistenia')"> Calistenia</label>
-  <label><input type="checkbox" onchange="toggleDisc('baño')"> Baño caliente</label>
+  <label><input type="checkbox" data-disc="resp"> Respiración</label><br>
+  <label><input type="checkbox" data-disc="calistenia"> Calistenia</label><br>
+  <label><input type="checkbox" data-disc="baño"> Baño caliente</label>
 </section>
 
 <section class="card">
