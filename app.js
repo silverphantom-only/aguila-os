@@ -51,17 +51,37 @@ function renderEventos() {
 timeline.innerHTML = "";
 let d = getDiaData();
 
-for (let h = 6; h <= 22; h++) {
-let hour = String(h).padStart(2, "0") + ":00";
+d.eventos.sort((a,b)=>a.hora.localeCompare(b.hora));
 
-let div = document.createElement("div");
+d.eventos.forEach((ev,i)=>{
+let div=document.createElement("div");
+div.className="evento";
 
-let ev = d.eventos.find(e => e.hora.startsWith(hour.substring(0,2)));
+let cb=document.createElement("input");
+cb.type="checkbox";
+cb.checked=ev.done||false;
 
-div.innerText = ev ? hour + " - " + ev.texto : hour;
+cb.onchange=()=>{
+ev.done=!ev.done;
+saveData(getData());
+render();
+};
 
+let span=document.createElement("span");
+span.innerText=ev.hora+" - "+ev.texto;
+if(ev.done) span.classList.add("done");
+
+let del=document.createElement("button");
+del.innerText="X";
+del.onclick=()=>{
+d.eventos.splice(i,1);
+saveData(getData());
+render();
+};
+
+div.append(cb,span,del);
 timeline.appendChild(div);
-}
+});
 }
 
 function renderPendientes() {
@@ -122,7 +142,10 @@ document.getElementById("agua").innerText=d.agua+" ml";
 document.getElementById("addAgua").onclick=()=>{
 let data=getData();
 let dia=getDia();
+
 data[dia].agua+=250;
+if(data[dia].agua>2000) data[dia].agua=2000;
+
 saveData(data);
 render();
 };
@@ -135,6 +158,11 @@ let total=0, done=0;
 d.pendientes.forEach(p=>{
 total++;
 if(p.done) done++;
+});
+
+d.eventos.forEach(e=>{
+total++;
+if(e.done) done++;
 });
 
 Object.values(d.disciplina).forEach(v=>{
@@ -168,7 +196,12 @@ mision=p.texto;
 }else{
 let disc=Object.entries(d.disciplina).find(([k,v])=>!v);
 if(disc){
-mision=disc[0];
+let nombres={
+respiracion:"Respiración",
+calistenia:"Calistenia",
+baño:"Baño caliente"
+};
+mision=nombres[disc[0]];
 discPendiente=disc[0];
 }else{
 mision="Todo completado ✔️";
@@ -193,20 +226,26 @@ let cal=document.getElementById("calendar");
 cal.innerHTML="";
 let data=getData();
 
-for(let i=1;i<=30;i++){
-let d=new Date(currentDate.getFullYear(),currentDate.getMonth(),i);
-let key=d.toISOString().split("T")[0];
+let year=currentDate.getFullYear();
+let month=currentDate.getMonth();
+let days=new Date(year,month+1,0).getDate();
 
-let prog=data[key]?.progreso||0;
+for(let i=1;i<=days;i++){
+let d=new Date(year,month,i);
+let key=d.toISOString().split("T")[0];
+let prog=data[key]?.progreso;
 
 let day=document.createElement("div");
 day.className="day";
+day.innerText=i;
 
+if(prog!==undefined){
 if(prog<40) day.classList.add("rojo");
 else if(prog<80) day.classList.add("amarillo");
 else day.classList.add("verde");
-
-day.innerText=i;
+}else{
+day.style.background="#2a2d36";
+}
 
 day.onclick=()=>{
 currentDate=d;
@@ -264,7 +303,7 @@ if(!hora||!texto) return;
 let data=getData();
 let dia=getDia();
 
-data[dia].eventos.push({hora,texto});
+data[dia].eventos.push({hora,texto,done:false});
 
 saveData(data);
 render();
