@@ -48,10 +48,16 @@ button{
   border-radius:10px;
 }
 
-#barra{
+#barraPro{
   height:100%;
   width:0%;
   background:#22c55e;
+}
+
+#barraAgua{
+  height:100%;
+  width:0%;
+  background:#38bdf8;
 }
 
 .calendar-header{
@@ -73,7 +79,7 @@ button{
   cursor:pointer;
 }
 
-.day-cell.active{
-  background:#22c55e;
-  color:black;
+.done{
+  text-decoration:line-through;
+  opacity:0.5;
 }
