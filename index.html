@@ -25,13 +25,23 @@
 </section>
 
 <!-- 📅 CALENDARIO -->
-<div id="calendarBar"></div>
+<section class="card">
+  <h2>📅 Calendario</h2>
 
-<!-- 📅 EVENTOS -->
+  <div class="calendar-header">
+    <button onclick="prevMes()">◀</button>
+    <h3 id="mesTitulo"></h3>
+    <button onclick="nextMes()">▶</button>
+  </div>
+
+  <div id="calendarGrid"></div>
+</section>
+
+<!-- ⏰ AGENDA -->
 <section class="card">
   <h2>⏰ Agenda</h2>
   <input type="time" id="horaEvento">
-  <input type="text" id="textoEvento" placeholder="Evento">
+  <input type="text" id="textoEvento" placeholder="Ej: Trabajar">
   <button onclick="addEvento()">Agregar</button>
   <ul id="agendaDia"></ul>
 </section>
@@ -39,7 +49,7 @@
 <!-- 📌 PENDIENTES -->
 <section class="card">
   <h2>➕ Agendar Pendiente</h2>
-  <input id="pendienteTexto">
+  <input id="pendienteTexto" placeholder="Ej: Llamar cliente">
   <input type="date" id="pendienteFecha">
   <button id="btnPendiente">Guardar</button>
 </section>
@@ -72,8 +82,16 @@
 
 <!-- 📖 BIBLIA -->
 <section class="card">
-  <h2>📖 Biblia</h2>
+  <h2>📖 Estudio Bíblico</h2>
   <p id="versiculo"></p>
+
+  <textarea id="obs" placeholder="Observación"></textarea>
+  <textarea id="interp" placeholder="Interpretación"></textarea>
+  <textarea id="contexto" placeholder="Contexto"></textarea>
+  <textarea id="aplicacion" placeholder="Aplicación"></textarea>
+  <textarea id="reflexion" placeholder="Reflexión"></textarea>
+
+  <button onclick="guardarBiblia()">Guardar</button>
 </section>
 
 <script src="app.js"></script>
