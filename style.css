@@ -1,48 +1,54 @@
 body{
+  margin:0;
+  font-family:sans-serif;
   background:#0f172a;
   color:white;
-  font-family:sans-serif;
-  padding:15px;
 }
 
-.panel{
-  background:#1e293b;
-  padding:15px;
-  border-radius:12px;
-}
-
-.top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-section{
-  margin-top:20px;
-  background:#1e293b;
-  padding:15px;
-  border-radius:10px;
-}
-
-input, textarea, button{
+nav{
+  position:fixed;
+  bottom:0;
   width:100%;
-  margin-top:5px;
+  display:flex;
+  justify-content:space-around;
+  background:#1e293b;
+}
+
+button{
   padding:10px;
-  border-radius:8px;
   border:none;
+  border-radius:8px;
+  margin:5px;
+}
+
+.view{
+  display:none;
+  padding:20px;
+  padding-bottom:60px;
+}
+
+.active{
+  display:block;
 }
 
 .progress{
   height:15px;
   background:#334155;
-  border-radius:10px;
-  overflow:hidden;
-  margin-top:10px;
 }
 
 #barra{
   height:100%;
   width:0%;
-  background:linear-gradient(90deg,#22c55e,#4ade80);
-  transition:0.3s;
+  background:#22c55e;
+}
+
+ul{
+  list-style:none;
+  padding:0;
+}
+
+li{
+  background:#1e293b;
+  margin:5px 0;
+  padding:10px;
 }
