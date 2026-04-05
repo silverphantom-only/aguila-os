@@ -3,85 +3,79 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aguila OS</title>
+<title>Águila OS</title>
 <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<header>
-  <h1>🦅 Aguila OS</h1>
+<div class="app">
 
-  <div class="nav-dias">
-    <button onclick="cambiarDia(-1)">◀</button>
-    <span id="fechaTexto"></span>
-    <button onclick="cambiarDia(1)">▶</button>
-  </div>
+<header>
+<button id="prevDay">◀</button>
+<h1 id="fecha"></h1>
+<button id="nextDay">▶</button>
 </header>
 
 <section class="card">
-  <h2>🔥 MISIÓN ACTIVA</h2>
-  <p id="mision"></p>
-  <button onclick="completarMision()">COMPLETAR</button>
+<h2>Agenda</h2>
+<div id="timeline"></div>
+<input type="time" id="hora">
+<input type="text" id="eventoTexto" placeholder="Evento">
+<button id="addEvento">Agregar</button>
 </section>
 
 <section class="card">
-  <h2>📊 Progreso</h2>
-  <div class="barra"><div id="progresoBarra"></div></div>
-  <p id="porcentaje">0%</p>
+<h2>Pendientes</h2>
+<div id="pendientes"></div>
+<input type="text" id="nuevoPendiente" placeholder="Nuevo pendiente">
+<button id="addPendiente">Agregar</button>
 </section>
 
 <section class="card">
-  <h2>📊 Últimos 7 días</h2>
-  <canvas id="grafica" height="100"></canvas>
+<h2>Disciplina</h2>
+<label><input type="checkbox" id="respiracion"> Respiración</label>
+<label><input type="checkbox" id="calistenia"> Calistenia</label>
+<label><input type="checkbox" id="baño"> Baño caliente</label>
 </section>
 
 <section class="card">
-  <h2>📅 Calendario</h2>
-  <div id="calendar"></div>
+<h2>Agua</h2>
+<div id="agua">0 ml</div>
+<button id="addAgua">+250 ml</button>
 </section>
 
 <section class="card">
-  <h2>📅 Día</h2>
-  <div id="timeline"></div>
+<h2>Progreso</h2>
+<div class="progress">
+<div id="progressBar"></div>
+</div>
+<p id="porcentaje"></p>
 </section>
 
 <section class="card">
-  <h2>⏰ Agendar Evento</h2>
-  <input type="date" id="fechaEvento">
-  <input type="time" id="horaEvento">
-  <input type="text" id="textoEvento" placeholder="Ej: Trabajar">
-  <button onclick="agregarEvento()">Agregar</button>
+<h2>Misión Activa</h2>
+<div id="mision"></div>
+<button id="completeMission">Completar</button>
 </section>
 
 <section class="card">
-  <h2>📌 Pendientes</h2>
-  <input id="inputPendiente" placeholder="Ej: Llamar cliente">
-  <button onclick="agregarPendiente()">Agregar</button>
-  <ul id="lista"></ul>
+<h2>Calendario</h2>
+<div id="calendar"></div>
 </section>
 
 <section class="card">
-  <h2>💧 Agua</h2>
-  <p id="agua">0 ml</p>
-  <button onclick="sumarAgua()">+250 ml</button>
+<h2>Progreso 7 días</h2>
+<canvas id="grafica"></canvas>
 </section>
 
 <section class="card">
-  <h2>🧠 Disciplina</h2>
-  <label><input type="checkbox" id="resp" onclick="toggleDisciplina('respiracion')"> Respiración</label><br>
-  <label><input type="checkbox" id="cal" onclick="toggleDisciplina('calistenia')"> Calistenia</label><br>
-  <label><input type="checkbox" id="ban" onclick="toggleDisciplina('baño')"> Baño caliente</label>
+<h2>Estudio Bíblico</h2>
+<p id="pasaje"></p>
+<textarea id="reflexion" placeholder="Reflexión"></textarea>
 </section>
 
-<section class="card">
-  <h2>📖 Estudio Bíblico</h2>
-  <p id="versiculo"></p>
-  <textarea id="reflexion" placeholder="Reflexión..."></textarea>
-  <button onclick="guardarBiblia()">Guardar</button>
-</section>
+</div>
 
 <script src="app.js"></script>
-
 </body>
 </html>
