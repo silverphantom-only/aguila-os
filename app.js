@@ -1,3 +1,5 @@
+console.log("Águila OS cargado ✔️");
+
 const timeline = document.getElementById("timeline");
 const pendientesDiv = document.getElementById("pendientes");
 const fechaEl = document.getElementById("fecha");
@@ -9,7 +11,12 @@ return currentDate.toISOString().split("T")[0];
 }
 
 function getData() {
-return JSON.parse(localStorage.getItem("aguilaOS") || "{}");
+try {
+return JSON.parse(localStorage.getItem("aguilaOS")) || {};
+} catch (e) {
+localStorage.removeItem("aguilaOS");
+return {};
+}
 }
 
 function saveData(data) {
