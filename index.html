@@ -19,39 +19,33 @@
   </div>
 </header>
 
-<!-- 🔥 MISIÓN -->
-<section class="card bestia">
+<section class="card">
   <h2>🔥 MISIÓN ACTIVA</h2>
   <p id="mision"></p>
   <button onclick="completarMision()">COMPLETAR</button>
 </section>
 
-<!-- 📊 PROGRESO -->
 <section class="card">
   <h2>📊 Progreso</h2>
   <div class="barra"><div id="progresoBarra"></div></div>
   <p id="porcentaje">0%</p>
 </section>
 
-<!-- 📊 GRAFICA -->
 <section class="card">
   <h2>📊 Últimos 7 días</h2>
   <canvas id="grafica" height="100"></canvas>
 </section>
 
-<!-- 📅 CALENDARIO -->
 <section class="card">
   <h2>📅 Calendario</h2>
   <div id="calendar"></div>
 </section>
 
-<!-- 📅 TIMELINE -->
 <section class="card">
   <h2>📅 Día</h2>
   <div id="timeline"></div>
 </section>
 
-<!-- ⏰ EVENTOS -->
 <section class="card">
   <h2>⏰ Agendar Evento</h2>
   <input type="date" id="fechaEvento">
@@ -60,7 +54,6 @@
   <button onclick="agregarEvento()">Agregar</button>
 </section>
 
-<!-- 📌 PENDIENTES -->
 <section class="card">
   <h2>📌 Pendientes</h2>
   <input id="inputPendiente" placeholder="Ej: Llamar cliente">
@@ -68,14 +61,12 @@
   <ul id="lista"></ul>
 </section>
 
-<!-- 💧 AGUA -->
 <section class="card">
   <h2>💧 Agua</h2>
   <p id="agua">0 ml</p>
   <button onclick="sumarAgua()">+250 ml</button>
 </section>
 
-<!-- 🧠 DISCIPLINA -->
 <section class="card">
   <h2>🧠 Disciplina</h2>
   <label><input type="checkbox" id="resp" onclick="toggleDisciplina('respiracion')"> Respiración</label><br>
@@ -83,7 +74,6 @@
   <label><input type="checkbox" id="ban" onclick="toggleDisciplina('baño')"> Baño caliente</label>
 </section>
 
-<!-- 📖 BIBLIA -->
 <section class="card">
   <h2>📖 Estudio Bíblico</h2>
   <p id="versiculo"></p>
@@ -92,5 +82,6 @@
 </section>
 
 <script src="app.js"></script>
+
 </body>
 </html>
