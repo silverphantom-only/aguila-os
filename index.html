@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aguila OS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+  <h1>🦅 Aguila OS</h1>
+
+  <div class="nav-dias">
+    <button onclick="cambiarDia(-1)">◀</button>
+    <span id="fechaTexto"></span>
+    <button onclick="cambiarDia(1)">▶</button>
+  </div>
+</header>
+
+<!-- 🔥 MISIÓN -->
+<section class="card">
+  <h2>🔥 Mision Activa</h2>
+  <p id="mision"></p>
+  <button onclick="completarMision()">Completar</button>
+</section>
+
+<!-- 📊 PROGRESO -->
+<section class="card">
+  <h2>📊 Progreso</h2>
+  <div class="barra"><div id="progresoBarra"></div></div>
+  <p id="porcentaje">0%</p>
+</section>
+
+<!-- 📅 AGENDA -->
+<section class="card">
+  <h2>📅 Día</h2>
+  <div id="timeline"></div>
+</section>
+
+<!-- ⏰ EVENTOS -->
+<section class="card">
+  <h2>⏰ Agendar Evento</h2>
+  <input type="date" id="fechaEvento">
+  <input type="time" id="horaEvento">
+  <input type="text" id="textoEvento" placeholder="Ej: Trabajar">
+  <button onclick="agregarEvento()">Agregar</button>
+</section>
+
+<!-- 📌 PENDIENTES -->
+<section class="card">
+  <h2>📌 Pendientes</h2>
+  <input id="inputPendiente" placeholder="Ej: Llamar cliente">
+  <button onclick="agregarPendiente()">Agregar</button>
+  <ul id="lista"></ul>
+</section>
+
+<!-- 💧 AGUA -->
+<section class="card">
+  <h2>💧 Agua</h2>
+  <p id="agua">0 ml</p>
+  <button onclick="sumarAgua()">+250 ml</button>
+</section>
+
+<script src="app.js"></script>
+</body>
+</html>
