@@ -4,62 +4,46 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Águila OS</title>
-
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<!-- HOME -->
-<div id="home" class="screen active">
-  <div class="header">
-    <h1>🦅 Águila OS</h1>
-    <span id="streak">🔥 0</span>
-  </div>
+<h1>🦅 Águila OS</h1>
 
-  <div class="grid">
-    <div class="card" onclick="goTo('app')">📆<p>Mi Día</p></div>
-    <div class="card" onclick="goTo('app')">📌<p>Pendientes</p></div>
-    <div class="card" onclick="goTo('app')">🧘<p>Hábitos</p></div>
-    <div class="card" onclick="goTo('app')">📊<p>Progreso</p></div>
-  </div>
+<input type="date" id="fecha">
+
+<!-- PROGRESO -->
+<div class="progress">
+  <div id="barra"></div>
 </div>
+<p id="porcentaje">0%</p>
 
-<!-- APP -->
-<div id="app" class="screen">
+<!-- CHECKLIST TRABAJO -->
+<section>
+  <h2>🧠 Trabajo Diario</h2>
+  <div id="checksTrabajo"></div>
+</section>
 
-  <div class="topbar">
-    <button onclick="goTo('home')">←</button>
-    <h2 id="mesTitulo"></h2>
-  </div>
+<!-- HÁBITOS -->
+<section>
+  <h2>💪 Disciplina Física</h2>
+  <div id="habitos"></div>
+</section>
 
-  <input type="date" id="fecha">
+<!-- VIDA -->
+<section>
+  <h2>❤️ Vida</h2>
+  <div id="vida"></div>
+</section>
 
-  <div id="calendar"></div>
-
-  <!-- PROGRESO -->
-  <div class="progressCard">
-    <div class="progressBar">
-      <div id="barra"></div>
-    </div>
-    <p id="porcentaje">0%</p>
-  </div>
-
-  <!-- PENDIENTES -->
-  <section>
-    <h3>📌 Pendientes</h3>
-    <input id="inputPendiente" placeholder="Nueva tarea...">
-    <button onclick="addTask()">Agregar</button>
-    <ul id="lista"></ul>
-  </section>
-
-  <!-- HABITOS -->
-  <section>
-    <h3>🧘 Hábitos</h3>
-    <div id="habitosList"></div>
-  </section>
-
-</div>
+<!-- NOTAS -->
+<section>
+  <h2>📖 Bitácora</h2>
+  <input id="biblia" placeholder="Pasaje bíblico">
+  <textarea id="nota" placeholder="Nota del día"></textarea>
+  <button onclick="guardarNotas()">Guardar</button>
+</section>
 
 <script src="app.js"></script>
 </body>
