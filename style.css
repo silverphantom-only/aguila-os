@@ -7,7 +7,9 @@ body{
   margin:auto;
 }
 
-header{padding:20px;}
+header{
+  padding:20px;
+}
 
 .nav-dias{
   display:flex;
@@ -34,6 +36,10 @@ button{
   border-radius:15px;
 }
 
+.bestia{
+  border:2px solid #22c55e;
+}
+
 .progress{
   height:10px;
   background:#334155;
@@ -48,17 +54,48 @@ button{
   padding:10px;
   background:#020617;
   border-radius:10px;
-  margin:5px 0;
+  margin-top:5px;
+}
+
+.hora span{
+  width:60px;
+  font-weight:bold;
 }
 
 .evento{
   margin-left:10px;
   background:#22c55e;
   padding:5px;
-  border-radius:5px;
+  border-radius:6px;
+}
+
+#listaPendientes li{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:#020617;
+  padding:10px;
+  margin-top:8px;
+  border-radius:10px;
+}
+
+#listaPendientes button{
+  width:auto;
+  background:#ef4444;
+  padding:5px 10px;
 }
 
 .done{
   text-decoration:line-through;
   opacity:0.5;
+}
+
+input, textarea{
+  width:100%;
+  padding:10px;
+  margin-top:5px;
+  border-radius:10px;
+  border:none;
+  background:#020617;
+  color:white;
 }
