@@ -35,40 +35,33 @@
   <h3 id="porcentaje">0%</h3>
 </section>
 
-<!-- 📅 CALENDARIO -->
+<!-- 📅 AGENDA VISUAL -->
 <section class="card">
-  <h2>📅 Calendario</h2>
-
-  <div class="calendar-header">
-    <button onclick="prevMes()">◀</button>
-    <h3 id="mesTitulo"></h3>
-    <button onclick="nextMes()">▶</button>
-  </div>
-
-  <div id="calendarGrid"></div>
+  <h2>📅 Día</h2>
+  <div id="timeline"></div>
 </section>
 
 <!-- ⏰ EVENTOS -->
 <section class="card">
-  <h2>⏰ Agenda</h2>
+  <h2>⏰ Agendar Evento</h2>
   <input type="date" id="fechaEvento">
   <input type="time" id="horaEvento">
-  <input type="text" id="textoEvento" placeholder="Ej: Trabajar">
+  <input type="text" id="textoEvento" placeholder="Ej: Trabajo">
   <button onclick="addEvento()">Agregar</button>
-  <ul id="agendaDia"></ul>
 </section>
 
 <!-- 📌 PENDIENTES -->
 <section class="card">
   <h2>📌 Pendientes</h2>
   <input id="pendienteTexto" placeholder="Ej: Llamar cliente">
-  <button id="btnPendiente">Agregar</button>
+  <button onclick="addPendiente()">Agregar</button>
   <ul id="listaPendientes"></ul>
 </section>
 
 <!-- 🧠 TRABAJO -->
 <section class="card">
   <h2>🧠 Trabajo</h2>
+  <label><input type="checkbox" id="modoDescanso"> Día de descanso</label>
   <div id="checks"></div>
 </section>
 
@@ -77,7 +70,7 @@
   <h2>💧 Agua</h2>
   <div class="progress"><div id="barraAgua"></div></div>
   <p id="agua">0 ml</p>
-  <button id="btnAgua">+250 ml</button>
+  <button onclick="sumarAgua()">+250 ml</button>
 </section>
 
 <!-- 🧠 DISCIPLINA -->
@@ -92,13 +85,7 @@
 <section class="card">
   <h2>📖 Estudio Bíblico</h2>
   <p id="versiculo"></p>
-
-  <textarea id="obs" placeholder="Observación"></textarea>
-  <textarea id="interp" placeholder="Interpretación"></textarea>
-  <textarea id="contexto" placeholder="Contexto"></textarea>
-  <textarea id="aplicacion" placeholder="Aplicación"></textarea>
   <textarea id="reflexion" placeholder="Reflexión"></textarea>
-
   <button onclick="guardarBiblia()">Guardar</button>
 </section>
 
