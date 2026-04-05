@@ -11,7 +11,7 @@ header{
   padding:20px;
 }
 
-input{
+input, textarea{
   width:100%;
   padding:10px;
   margin-top:5px;
@@ -54,27 +54,26 @@ button{
   background:#22c55e;
 }
 
-#calendarBar{
+.calendar-header{
   display:flex;
-  overflow-x:auto;
-  gap:10px;
-  padding:10px;
+  justify-content:space-between;
 }
 
-.day{
-  min-width:50px;
+#calendarGrid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:5px;
+}
+
+.day-cell{
   padding:10px;
   background:#020617;
-  border-radius:10px;
+  border-radius:8px;
   text-align:center;
+  cursor:pointer;
 }
 
-.active-day{
+.day-cell.active{
   background:#22c55e;
   color:black;
-}
-
-.done{
-  text-decoration:line-through;
-  opacity:0.5;
 }
