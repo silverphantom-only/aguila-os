@@ -19,11 +19,16 @@
   </div>
   <p id="porcentaje">0%</p>
 
-  <!-- NIVEL -->
   <div id="nivelContainer">
-    <img id="nivelImg" src="" alt="">
+    <img id="nivelImg">
     <p id="nivelTexto"></p>
   </div>
+
+  <!-- CALENDARIO PRO -->
+  <section>
+    <h2>📆 Calendario</h2>
+    <div id="calendar"></div>
+  </section>
 
   <!-- EVENTOS -->
   <section>
@@ -40,7 +45,7 @@
     <div id="checklist"></div>
   </section>
 
-  <!-- HÁBITOS -->
+  <!-- HABITOS -->
   <section>
     <h2>🧘 Hábitos</h2>
     <div id="habitos"></div>
@@ -49,7 +54,8 @@
   <!-- PENDIENTES -->
   <section>
     <h2>📌 Pendientes</h2>
-    <input type="text" id="inputPendiente" placeholder="Nuevo pendiente...">
+    <input type="text" id="inputPendiente">
+    <input type="date" id="fechaPendiente">
     <button onclick="agregarPendiente()">Agregar</button>
     <ul id="listaPendientes"></ul>
   </section>
@@ -63,16 +69,10 @@
 
   <!-- BIBLIA -->
   <section>
-    <h2>📖 Estudio Bíblico</h2>
-    <input type="text" id="pasaje" placeholder="Pasaje">
-    <textarea id="nota" placeholder="Nota..."></textarea>
+    <h2>📖 Biblia</h2>
+    <input id="pasaje">
+    <textarea id="nota"></textarea>
     <button onclick="guardarBiblia()">Guardar</button>
-  </section>
-
-  <!-- CALENDARIO -->
-  <section>
-    <h2>🗓️ Historial</h2>
-    <ul id="calendario"></ul>
   </section>
 
 </div>
