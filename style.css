@@ -1,94 +1,43 @@
 body{
-  margin:0;
-  font-family:sans-serif;
   background:#0f172a;
   color:white;
+  font-family:sans-serif;
+  padding:15px;
 }
 
-/* SCREENS */
-.screen{
-  display:none;
-  padding:20px;
-  animation:fade 0.3s ease;
+.panel{
+  background:#1e293b;
+  padding:15px;
+  border-radius:12px;
 }
 
-.active{
-  display:block;
-}
-
-@keyframes fade{
-  from{opacity:0;transform:translateY(10px);}
-  to{opacity:1;transform:translateY(0);}
-}
-
-/* HEADER */
-.header{
+.top{
   display:flex;
   justify-content:space-between;
   align-items:center;
 }
 
-/* GRID */
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:15px;
+section{
   margin-top:20px;
-}
-
-.card{
-  background:#1e293b;
-  padding:25px;
-  border-radius:15px;
-  text-align:center;
-  font-size:18px;
-  cursor:pointer;
-  transition:0.2s;
-}
-
-.card:active{
-  transform:scale(0.95);
-}
-
-/* TOPBAR */
-.topbar{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-/* CALENDAR */
-#calendar{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:6px;
-  margin-top:10px;
-}
-
-.day{
-  padding:10px;
-  border-radius:8px;
-  text-align:center;
-  background:#1e293b;
-}
-
-.selected{
-  background:#22c55e;
-}
-
-/* PROGRESS */
-.progressCard{
   background:#1e293b;
   padding:15px;
-  border-radius:12px;
-  margin-top:15px;
+  border-radius:10px;
 }
 
-.progressBar{
-  height:12px;
+input, textarea, button{
+  width:100%;
+  margin-top:5px;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+}
+
+.progress{
+  height:15px;
   background:#334155;
   border-radius:10px;
   overflow:hidden;
+  margin-top:10px;
 }
 
 #barra{
@@ -96,17 +45,4 @@ body{
   width:0%;
   background:linear-gradient(90deg,#22c55e,#4ade80);
   transition:0.3s;
-}
-
-/* LIST */
-li{
-  background:#334155;
-  padding:10px;
-  margin-top:8px;
-  border-radius:8px;
-}
-
-.done{
-  text-decoration:line-through;
-  opacity:0.5;
 }
