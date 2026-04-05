@@ -60,7 +60,7 @@ background:limegreen;
 transition:0.4s;
 }
 
-.pendiente {
+.pendiente, .evento {
 display:flex;
 justify-content:space-between;
 align-items:center;
