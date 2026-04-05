@@ -1,244 +1,205 @@
 const checks = ["WhatsApp","Gmail","Reservas","Gasolina","Cierre","Control"];
 
-const bibliaPlan = [
-  "Génesis 1:1","Génesis 1:3","Génesis 1:26","Génesis 2:7","Génesis 3:9"
-];
-
-/* FIX FECHA */
 function hoy(){
-  let d = new Date();
-  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-  return d.toISOString().split("T")[0];
+  const d = new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');
 }
 
-/* STORAGE */
 function getData(){
-  return JSON.parse(localStorage.getItem("aguila")) || {};
+  return JSON.parse(localStorage.getItem("aguila"))||{};
 }
 
-function saveData(data){
-  localStorage.setItem("aguila", JSON.stringify(data));
+function saveData(d){
+  localStorage.setItem("aguila",JSON.stringify(d));
 }
 
 function getFecha(){
-  return document.getElementById("fecha").value;
+  return fecha.value;
 }
 
 function getDia(){
-  let data = getData();
-  let f = getFecha();
+  let data=getData();
+  let f=getFecha();
 
   if(!data[f]){
-    data[f] = {
-      pendientes: [],
-      checks: {},
-      agua: 0,
-      disciplina: {},
-      biblia: ""
-    };
+    data[f]={pendientes:[],eventos:[],checks:{},agua:0,disciplina:{}};
     saveData(data);
   }
 
   return data[f];
 }
 
-/* CALENDARIO */
-function renderCalendarBar(){
-  let bar = document.getElementById("calendarBar");
-  bar.innerHTML = "";
+/* 🔥 MISIÓN */
+function getMision(){
+  let d=getDia();
 
-  let base = new Date(getFecha());
+  if(!d.disciplina.resp) return "Respiración";
+  if(!d.disciplina.baño) return "Baño caliente";
+  if(!d.disciplina.calistenia) return "Calistenia";
 
-  for(let i=-3;i<=3;i++){
-    let d = new Date(base);
-    d.setDate(d.getDate()+i);
+  let p=d.pendientes.find(x=>!x.done);
+  if(p) return p.texto;
 
-    let fecha = d.toISOString().split("T")[0];
-
-    let div = document.createElement("div");
-    div.className = "day";
-    if(fecha === getFecha()) div.classList.add("active-day");
-
-    div.innerText = d.getDate();
-
-    div.onclick = ()=>{
-      document.getElementById("fecha").value = fecha;
-      renderTodo();
-    };
-
-    bar.appendChild(div);
-  }
+  return "Día completado";
 }
 
-/* PENDIENTES */
-document.getElementById("btnPendiente").onclick = ()=>{
-  let data = getData();
-  let f = pendienteFecha.value;
+btnCompletar.onclick=()=>{
+  let d=getDia();
 
-  if(!f) return;
-
-  if(!data[f]){
-    data[f] = {pendientes:[],checks:{},agua:0,disciplina:{}};
+  if(!d.disciplina.resp) d.disciplina.resp=true;
+  else if(!d.disciplina.baño) d.disciplina.baño=true;
+  else if(!d.disciplina.calistenia) d.disciplina.calistenia=true;
+  else{
+    let p=d.pendientes.find(x=>!x.done);
+    if(p) p.done=true;
   }
 
-  data[f].pendientes.push({
-    texto: pendienteTexto.value,
-    done:false
-  });
+  save();
+};
 
-  saveData(data);
-  renderTodo();
+/* 📌 PENDIENTES */
+btnPendiente.onclick=()=>{
+  let d=getDia();
+
+  if(d.pendientes.length>=5){
+    alert("Ejecuta primero");
+    return;
+  }
+
+  let txt=pendienteTexto.value;
+  if(!txt) return;
+
+  d.pendientes.push({texto:txt,done:false});
+  pendienteTexto.value="";
+  save();
 };
 
 function renderPendientes(){
-  let ul = document.getElementById("listaPendientes");
-  ul.innerHTML = "";
+  listaPendientes.innerHTML="";
 
   getDia().pendientes.forEach((p,i)=>{
-    let li = document.createElement("li");
+    let li=document.createElement("li");
 
-    let cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.checked = p.done;
+    let cb=document.createElement("input");
+    cb.type="checkbox";
+    cb.checked=p.done;
 
-    cb.addEventListener("change",()=>{
-      let dia = getDia();
-      dia.pendientes[i].done = !dia.pendientes[i].done;
+    cb.onchange=()=>{
+      p.done=cb.checked;
       save();
-    });
+    };
 
-    let span = document.createElement("span");
-    span.innerText = p.texto;
-
+    let span=document.createElement("span");
+    span.innerText=p.texto;
     if(p.done) span.classList.add("done");
 
     li.appendChild(cb);
     li.appendChild(span);
 
-    ul.appendChild(li);
+    listaPendientes.appendChild(li);
   });
 }
 
-/* CHECKS */
-function renderChecks(){
-  let cont = document.getElementById("checks");
-  cont.innerHTML = "";
+/* ⏰ EVENTOS */
+function addEvento(){
+  let h=horaEvento.value;
+  let t=textoEvento.value;
+  if(!h||!t)return;
 
-  let dia = getDia();
+  let d=getDia();
+  d.eventos.push({hora:h,texto:t});
+  d.eventos.sort((a,b)=>a.hora.localeCompare(b.hora));
 
-  checks.forEach(c=>{
-    let label = document.createElement("label");
+  horaEvento.value="";
+  textoEvento.value="";
+  save();
+}
 
-    let cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.checked = dia.checks[c] || false;
-
-    cb.addEventListener("change",()=>{
-      dia.checks[c] = cb.checked;
-      save();
-    });
-
-    label.appendChild(cb);
-    label.append(" " + c);
-    cont.appendChild(label);
-    cont.appendChild(document.createElement("br"));
+function renderEventos(){
+  agendaDia.innerHTML="";
+  getDia().eventos.forEach(e=>{
+    let li=document.createElement("li");
+    li.innerHTML=`<b>${e.hora}</b> - ${e.texto}`;
+    agendaDia.appendChild(li);
   });
 }
 
-/* AGUA */
-document.getElementById("btnAgua").onclick = ()=>{
-  let dia = getDia();
-  dia.agua += 250;
+/* 💧 AGUA */
+btnAgua.onclick=()=>{
+  let d=getDia();
+  d.agua+=250;
   save();
 };
 
-/* DISCIPLINA */
-document.querySelectorAll("[data-disc]").forEach(el=>{
-  el.addEventListener("change",()=>{
-    let dia = getDia();
-    dia.disciplina[el.dataset.disc] = el.checked;
-    save();
-  });
-});
+/* 🧠 CHECKS */
+function renderChecks(){
+  checksDiv.innerHTML="";
+  let d=getDia();
 
-/* AGENDA */
-function renderAgendaDia(){
-  let ul = document.getElementById("agendaDia");
-  ul.innerHTML = "";
+  checks.forEach(c=>{
+    let cb=document.createElement("input");
+    cb.type="checkbox";
+    cb.checked=d.checks[c]||false;
 
-  let base = ["Respiración","Baño caliente","Trabajo","Familia"];
+    cb.onchange=()=>{
+      d.checks[c]=cb.checked;
+      save();
+    };
 
-  base.forEach(t=>{
-    let li = document.createElement("li");
-    li.innerText = t;
-    ul.appendChild(li);
-  });
-
-  getDia().pendientes.forEach(p=>{
-    let li = document.createElement("li");
-    li.innerText = p.texto;
-    ul.appendChild(li);
+    checksDiv.append(c,cb,document.createElement("br"));
   });
 }
 
-/* PROGRESO */
-function actualizarProgreso(){
-  let dia = getDia();
+/* 📊 PROGRESO */
+function progreso(){
+  let d=getDia();
 
-  let total = checks.length + dia.pendientes.length + 4;
-  let done = 0;
+  let total=checks.length+d.pendientes.length+4;
+  let done=0;
 
-  checks.forEach(c=>{ if(dia.checks[c]) done++; });
-  dia.pendientes.forEach(p=>{ if(p.done) done++; });
+  checks.forEach(c=>{if(d.checks[c])done++;});
+  d.pendientes.forEach(p=>{if(p.done)done++;});
 
-  if(dia.disciplina.resp) done++;
-  if(dia.disciplina.calistenia) done++;
-  if(dia.disciplina.baño) done++;
-  if(dia.agua >= 2000) done++;
+  if(d.disciplina.resp)done++;
+  if(d.disciplina.calistenia)done++;
+  if(d.disciplina.baño)done++;
+  if(d.agua>=2000)done++;
 
-  let p = Math.round((done / total) * 100);
+  let p=Math.round((done/total)*100);
 
-  document.getElementById("barra").style.width = p+"%";
-  document.getElementById("porcentaje").innerText = p+"%";
+  barra.style.width=p+"%";
+  porcentaje.innerText=p+"%";
 
-  document.getElementById("estado").innerText =
-    p<25?"BALGHAM":
-    p<50?"MEDIO":
-    p<75?"ASCENSO":"ÁGUILA";
+  estado.innerText=p<25?"BALGHAM":p<50?"MEDIO":p<75?"ASCENSO":"ÁGUILA";
 }
 
-/* BIBLIA */
-function renderBiblia(){
-  let index = Object.keys(getData()).indexOf(getFecha());
-  document.getElementById("versiculo").innerText =
-    bibliaPlan[index % bibliaPlan.length];
+/* 📖 BIBLIA */
+function biblia(){
+  let lista=["Génesis 1:1","Génesis 1:3","Génesis 1:26"];
+  versiculo.innerText=lista[Math.floor(Math.random()*lista.length)];
 }
 
-/* SAVE */
-function save(){
-  let data = getData();
-  data[getFecha()] = getDia();
-  saveData(data);
-  renderTodo();
-}
-
-/* MAIN */
-function renderTodo(){
-  renderCalendarBar();
+/* 🔄 RENDER */
+function render(){
+  misionActual.innerText=getMision();
   renderPendientes();
+  renderEventos();
   renderChecks();
-  renderAgendaDia();
-  renderBiblia();
-  actualizarProgreso();
+  progreso();
+  biblia();
+  agua.innerText=getDia().agua+" ml";
+}
 
-  document.getElementById("agua").innerText =
-    getDia().agua + " ml";
+function save(){
+  let data=getData();
+  data[getFecha()]=getDia();
+  saveData(data);
+  render();
 }
 
 /* INIT */
-document.getElementById("fecha").value = hoy();
-document.getElementById("pendienteFecha").value = hoy();
+fecha.value=hoy();
+pendienteFecha.value=hoy();
+fecha.onchange=render;
 
-document.getElementById("fecha").addEventListener("change",renderTodo);
-
-renderTodo();
+render();
