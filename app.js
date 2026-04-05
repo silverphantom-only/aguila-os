@@ -1,5 +1,8 @@
 const checks = ["WhatsApp","Gmail","Reservas","Gasolina","Cierre","Control"];
 
+let fechaActual = hoy();
+let currentDate = new Date();
+
 function hoy(){
   const d = new Date();
   return d.toISOString().split("T")[0];
@@ -12,8 +15,6 @@ function getData(){
 function saveData(d){
   localStorage.setItem("aguila",JSON.stringify(d));
 }
-
-let fechaActual = hoy();
 
 function getFecha(){
   return fechaActual;
@@ -62,21 +63,13 @@ btnCompletar.onclick=()=>{
 /* 📌 PENDIENTES */
 btnPendiente.onclick=()=>{
   let txt=pendienteTexto.value.trim();
-  let f=pendienteFecha.value;
+  if(!txt)return;
 
-  if(!txt||!f)return;
+  let d=getDia();
+  d.pendientes.push({texto:txt,done:false});
 
-  let data=getData();
-
-  if(!data[f]){
-    data[f]={pendientes:[],eventos:[],checks:{},agua:0,disciplina:{},biblia:{}};
-  }
-
-  data[f].pendientes.push({texto:txt,done:false});
-
-  saveData(data);
   pendienteTexto.value="";
-  render();
+  save();
 };
 
 function renderPendientes(){
@@ -108,13 +101,17 @@ function renderPendientes(){
 
 /* ⏰ EVENTOS */
 function addEvento(){
-  let h=horaEvento.value;
-  let t=textoEvento.value;
 
-  if(!h||!t)return;
+  let f = document.getElementById("fechaEvento").value;
+  let h = horaEvento.value;
+  let t = textoEvento.value;
+
+  if(!f||!h||!t){
+    alert("Completa todo");
+    return;
+  }
 
   let data=getData();
-  let f=getFecha();
 
   if(!data[f]){
     data[f]={pendientes:[],eventos:[],checks:{},agua:0,disciplina:{},biblia:{}};
@@ -125,6 +122,7 @@ function addEvento(){
 
   saveData(data);
 
+  fechaEvento.value="";
   horaEvento.value="";
   textoEvento.value="";
   render();
@@ -152,6 +150,8 @@ function renderChecks(){
   let d=getDia();
 
   checks.forEach(c=>{
+    let label=document.createElement("label");
+
     let cb=document.createElement("input");
     cb.type="checkbox";
     cb.checked=d.checks[c]||false;
@@ -161,14 +161,18 @@ function renderChecks(){
       save();
     };
 
-    checksDiv.append(c,cb,document.createElement("br"));
+    label.appendChild(cb);
+    label.append(" "+c);
+
+    checksDiv.appendChild(label);
+    checksDiv.appendChild(document.createElement("br"));
   });
 }
 
 /* 📊 PROGRESO */
 function progreso(){
-  let d=getDia();
 
+  let d=getDia();
   let total=10;
   let done=0;
 
@@ -180,24 +184,31 @@ function progreso(){
 
   let p=Math.round((done/total)*100);
 
-  barra.style.width=p+"%";
+  barraPro.style.width=p+"%";
   porcentaje.innerText=p+"%";
 
-  estado.innerText=p<25?"BALGHAM":p<50?"MEDIO":p<75?"ASCENSO":"ÁGUILA";
+  estado.innerText =
+    p<25 ? "BALGHAM" :
+    p<50 ? "MEDIO" :
+    p<75 ? "ASCENSO" :
+    "AGUILA";
 }
 
-/* 📖 BIBLIA EXEGÉTICA */
-const plan = [
-  "Génesis 1:1",
-  "Génesis 1:3",
-  "Génesis 1:26",
-  "Génesis 2:7",
-  "Génesis 3:9"
-];
+/* 💧 VISUAL AGUA */
+function renderAgua(){
+  let total=getDia().agua;
+  agua.innerText=total+" ml";
+
+  let p=Math.min((total/2000)*100,100);
+  barraAgua.style.width=p+"%";
+}
+
+/* 📖 BIBLIA */
+const plan=["Génesis 1:1","Génesis 1:3","Génesis 1:26","Génesis 2:7","Génesis 3:9"];
 
 function biblia(){
-  let index = new Date(getFecha()).getDate() % plan.length;
-  versiculo.innerText = plan[index];
+  let i=new Date(getFecha()).getDate()%plan.length;
+  versiculo.innerText=plan[i];
 
   let b=getDia().biblia||{};
   obs.value=b.obs||"";
@@ -209,7 +220,6 @@ function biblia(){
 
 function guardarBiblia(){
   let d=getDia();
-
   d.biblia={
     obs:obs.value,
     interp:interp.value,
@@ -217,20 +227,16 @@ function guardarBiblia(){
     aplicacion:aplicacion.value,
     reflexion:reflexion.value
   };
-
   save();
 }
 
 /* 📅 CALENDARIO */
-let currentDate=new Date();
-
 function renderCalendar(){
   calendarGrid.innerHTML="";
   mesTitulo.innerText=currentDate.toLocaleString("es",{month:"long",year:"numeric"});
 
   let y=currentDate.getFullYear();
   let m=currentDate.getMonth();
-
   let days=new Date(y,m+1,0).getDate();
 
   for(let i=1;i<=days;i++){
@@ -241,7 +247,7 @@ function renderCalendar(){
     div.innerText=i;
 
     div.onclick=()=>{
-      fecha.value=f;
+      fechaActual=f;
       render();
     };
 
@@ -259,9 +265,9 @@ function render(){
   renderEventos();
   renderChecks();
   progreso();
+  renderAgua();
   biblia();
   renderCalendar();
-  agua.innerText=getDia().agua+" ml";
 }
 
 function save(){
@@ -272,8 +278,4 @@ function save(){
 }
 
 /* INIT */
-fecha.value=hoy();
-pendienteFecha.value=hoy();
-fecha.onchange=render;
-
 render();
