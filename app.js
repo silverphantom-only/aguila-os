@@ -13,8 +13,10 @@ function saveData(d){
   localStorage.setItem("aguila",JSON.stringify(d));
 }
 
+let fechaActual = hoy();
+
 function getFecha(){
-  return fecha.value;
+  return fechaActual;
 }
 
 function getDia(){
