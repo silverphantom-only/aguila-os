@@ -9,17 +9,21 @@
 <body>
 
 <div class="app">
-
   <h1>🦅 Águila OS</h1>
 
-  <!-- Fecha -->
   <input type="date" id="fecha">
 
-  <!-- Progreso -->
+  <!-- PROGRESO -->
   <div class="progreso-container">
     <div id="barra"></div>
   </div>
   <p id="porcentaje">0%</p>
+
+  <!-- NIVEL -->
+  <div id="nivelContainer">
+    <img id="nivelImg" src="" alt="">
+    <p id="nivelTexto"></p>
+  </div>
 
   <!-- EVENTOS -->
   <section>
@@ -34,6 +38,12 @@
   <section>
     <h2>🧠 Checklist</h2>
     <div id="checklist"></div>
+  </section>
+
+  <!-- HÁBITOS -->
+  <section>
+    <h2>🧘 Hábitos</h2>
+    <div id="habitos"></div>
   </section>
 
   <!-- PENDIENTES -->
@@ -57,6 +67,12 @@
     <input type="text" id="pasaje" placeholder="Pasaje">
     <textarea id="nota" placeholder="Nota..."></textarea>
     <button onclick="guardarBiblia()">Guardar</button>
+  </section>
+
+  <!-- CALENDARIO -->
+  <section>
+    <h2>🗓️ Historial</h2>
+    <ul id="calendario"></ul>
   </section>
 
 </div>
