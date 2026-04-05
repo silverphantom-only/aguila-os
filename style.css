@@ -1,88 +1,89 @@
-body{
-  margin:0;
-  font-family:Arial;
-  background:#0f172a;
-  color:white;
-  max-width:500px;
-  margin:auto;
+body {
+margin:0;
+font-family:sans-serif;
+background:#0f1115;
+color:#fff;
 }
 
-header{
-  padding:20px;
+.app {
+padding:10px;
+max-width:500px;
+margin:auto;
 }
 
-.nav-dias{
-  display:flex;
-  justify-content:space-between;
-  background:#020617;
-  padding:10px;
-  border-radius:10px;
+header {
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:10px;
 }
 
-button{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-  background:#22c55e;
-  border:none;
-  border-radius:10px;
-  color:white;
+button {
+background:#1e88e5;
+border:none;
+padding:10px;
+border-radius:10px;
+color:#fff;
+font-size:16px;
+margin-top:5px;
 }
 
-.card{
-  background:#1e293b;
-  margin:10px;
-  padding:15px;
-  border-radius:15px;
+.card {
+background:#1c1f26;
+padding:10px;
+margin-bottom:10px;
+border-radius:15px;
 }
 
-.bestia{
-  border:2px solid #22c55e;
+input, textarea {
+width:100%;
+padding:8px;
+margin-top:5px;
+border-radius:10px;
+border:none;
+background:#2a2d36;
+color:#fff;
 }
 
-.barra{
-  height:10px;
-  background:#334155;
-  border-radius:10px;
+.progress {
+width:100%;
+height:20px;
+background:#333;
+border-radius:10px;
+overflow:hidden;
 }
 
-#progresoBarra{
-  height:100%;
-  width:0%;
-  background:#22c55e;
+#progressBar {
+height:100%;
+width:0%;
+background:limegreen;
+transition:0.5s;
 }
 
-.hora{
-  background:#020617;
-  padding:10px;
-  margin-top:5px;
-  border-radius:10px;
+.pendiente {
+display:flex;
+justify-content:space-between;
+margin:5px 0;
 }
 
-.evento{
-  background:#22c55e;
-  padding:5px;
-  margin-top:5px;
-  border-radius:5px;
+.done {
+text-decoration:line-through;
+opacity:0.6;
 }
 
-li{
-  background:#020617;
-  margin-top:5px;
-  padding:10px;
-  border-radius:10px;
-  display:flex;
-  justify-content:space-between;
+#calendar {
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:5px;
 }
 
-#calendar{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:5px;
+.day {
+padding:10px;
+text-align:center;
+border-radius:10px;
+cursor:pointer;
 }
 
-#calendar div{
-  padding:10px;
-  text-align:center;
-  border-radius:5px;
-}
+.rojo { background:#b71c1c; }
+.amarillo { background:#f9a825; }
+.verde { background:#2e7d32; }
