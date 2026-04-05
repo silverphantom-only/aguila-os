@@ -1,74 +1,95 @@
-body {
-  margin: 0;
-  font-family: Arial;
-  background: #0f172a;
-  color: white;
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
 }
 
-.app {
-  max-width: 500px;
-  margin: auto;
-  padding: 20px;
+.app{
+  max-width:500px;
+  margin:auto;
+  padding:15px;
 }
 
-section {
-  margin-top: 20px;
-  background: #1e293b;
-  padding: 15px;
-  border-radius: 12px;
+section{
+  margin-top:20px;
+  background:#1e293b;
+  padding:15px;
+  border-radius:12px;
 }
 
-input, textarea, button {
-  width: 100%;
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
+input,textarea,button{
+  width:100%;
+  margin-top:8px;
+  padding:10px;
+  border-radius:8px;
+  border:none;
 }
 
-button {
-  background: linear-gradient(45deg,#3b82f6,#06b6d4);
-  color: white;
+button{
+  background:linear-gradient(45deg,#3b82f6,#06b6d4);
+  color:white;
 }
 
-ul {
-  list-style: none;
-  padding: 0;
+li{
+  background:#334155;
+  padding:10px;
+  margin-top:8px;
+  border-radius:8px;
 }
 
-li {
-  background: #334155;
-  padding: 10px;
-  margin-top: 8px;
-  border-radius: 8px;
+.done{
+  text-decoration:line-through;
+  opacity:0.5;
 }
 
-.done {
-  text-decoration: line-through;
-  opacity: 0.5;
+/* progreso */
+.progreso-container{
+  height:20px;
+  background:#1e293b;
+  border-radius:10px;
+  overflow:hidden;
 }
 
-/* PROGRESO */
-.progreso-container {
-  height: 20px;
-  background: #1e293b;
-  border-radius: 10px;
-  overflow: hidden;
+#barra{
+  height:100%;
+  width:0%;
+  background:#22c55e;
+  transition:0.3s;
 }
 
-#barra {
-  height: 100%;
-  width: 0%;
-  background: #22c55e;
-  transition: 0.3s;
+/* calendario */
+#calendar{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:5px;
 }
 
-/* NIVEL */
-#nivelContainer {
-  text-align: center;
-  margin-top: 10px;
+.day{
+  background:#334155;
+  padding:10px;
+  border-radius:8px;
+  text-align:center;
+  cursor:pointer;
 }
 
-#nivelImg {
-  width: 80px;
+.low{ background:#7f1d1d; }
+.mid{ background:#92400e; }
+.high{ background:#065f46; }
+
+.today{
+  border:2px solid #22c55e;
+}
+
+/* panel */
+#panel{
+  background:#020617;
+  padding:10px;
+  border-radius:10px;
+  text-align:center;
+  margin-bottom:10px;
+}
+
+#nivelImg{
+  width:70px;
 }
