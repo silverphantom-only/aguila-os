@@ -12,15 +12,20 @@
 <header>
   <h1>🦅 Aguila OS</h1>
   <div id="estado"></div>
-  <div class="progress"><div id="barra"></div></div>
-  <h3 id="porcentaje">0%</h3>
 </header>
 
 <!-- 🔥 MISIÓN -->
 <section class="card bestia">
-  <h2>🔥 MISIÓN ACTIVA</h2>
+  <h2>🔥 MISION ACTIVA</h2>
   <p id="misionActual"></p>
   <button id="btnCompletar">COMPLETAR</button>
+</section>
+
+<!-- 📊 PROGRESO -->
+<section class="card">
+  <h2>📊 Progreso</h2>
+  <div class="progress"><div id="barraPro"></div></div>
+  <h3 id="porcentaje">0%</h3>
 </section>
 
 <!-- 📅 CALENDARIO -->
@@ -36,9 +41,10 @@
   <div id="calendarGrid"></div>
 </section>
 
-<!-- ⏰ AGENDA -->
+<!-- ⏰ EVENTOS -->
 <section class="card">
   <h2>⏰ Agenda</h2>
+  <input type="date" id="fechaEvento">
   <input type="time" id="horaEvento">
   <input type="text" id="textoEvento" placeholder="Ej: Trabajar">
   <button onclick="addEvento()">Agregar</button>
@@ -47,14 +53,9 @@
 
 <!-- 📌 PENDIENTES -->
 <section class="card">
-  <h2>➕ Agendar Pendiente</h2>
-  <input id="pendienteTexto" placeholder="Ej: Llamar cliente">
-  <input type="date" id="pendienteFecha">
-  <button id="btnPendiente">Guardar</button>
-</section>
-
-<section class="card">
   <h2>📌 Pendientes</h2>
+  <input id="pendienteTexto" placeholder="Ej: Llamar cliente">
+  <button id="btnPendiente">Agregar</button>
   <ul id="listaPendientes"></ul>
 </section>
 
@@ -67,6 +68,7 @@
 <!-- 💧 AGUA -->
 <section class="card">
   <h2>💧 Agua</h2>
+  <div class="progress"><div id="barraAgua"></div></div>
   <p id="agua">0 ml</p>
   <button id="btnAgua">+250 ml</button>
 </section>
