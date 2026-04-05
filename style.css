@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   background: #0f172a;
   color: white;
 }
@@ -11,14 +11,10 @@ body {
   padding: 20px;
 }
 
-h1 {
-  text-align: center;
-}
-
 section {
-  margin-top: 25px;
-  padding: 15px;
+  margin-top: 20px;
   background: #1e293b;
+  padding: 15px;
   border-radius: 12px;
 }
 
@@ -31,14 +27,8 @@ input, textarea, button {
 }
 
 button {
-  background: #3b82f6;
+  background: linear-gradient(45deg,#3b82f6,#06b6d4);
   color: white;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-button:hover {
-  background: #2563eb;
 }
 
 ul {
@@ -47,33 +37,38 @@ ul {
 }
 
 li {
-  margin-top: 10px;
   background: #334155;
   padding: 10px;
+  margin-top: 8px;
   border-radius: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
 .done {
   text-decoration: line-through;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
-/* progreso */
+/* PROGRESO */
 .progreso-container {
-  width: 100%;
   height: 20px;
   background: #1e293b;
   border-radius: 10px;
   overflow: hidden;
-  margin-top: 10px;
 }
 
 #barra {
   height: 100%;
   width: 0%;
   background: #22c55e;
-  transition: width 0.3s;
+  transition: 0.3s;
+}
+
+/* NIVEL */
+#nivelContainer {
+  text-align: center;
+  margin-top: 10px;
+}
+
+#nivelImg {
+  width: 80px;
 }
