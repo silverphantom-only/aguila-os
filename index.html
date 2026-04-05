@@ -6,6 +6,7 @@
 <title>Aguila OS</title>
 <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <div class="app">
@@ -19,6 +20,7 @@
 <section class="card">
 <h2>Agenda</h2>
 <div id="timeline"></div>
+
 <input type="time" id="hora">
 <input type="text" id="eventoTexto" placeholder="Evento">
 <button id="addEvento">Agregar</button>
@@ -27,6 +29,7 @@
 <section class="card">
 <h2>Pendientes</h2>
 <div id="pendientes"></div>
+
 <input type="text" id="nuevoPendiente" placeholder="Nuevo pendiente">
 <button id="addPendiente">Agregar</button>
 </section>
@@ -49,7 +52,7 @@
 <div class="progress">
 <div id="progressBar"></div>
 </div>
-<p id="porcentaje"></p>
+<p id="porcentaje">0%</p>
 </section>
 
 <section class="card">
@@ -65,7 +68,7 @@
 
 <section class="card">
 <h2>Progreso 7 días</h2>
-<canvas id="grafica"></canvas>
+<canvas id="grafica" width="300" height="150"></canvas>
 </section>
 
 <section class="card">
