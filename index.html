@@ -17,36 +17,52 @@
   <h3 id="porcentaje">0%</h3>
 </header>
 
+<!-- 🔥 MISIÓN -->
+<section class="card bestia">
+  <h2>🔥 MISIÓN ACTIVA</h2>
+  <p id="misionActual"></p>
+  <button id="btnCompletar">COMPLETAR</button>
+</section>
+
+<!-- 📅 CALENDARIO -->
 <div id="calendarBar"></div>
 
+<!-- 📅 EVENTOS -->
 <section class="card">
-  <h2>📅 Agenda del Día</h2>
+  <h2>⏰ Agenda</h2>
+  <input type="time" id="horaEvento">
+  <input type="text" id="textoEvento" placeholder="Evento">
+  <button onclick="addEvento()">Agregar</button>
   <ul id="agendaDia"></ul>
 </section>
 
+<!-- 📌 PENDIENTES -->
 <section class="card">
   <h2>➕ Agendar Pendiente</h2>
-  <input id="pendienteTexto" placeholder="Ej: Llamar cliente">
+  <input id="pendienteTexto">
   <input type="date" id="pendienteFecha">
   <button id="btnPendiente">Guardar</button>
 </section>
 
 <section class="card">
-  <h2>📌 Pendientes del día</h2>
+  <h2>📌 Pendientes</h2>
   <ul id="listaPendientes"></ul>
 </section>
 
+<!-- 🧠 TRABAJO -->
 <section class="card">
   <h2>🧠 Trabajo</h2>
   <div id="checks"></div>
 </section>
 
+<!-- 💧 AGUA -->
 <section class="card">
   <h2>💧 Agua</h2>
   <p id="agua">0 ml</p>
   <button id="btnAgua">+250 ml</button>
 </section>
 
+<!-- 🧠 DISCIPLINA -->
 <section class="card">
   <h2>🧠 Disciplina</h2>
   <label><input type="checkbox" data-disc="resp"> Respiración</label><br>
@@ -54,10 +70,10 @@
   <label><input type="checkbox" data-disc="baño"> Baño caliente</label>
 </section>
 
+<!-- 📖 BIBLIA -->
 <section class="card">
-  <h2>📖 Estudio Bíblico</h2>
+  <h2>📖 Biblia</h2>
   <p id="versiculo"></p>
-  <textarea id="notaBiblia" placeholder="Reflexión..."></textarea>
 </section>
 
 <script src="app.js"></script>
