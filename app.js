@@ -1,19 +1,23 @@
 const checks = ["WhatsApp","Gmail","Reservas","Gasolina","Cierre","Control"];
 
 const bibliaPlan = [
-  "Génesis 1:1",
-  "Génesis 1:3",
-  "Génesis 1:26",
-  "Génesis 2:7",
-  "Génesis 3:9"
+  "Génesis 1:1","Génesis 1:3","Génesis 1:26","Génesis 2:7","Génesis 3:9"
 ];
+
+/* FIX FECHA */
+function hoy(){
+  let d = new Date();
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().split("T")[0];
+}
 
 /* STORAGE */
 function getData(){
-  return JSON.parse(localStorage.getItem("aguila"))||{};
+  return JSON.parse(localStorage.getItem("aguila")) || {};
 }
-function saveData(d){
-  localStorage.setItem("aguila",JSON.stringify(d));
+
+function saveData(data){
+  localStorage.setItem("aguila", JSON.stringify(data));
 }
 
 function getFecha(){
@@ -21,16 +25,16 @@ function getFecha(){
 }
 
 function getDia(){
-  let data=getData();
-  let f=getFecha();
+  let data = getData();
+  let f = getFecha();
 
   if(!data[f]){
-    data[f]={
-      pendientes:[],
-      checks:{},
-      agua:0,
-      disciplina:{},
-      biblia:""
+    data[f] = {
+      pendientes: [],
+      checks: {},
+      agua: 0,
+      disciplina: {},
+      biblia: ""
     };
     saveData(data);
   }
@@ -40,24 +44,25 @@ function getDia(){
 
 /* CALENDARIO */
 function renderCalendarBar(){
-  const bar=document.getElementById("calendarBar");
-  bar.innerHTML="";
-  let base=new Date(getFecha());
+  let bar = document.getElementById("calendarBar");
+  bar.innerHTML = "";
+
+  let base = new Date(getFecha());
 
   for(let i=-3;i<=3;i++){
-    let d=new Date(base);
+    let d = new Date(base);
     d.setDate(d.getDate()+i);
 
-    let fecha=d.toISOString().split("T")[0];
+    let fecha = d.toISOString().split("T")[0];
 
-    let div=document.createElement("div");
-    div.className="day";
-    if(fecha===getFecha()) div.classList.add("active-day");
+    let div = document.createElement("div");
+    div.className = "day";
+    if(fecha === getFecha()) div.classList.add("active-day");
 
-    div.innerText=d.getDate();
+    div.innerText = d.getDate();
 
-    div.onclick=()=>{
-      fechaInput.value=fecha;
+    div.onclick = ()=>{
+      document.getElementById("fecha").value = fecha;
       renderTodo();
     };
 
@@ -66,112 +71,119 @@ function renderCalendarBar(){
 }
 
 /* PENDIENTES */
-function addPendiente(){
-  let data=getData();
-  let fecha=pendienteFecha.value;
+document.getElementById("btnPendiente").onclick = ()=>{
+  let data = getData();
+  let f = pendienteFecha.value;
 
-  if(!data[fecha]){
-    data[fecha]={pendientes:[],checks:{},agua:0,disciplina:{}};
+  if(!f) return;
+
+  if(!data[f]){
+    data[f] = {pendientes:[],checks:{},agua:0,disciplina:{}};
   }
 
-  data[fecha].pendientes.push({
-    texto:pendienteTexto.value,
+  data[f].pendientes.push({
+    texto: pendienteTexto.value,
     done:false
   });
 
   saveData(data);
   renderTodo();
-}
+};
 
 function renderPendientes(){
-  let ul=document.getElementById("listaPendientes");
-  ul.innerHTML="";
+  let ul = document.getElementById("listaPendientes");
+  ul.innerHTML = "";
 
   getDia().pendientes.forEach((p,i)=>{
-    let li=document.createElement("li");
+    let li = document.createElement("li");
 
-    li.innerHTML=`
-      <input type="checkbox" ${p.done?"checked":""} onclick="togglePendiente(${i})">
-      ${p.texto}
-    `;
+    let cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = p.done;
+
+    cb.addEventListener("change",()=>{
+      let dia = getDia();
+      dia.pendientes[i].done = !dia.pendientes[i].done;
+      save();
+    });
+
+    let span = document.createElement("span");
+    span.innerText = p.texto;
+
+    if(p.done) span.classList.add("done");
+
+    li.appendChild(cb);
+    li.appendChild(span);
 
     ul.appendChild(li);
   });
-}
-
-function togglePendiente(i){
-  let dia=getDia();
-  dia.pendientes[i].done=!dia.pendientes[i].done;
-  save();
 }
 
 /* CHECKS */
 function renderChecks(){
-  let cont=document.getElementById("checks");
-  cont.innerHTML="";
+  let cont = document.getElementById("checks");
+  cont.innerHTML = "";
 
-  let dia=getDia();
+  let dia = getDia();
 
   checks.forEach(c=>{
-    cont.innerHTML+=`
-      <label>
-      <input type="checkbox" ${dia.checks[c]?"checked":""}
-      onchange="toggleCheck('${c}')"> ${c}
-      </label><br>
-    `;
+    let label = document.createElement("label");
+
+    let cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = dia.checks[c] || false;
+
+    cb.addEventListener("change",()=>{
+      dia.checks[c] = cb.checked;
+      save();
+    });
+
+    label.appendChild(cb);
+    label.append(" " + c);
+    cont.appendChild(label);
+    cont.appendChild(document.createElement("br"));
   });
 }
 
-function toggleCheck(c){
-  let dia=getDia();
-  dia.checks[c]=!dia.checks[c];
+/* AGUA */
+document.getElementById("btnAgua").onclick = ()=>{
+  let dia = getDia();
+  dia.agua += 250;
   save();
-}
+};
 
 /* DISCIPLINA */
-function toggleDisc(t){
-  let dia=getDia();
-  dia.disciplina[t]=!dia.disciplina[t];
-  save();
-}
+document.querySelectorAll("[data-disc]").forEach(el=>{
+  el.addEventListener("change",()=>{
+    let dia = getDia();
+    dia.disciplina[el.dataset.disc] = el.checked;
+    save();
+  });
+});
 
-function sumarAgua(){
-  let dia=getDia();
-  dia.agua+=250;
-  save();
-}
-
-/* AGENDA AUTOMÁTICA */
+/* AGENDA */
 function renderAgendaDia(){
-  let ul=document.getElementById("agendaDia");
-  ul.innerHTML="";
+  let ul = document.getElementById("agendaDia");
+  ul.innerHTML = "";
 
-  let dia=getDia();
-
-  // hábitos automáticos
-  let base = [
-    "Respiración",
-    "Baño caliente",
-    "Trabajo",
-    "Tiempo familia"
-  ];
+  let base = ["Respiración","Baño caliente","Trabajo","Familia"];
 
   base.forEach(t=>{
-    let li=document.createElement("li");
-    li.innerText=t;
+    let li = document.createElement("li");
+    li.innerText = t;
     ul.appendChild(li);
   });
 
-  dia.pendientes.forEach(p=>{
-    let li=document.createElement("li");
-    li.innerText=p.texto;
+  getDia().pendientes.forEach(p=>{
+    let li = document.createElement("li");
+    li.innerText = p.texto;
     ul.appendChild(li);
   });
 }
 
 /* PROGRESO */
 function actualizarProgreso(){
-  let dia=getDia();
+  let dia = getDia();
 
   let total = checks.length + dia.pendientes.length + 4;
   let done = 0;
@@ -182,14 +194,14 @@ function actualizarProgreso(){
   if(dia.disciplina.resp) done++;
   if(dia.disciplina.calistenia) done++;
   if(dia.disciplina.baño) done++;
-  if(dia.agua>=2000) done++;
+  if(dia.agua >= 2000) done++;
 
-  let p = Math.round((done/total)*100);
+  let p = Math.round((done / total) * 100);
 
-  barra.style.width=p+"%";
-  porcentaje.innerText=p+"%";
+  document.getElementById("barra").style.width = p+"%";
+  document.getElementById("porcentaje").innerText = p+"%";
 
-  estado.innerText =
+  document.getElementById("estado").innerText =
     p<25?"BALGHAM":
     p<50?"MEDIO":
     p<75?"ASCENSO":"ÁGUILA";
@@ -198,14 +210,14 @@ function actualizarProgreso(){
 /* BIBLIA */
 function renderBiblia(){
   let index = Object.keys(getData()).indexOf(getFecha());
-  let v = bibliaPlan[index % bibliaPlan.length];
-  document.getElementById("versiculo").innerText=v;
+  document.getElementById("versiculo").innerText =
+    bibliaPlan[index % bibliaPlan.length];
 }
 
 /* SAVE */
 function save(){
-  let data=getData();
-  data[getFecha()]=getDia();
+  let data = getData();
+  data[getFecha()] = getDia();
   saveData(data);
   renderTodo();
 }
@@ -219,11 +231,14 @@ function renderTodo(){
   renderBiblia();
   actualizarProgreso();
 
-  agua.innerText=getDia().agua+" ml";
+  document.getElementById("agua").innerText =
+    getDia().agua + " ml";
 }
 
 /* INIT */
-fecha.valueAsDate=new Date();
-fecha.addEventListener("change",renderTodo);
+document.getElementById("fecha").value = hoy();
+document.getElementById("pendienteFecha").value = hoy();
+
+document.getElementById("fecha").addEventListener("change",renderTodo);
 
 renderTodo();
