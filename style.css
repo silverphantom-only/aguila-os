@@ -28,6 +28,7 @@ button{
   border:none;
   border-radius:10px;
   background:#22c55e;
+  font-weight:bold;
 }
 
 .card{
@@ -47,6 +48,7 @@ button{
   height:100%;
   width:0%;
   background:#22c55e;
+  transition:0.3s;
 }
 
 #calendarBar{
@@ -62,9 +64,19 @@ button{
   background:#020617;
   border-radius:10px;
   text-align:center;
+  cursor:pointer;
 }
 
 .active-day{
   background:#22c55e;
   color:black;
+}
+
+li{
+  margin:5px 0;
+}
+
+.done{
+  text-decoration:line-through;
+  opacity:0.5;
 }
