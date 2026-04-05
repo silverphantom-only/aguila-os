@@ -9,70 +9,56 @@
 
 <body>
 
-<nav>
-  <button onclick="go('inicio')">🏠</button>
-  <button onclick="go('dia')">📅</button>
-  <button onclick="go('agenda')">🗓️</button>
-  <button onclick="go('biblia')">📖</button>
-  <button onclick="go('disciplina')">🧠</button>
-</nav>
-
-<div id="app">
-
-<!-- INICIO -->
-<section id="inicio" class="view active">
+<header>
   <h1>🦅 Águila OS</h1>
+  <input type="date" id="fecha">
   <div id="estado"></div>
   <div class="progress"><div id="barra"></div></div>
-  <h2 id="porcentaje"></h2>
+  <h3 id="porcentaje"></h3>
+</header>
+
+<div id="calendarBar"></div>
+
+<section class="card">
+  <h2>📅 Agenda del Día</h2>
+  <ul id="agendaDia"></ul>
 </section>
 
-<!-- DIA -->
-<section id="dia" class="view">
-
-<input type="date" id="fecha">
-
-<h3>📌 Agenda</h3>
-<input id="hora" type="time">
-<input id="eventoTexto" placeholder="Evento">
-<button onclick="addEvento()">Agregar</button>
-<ul id="listaEventos"></ul>
-
-<h3>📋 Pendientes</h3>
-<input id="pendienteTexto">
-<button onclick="addPendiente()">Agregar</button>
-<ul id="listaPendientes"></ul>
-
-<h3>🧠 Trabajo</h3>
-<div id="checks"></div>
-
+<section class="card">
+  <h2>➕ Agendar Pendiente</h2>
+  <input id="pendienteTexto" placeholder="Ej: Llamar cliente">
+  <input type="date" id="pendienteFecha">
+  <button onclick="addPendiente()">Guardar</button>
 </section>
 
-<!-- AGENDA -->
-<section id="agenda" class="view">
-  <h3>🗓️ Calendario</h3>
-  <div id="calendar"></div>
+<section class="card">
+  <h2>📌 Pendientes del día</h2>
+  <ul id="listaPendientes"></ul>
 </section>
 
-<!-- BIBLIA -->
-<section id="biblia" class="view">
-  <input id="pasaje" placeholder="Pasaje">
-  <textarea id="obs" placeholder="Observación"></textarea>
-  <textarea id="interp" placeholder="Interpretación"></textarea>
-  <textarea id="aplic" placeholder="Aplicación"></textarea>
+<section class="card">
+  <h2>🧠 Trabajo</h2>
+  <div id="checks"></div>
 </section>
 
-<!-- DISCIPLINA -->
-<section id="disciplina" class="view">
-  <button onclick="sumarAgua()">💧 +250ml</button>
+<section class="card">
+  <h2>💧 Agua</h2>
   <p id="agua"></p>
-
-  <label><input type="checkbox" onchange="toggleDisc('resp')"> Respiración</label>
-  <label><input type="checkbox" onchange="toggleDisc('ejercicio')"> Ejercicio</label>
-  <label><input type="checkbox" onchange="toggleDisc('pastilla')"> Pastilla</label>
+  <button onclick="sumarAgua()">+250 ml</button>
 </section>
 
-</div>
+<section class="card">
+  <h2>🧠 Disciplina</h2>
+  <label><input type="checkbox" onchange="toggleDisc('resp')"> Respiración (diario)</label>
+  <label><input type="checkbox" onchange="toggleDisc('calistenia')"> Calistenia</label>
+  <label><input type="checkbox" onchange="toggleDisc('baño')"> Baño caliente</label>
+</section>
+
+<section class="card">
+  <h2>📖 Estudio Bíblico</h2>
+  <p id="versiculo"></p>
+  <textarea id="notaBiblia" placeholder="Reflexión..."></textarea>
+</section>
 
 <script src="app.js"></script>
 </body>
