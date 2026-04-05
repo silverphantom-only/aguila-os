@@ -1,216 +1,176 @@
-const checksBase=["WhatsApp","Gmail","Reservas","Gasolina","Cierre","Control"];
-const habitosBase=["Respiración","Calistenia","Baño","Desayuno"];
+const habits = ["Respiración","Calistenia","Baño","Desayuno"];
 
-const getFecha=()=>document.getElementById("fecha").value;
-const getData=()=>JSON.parse(localStorage.getItem("aguilaOS"))||{};
-const saveData=(d)=>localStorage.setItem("aguilaOS",JSON.stringify(d));
+let currentDate = new Date();
 
-function getDia(fecha=getFecha()){
+/* STORAGE */
+function getData(){
+  return JSON.parse(localStorage.getItem("aguila"))||{};
+}
+
+function saveData(d){
+  localStorage.setItem("aguila",JSON.stringify(d));
+}
+
+function getFecha(){
+  return document.getElementById("fecha").value;
+}
+
+function getDia(){
   const data=getData();
-  if(!data[fecha]){
-    data[fecha]={eventos:[],pendientes:[],checks:{},agua:0,biblia:{}};
+  const f=getFecha();
+
+  if(!data[f]){
+    data[f]={tasks:[],habits:{}};
     saveData(data);
   }
-  return data[fecha];
+
+  return data[f];
 }
 
-/* INIT */
-function init(){
-  document.getElementById("fecha").valueAsDate=new Date();
-
-  document.getElementById("btnEvento").onclick=agregarEvento;
-  document.getElementById("btnPendiente").onclick=agregarPendiente;
-  document.getElementById("btnAgua").onclick=sumarAgua;
-  document.getElementById("btnBiblia").onclick=guardarBiblia;
-
-  document.getElementById("fecha").addEventListener("change",renderTodo);
-
-  renderTodo();
+/* NAV */
+function goTo(screen){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(screen).classList.add("active");
 }
 
-/* EVENTOS */
-function agregarEvento(){
-  const hora=document.getElementById("horaEvento").value;
-  const texto=document.getElementById("textoEvento").value;
-  if(!texto) return;
-
-  const data=getData();
-  const dia=getDia();
-
-  dia.eventos.push({hora,texto,done:false});
-  data[getFecha()]=dia;
-  saveData(data);
-
-  renderTodo();
-}
-
-/* PENDIENTES */
-function agregarPendiente(){
-  const texto=document.getElementById("inputPendiente").value;
-  const fecha=document.getElementById("fechaPendiente").value||getFecha();
-
-  if(!texto) return;
-
-  const data=getData();
-  const dia=getDia(fecha);
-
-  dia.pendientes.push({id:Date.now(),texto,done:false});
-  data[fecha]=dia;
-  saveData(data);
-
-  renderTodo();
-}
-
-/* CALENDARIO */
+/* CALENDAR */
 function renderCalendar(){
-  const calendar=document.getElementById("calendar");
-  calendar.innerHTML="";
+  const cal=document.getElementById("calendar");
+  cal.innerHTML="";
 
-  const f=new Date(getFecha());
-  const y=f.getFullYear();
-  const m=f.getMonth();
+  const y=currentDate.getFullYear();
+  const m=currentDate.getMonth();
 
   const first=new Date(y,m,1).getDay();
   const total=new Date(y,m+1,0).getDate();
 
-  const data=getData();
+  const meses=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  document.getElementById("mesTitulo").innerText=meses[m]+" "+y;
 
-  for(let i=0;i<first;i++){
-    calendar.appendChild(document.createElement("div"));
+  let start = first===0?6:first-1;
+
+  for(let i=0;i<start;i++){
+    cal.appendChild(document.createElement("div"));
   }
 
   for(let d=1;d<=total;d++){
     const fecha=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
     const div=document.createElement("div");
-    div.classList.add("day");
+    div.className="day";
+    div.innerText=d;
 
-    if(data[fecha]){
-      const p=calcularProgresoDia(data[fecha]);
-
-      if(p<40) div.classList.add("low");
-      else if(p<70) div.classList.add("mid");
-      else div.classList.add("high");
-
-      div.innerHTML=`${d}<br>${p}%`;
-    }else{
-      div.innerText=d;
-    }
-
-    if(fecha===getFecha()) div.classList.add("today");
+    if(fecha===getFecha()) div.classList.add("selected");
 
     div.onclick=()=>{
       document.getElementById("fecha").value=fecha;
-      renderTodo();
+      renderAll();
     };
 
-    calendar.appendChild(div);
+    cal.appendChild(div);
   }
 }
 
-/* CHECKS */
-function renderChecklist(){
-  const cont=document.getElementById("checklist");
-  cont.innerHTML="";
-  const dia=getDia();
+/* TASKS */
+function addTask(){
+  const input=document.getElementById("inputPendiente");
+  if(!input.value) return;
 
-  checksBase.forEach(c=>{
-    const div=document.createElement("div");
-    div.innerHTML=`<input type="checkbox" ${dia.checks[c]?"checked":""} onclick="toggleCheck('${c}')"> ${c}`;
-    cont.appendChild(div);
-  });
-}
-
-function renderHabitos(){
-  const cont=document.getElementById("habitos");
-  cont.innerHTML="";
-  const dia=getDia();
-
-  habitosBase.forEach(h=>{
-    const div=document.createElement("div");
-    div.innerHTML=`<input type="checkbox" ${dia.checks[h]?"checked":""} onclick="toggleCheck('${h}')"> ${h}`;
-    cont.appendChild(div);
-  });
-}
-
-function toggleCheck(nombre){
   const data=getData();
   const dia=getDia();
 
-  dia.checks[nombre]=!dia.checks[nombre];
+  dia.tasks.push({text:input.value,done:false});
   data[getFecha()]=dia;
   saveData(data);
 
-  renderTodo();
+  input.value="";
+  renderAll();
 }
 
-/* PROGRESO */
-function calcularProgresoDia(dia){
-  let p=0;
+function renderTasks(){
+  const ul=document.getElementById("lista");
+  ul.innerHTML="";
 
-  p+=(checksBase.filter(c=>dia.checks[c]).length/checksBase.length)*30;
-  p+=(habitosBase.filter(c=>dia.checks[c]).length/habitosBase.length)*30;
+  const dia=getDia();
 
-  const total=dia.pendientes.length;
-  const done=dia.pendientes.filter(p=>p.done).length;
-  if(total) p+=(done/total)*40;
+  dia.tasks.forEach((t,i)=>{
+    const li=document.createElement("li");
 
-  return Math.round(p);
+    li.innerHTML=`
+      <input type="checkbox" ${t.done?"checked":""}
+      onclick="toggleTask(${i})">
+      <span class="${t.done?"done":""}">${t.text}</span>
+    `;
+
+    ul.appendChild(li);
+  });
 }
 
-function actualizarProgreso(){
-  const p=calcularProgresoDia(getDia());
+function toggleTask(i){
+  const data=getData();
+  const dia=getDia();
+
+  dia.tasks[i].done=!dia.tasks[i].done;
+  data[getFecha()]=dia;
+  saveData(data);
+
+  renderAll();
+}
+
+/* HABITS */
+function renderHabits(){
+  const cont=document.getElementById("habitosList");
+  cont.innerHTML="";
+
+  const dia=getDia();
+
+  habits.forEach(h=>{
+    const div=document.createElement("div");
+
+    div.innerHTML=`
+      <input type="checkbox" ${dia.habits[h]?"checked":""}
+      onclick="toggleHabit('${h}')"> ${h}
+    `;
+
+    cont.appendChild(div);
+  });
+}
+
+function toggleHabit(h){
+  const data=getData();
+  const dia=getDia();
+
+  dia.habits[h]=!dia.habits[h];
+  data[getFecha()]=dia;
+  saveData(data);
+
+  renderAll();
+}
+
+/* PROGRESS */
+function updateProgress(){
+  const dia=getDia();
+
+  let total=habits.length + dia.tasks.length;
+  let done=0;
+
+  habits.forEach(h=>{ if(dia.habits[h]) done++; });
+  dia.tasks.forEach(t=>{ if(t.done) done++; });
+
+  const p = total?Math.round((done/total)*100):0;
 
   document.getElementById("barra").style.width=p+"%";
   document.getElementById("porcentaje").innerText=p+"%";
-  document.getElementById("estadoDia").innerText=p<40?"⚠️ Bajo":p<70?"⚡ Medio":"🦅 Águila";
-
-  document.getElementById("nivelImg").src=p<40?"balgham.png":p<70?"progreso.png":"aguila.png";
 }
 
-/* STREAK */
-function calcularStreak(){
-  const data=getData();
-  const fechas=Object.keys(data).sort();
-
-  let streak=0;
-
-  for(let i=fechas.length-1;i>=0;i--){
-    if(calcularProgresoDia(data[fechas[i]])>=70) streak++;
-    else break;
-  }
-
-  document.getElementById("streak").innerText="🔥 Racha: "+streak;
+/* MAIN */
+function renderAll(){
+  renderCalendar();
+  renderTasks();
+  renderHabits();
+  updateProgress();
 }
 
-/* EXTRA */
-function renderPendientes(){
-  const lista=document.getElementById("listaPendientes");
-  lista.innerHTML="";
-  const dia=getDia();
-
-  dia.pendientes.forEach(p=>{
-    const li=document.createElement("li");
-    li.innerHTML=`<input type="checkbox" ${p.done?"checked":""} onclick="togglePendiente(${p.id})"> ${p.texto}`;
-    lista.appendChild(li);
-  });
-}
-
-function togglePendiente(id){
-  const data=getData();
-  const dia=getDia();
-
-  dia.pendientes=dia.pendientes.map(p=>p.id===id?{...p,done:!p.done}:p);
-  data[getFecha()]=dia;
-  saveData(data);
-
-  renderTodo();
-}
-
-function renderEventos(){}
-function renderAgua(){ document.getElementById("aguaTotal").innerText=getDia().agua+" ml"; }
-function renderBiblia(){}
-function sumarAgua(){ const d=getDia(); d.agua+=250; const data=getData(); data[getFecha()]=d; saveData(data); renderTodo();}
-function guardarBiblia(){}
-
-/* START */
-init();
+/* INIT */
+document.getElementById("fecha").valueAsDate=new Date();
+renderAll();
