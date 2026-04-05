@@ -20,10 +20,10 @@
 </header>
 
 <!-- 🔥 MISIÓN -->
-<section class="card">
-  <h2>🔥 Mision Activa</h2>
+<section class="card bestia">
+  <h2>🔥 MISIÓN ACTIVA</h2>
   <p id="mision"></p>
-  <button onclick="completarMision()">Completar</button>
+  <button onclick="completarMision()">COMPLETAR</button>
 </section>
 
 <!-- 📊 PROGRESO -->
@@ -33,7 +33,19 @@
   <p id="porcentaje">0%</p>
 </section>
 
-<!-- 📅 AGENDA -->
+<!-- 📊 GRAFICA -->
+<section class="card">
+  <h2>📊 Últimos 7 días</h2>
+  <canvas id="grafica" height="100"></canvas>
+</section>
+
+<!-- 📅 CALENDARIO -->
+<section class="card">
+  <h2>📅 Calendario</h2>
+  <div id="calendar"></div>
+</section>
+
+<!-- 📅 TIMELINE -->
 <section class="card">
   <h2>📅 Día</h2>
   <div id="timeline"></div>
@@ -61,6 +73,22 @@
   <h2>💧 Agua</h2>
   <p id="agua">0 ml</p>
   <button onclick="sumarAgua()">+250 ml</button>
+</section>
+
+<!-- 🧠 DISCIPLINA -->
+<section class="card">
+  <h2>🧠 Disciplina</h2>
+  <label><input type="checkbox" id="resp" onclick="toggleDisciplina('respiracion')"> Respiración</label><br>
+  <label><input type="checkbox" id="cal" onclick="toggleDisciplina('calistenia')"> Calistenia</label><br>
+  <label><input type="checkbox" id="ban" onclick="toggleDisciplina('baño')"> Baño caliente</label>
+</section>
+
+<!-- 📖 BIBLIA -->
+<section class="card">
+  <h2>📖 Estudio Bíblico</h2>
+  <p id="versiculo"></p>
+  <textarea id="reflexion" placeholder="Reflexión..."></textarea>
+  <button onclick="guardarBiblia()">Guardar</button>
 </section>
 
 <script src="app.js"></script>
