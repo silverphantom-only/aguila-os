@@ -1,9 +1,9 @@
 body{
   margin:0;
-  font-family:-apple-system;
-  background:linear-gradient(#0f172a,#020617);
+  font-family:Arial;
+  background:#0f172a;
   color:white;
-  max-width:480px;
+  max-width:500px;
   margin:auto;
 }
 
@@ -19,14 +19,19 @@ header{
   border-radius:10px;
 }
 
+.nav-dias span{
+  flex:1;
+  text-align:center;
+}
+
 button{
   width:100%;
   padding:10px;
   margin-top:10px;
+  background:#22c55e;
   border:none;
   border-radius:10px;
-  background:#22c55e;
-  font-weight:bold;
+  color:white;
 }
 
 .card{
@@ -36,66 +41,37 @@ button{
   border-radius:15px;
 }
 
-.bestia{
-  border:2px solid #22c55e;
-}
-
-.progress{
+.barra{
   height:10px;
   background:#334155;
   border-radius:10px;
 }
 
-#barraPro{height:100%;width:0%;background:#22c55e;}
-#barraAgua{height:100%;width:0%;background:#38bdf8;}
-
-.hora{
-  display:flex;
-  padding:10px;
-  background:#020617;
-  border-radius:10px;
-  margin-top:5px;
+#progresoBarra{
+  height:100%;
+  width:0%;
+  background:#22c55e;
 }
 
-.hora span{
-  width:60px;
-  font-weight:bold;
+.hora{
+  background:#020617;
+  padding:10px;
+  margin-top:5px;
+  border-radius:10px;
 }
 
 .evento{
-  margin-left:10px;
   background:#22c55e;
   padding:5px;
-  border-radius:6px;
-}
-
-#listaPendientes li{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  background:#020617;
-  padding:10px;
-  margin-top:8px;
-  border-radius:10px;
-}
-
-#listaPendientes button{
-  width:auto;
-  background:#ef4444;
-  padding:5px 10px;
-}
-
-.done{
-  text-decoration:line-through;
-  opacity:0.5;
-}
-
-input, textarea{
-  width:100%;
-  padding:10px;
   margin-top:5px;
-  border-radius:10px;
-  border:none;
+  border-radius:5px;
+}
+
+li{
   background:#020617;
-  color:white;
+  margin-top:5px;
+  padding:10px;
+  border-radius:10px;
+  display:flex;
+  justify-content:space-between;
 }
