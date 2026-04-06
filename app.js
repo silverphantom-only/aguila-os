@@ -13,12 +13,52 @@ return `${fecha.getFullYear()}-${String(fecha.getMonth()+1).padStart(2,"0")}-${S
 
 /* DATA */
 function getData(){
+let data;
+
 try{
-return JSON.parse(localStorage.getItem("aguilaOS")) || {};
+data = JSON.parse(localStorage.getItem("aguilaOS")) || {};
 }catch{
 localStorage.clear();
-return {};
+data = {};
 }
+
+/* 🔥 FORZAR CREACIÓN DEL DÍA */
+let dia = getDia();
+
+if(!data[dia]){
+let f = new Date(currentDate);
+let w = f.getDay();
+
+let personales = ["Baño","Fluoxetina"];
+
+let trabajo = [
+"Revisar cierres día anterior",
+"Revisar consumo de gasolinas",
+"Revisar WhatsApp",
+"Revisar Gmail",
+"Seguimiento a clientes",
+"Llevar redes sociales",
+"Actualizar página web",
+"Reservar pendientes",
+"Revisar cuentas por cobrar"
+];
+
+let base = (w === 0) ? personales : [...personales, ...trabajo];
+
+data[dia] = {
+pendientes: base.map(t => ({texto:t, done:false})),
+eventos: [],
+proyectos: [],
+agua: 0,
+disciplina: {respiracion:false, calistenia:false, baño:false},
+biblia: {reflexion:""},
+progreso: 0
+};
+
+localStorage.setItem("aguilaOS", JSON.stringify(data));
+}
+
+return data;
 }
 
 function saveData(d){
