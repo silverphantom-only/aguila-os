@@ -3,111 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aguila OS</title>
+<title>Águila OS</title>
 
 <link rel="manifest" href="manifest.json">
-
 <meta name="theme-color" content="#0f1115">
 
 <style>
-body {
-margin:0;
-font-family:sans-serif;
-background:#0f1115;
-color:#fff;
-}
-
-.app {
-padding:10px;
-max-width:500px;
-margin:auto;
-}
-
-header {
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:10px;
-}
-
-button {
-background:#1e88e5;
-border:none;
-padding:12px;
-border-radius:12px;
-color:#fff;
-font-size:16px;
-margin-top:5px;
-}
-
-.card {
-background:#1c1f26;
-padding:12px;
-margin-bottom:12px;
-border-radius:16px;
-box-shadow:0 4px 10px rgba(0,0,0,0.4);
-}
-
-input, textarea {
-width:100%;
-padding:10px;
-margin-top:5px;
-border-radius:10px;
-border:none;
-background:#2a2d36;
-color:#fff;
-}
-
-.progress {
-width:100%;
-height:20px;
-background:#333;
-border-radius:10px;
-overflow:hidden;
-}
-
-#progressBar {
-height:100%;
-width:0%;
-background:limegreen;
-transition:0.4s;
-}
-
-.pendiente, .evento {
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin:5px 0;
-gap:10px;
-}
-
-.done {
-text-decoration:line-through;
-opacity:0.5;
-}
-
-#calendar {
-display:grid;
-grid-template-columns:repeat(7,1fr);
-gap:5px;
-}
-
-.day {
-padding:10px;
-text-align:center;
-border-radius:10px;
-cursor:pointer;
-font-size:12px;
-}
-
-.rojo { background:#b71c1c; }
-.amarillo { background:#f9a825; }
-.verde { background:#2e7d32; }
+body{margin:0;font-family:sans-serif;background:#0f1115;color:#fff}
+.app{padding:10px;max-width:500px;margin:auto}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+button{background:#1e88e5;border:none;padding:12px;border-radius:12px;color:#fff;font-size:16px;margin-top:5px}
+.card{background:#1c1f26;padding:12px;margin-bottom:12px;border-radius:16px;box-shadow:0 4px 10px rgba(0,0,0,0.4)}
+input,textarea{width:100%;padding:10px;margin-top:5px;border-radius:10px;border:none;background:#2a2d36;color:#fff}
+.progress{width:100%;height:20px;background:#333;border-radius:10px;overflow:hidden}
+#progressBar{height:100%;width:0%;background:limegreen;transition:0.4s}
+.pendiente,.evento{display:flex;justify-content:space-between;align-items:center;margin:5px 0;gap:10px}
+.done{text-decoration:line-through;opacity:0.5}
+#calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.day{padding:10px;text-align:center;border-radius:10px;cursor:pointer;font-size:12px}
+.rojo{background:#b71c1c}.amarillo{background:#f9a825}.verde{background:#2e7d32}
 </style>
 </head>
 
 <body>
-
 <div class="app">
 
 <header>
@@ -140,22 +58,27 @@ font-size:12px;
 
 <section class="card">
 <h2>Agua</h2>
-<div id="agua">0 ml</div>
+<div id="agua"></div>
 <button id="addAgua">+250 ml</button>
 </section>
 
 <section class="card">
 <h2>Progreso</h2>
-<div class="progress">
-<div id="progressBar"></div>
-</div>
-<p id="porcentaje">0%</p>
+<div class="progress"><div id="progressBar"></div></div>
+<p id="porcentaje"></p>
 </section>
 
 <section class="card">
 <h2>Misión Activa</h2>
 <div id="mision"></div>
 <button id="completeMission">Completar</button>
+</section>
+
+<section class="card">
+<h2>Proyectos</h2>
+<div id="proyectos"></div>
+<input type="text" id="nuevoProyecto" placeholder="Nuevo proyecto">
+<button id="addProyecto">Agregar Proyecto</button>
 </section>
 
 <section class="card">
@@ -171,7 +94,7 @@ font-size:12px;
 <section class="card">
 <h2>Estudio Bíblico</h2>
 <p id="pasaje"></p>
-<textarea id="reflexion" placeholder="Reflexión"></textarea>
+<textarea id="reflexion"></textarea>
 </section>
 
 </div>
