@@ -1,10 +1,10 @@
-const CACHE_NAME = "aguila-final-v1";
+const CACHE_NAME = "aguila-final-v2";
 
 const urls = [
-"/",
-"/index.html",
-"/app.js",
-"/manifest.json"
+"./",
+"./index.html",
+"./app.js",
+"./manifest.json"
 ];
 
 self.addEventListener("install", e => {
