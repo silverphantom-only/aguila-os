@@ -1,20 +1,24 @@
-console.log("Águila OS cargado ✔️");
-
 const timeline = document.getElementById("timeline");
 const pendientesDiv = document.getElementById("pendientes");
 const fechaEl = document.getElementById("fecha");
 
 let currentDate = new Date();
 
+/* FECHA LOCAL CORRECTA */
 function getDia() {
-return currentDate.toISOString().split("T")[0];
+let d = new Date(currentDate);
+let year = d.getFullYear();
+let month = String(d.getMonth() + 1).padStart(2, "0");
+let day = String(d.getDate()).padStart(2, "0");
+return `${year}-${month}-${day}`;
 }
 
+/* DATA SEGURA */
 function getData() {
 try {
 return JSON.parse(localStorage.getItem("aguilaOS")) || {};
-} catch (e) {
-localStorage.removeItem("aguilaOS");
+} catch {
+localStorage.clear();
 return {};
 }
 }
@@ -41,6 +45,7 @@ saveData(data);
 return data[dia];
 }
 
+/* RENDER */
 function render() {
 fechaEl.innerText = getDia();
 renderEventos();
@@ -54,23 +59,25 @@ renderGrafica();
 renderBiblia();
 }
 
+/* EVENTOS */
 function renderEventos() {
 timeline.innerHTML = "";
-let d = getDiaData();
+let data = getData();
+let dia = getDia();
 
-d.eventos.sort((a,b)=>a.hora.localeCompare(b.hora));
+(data[dia].eventos || []).sort((a,b)=>a.hora.localeCompare(b.hora))
+.forEach((ev,i)=>{
 
-d.eventos.forEach((ev,i)=>{
 let div=document.createElement("div");
 div.className="evento";
 
 let cb=document.createElement("input");
 cb.type="checkbox";
-cb.checked=ev.done||false;
+cb.checked=ev.done;
 
 cb.onchange=()=>{
-ev.done=!ev.done;
-saveData(getData());
+data[dia].eventos[i].done = cb.checked;
+saveData(data);
 render();
 };
 
@@ -81,8 +88,8 @@ if(ev.done) span.classList.add("done");
 let del=document.createElement("button");
 del.innerText="X";
 del.onclick=()=>{
-d.eventos.splice(i,1);
-saveData(getData());
+data[dia].eventos.splice(i,1);
+saveData(data);
 render();
 };
 
@@ -91,33 +98,36 @@ timeline.appendChild(div);
 });
 }
 
+/* PENDIENTES */
 function renderPendientes() {
 pendientesDiv.innerHTML="";
-let d = getDiaData();
+let data = getData();
+let dia = getDia();
 
-d.pendientes.forEach((p,i)=>{
-let div = document.createElement("div");
+(data[dia].pendientes || []).forEach((p,i)=>{
+
+let div=document.createElement("div");
 div.className="pendiente";
 
-let cb = document.createElement("input");
+let cb=document.createElement("input");
 cb.type="checkbox";
 cb.checked=p.done;
 
 cb.onchange=()=>{
-p.done=!p.done;
-saveData(getData());
+data[dia].pendientes[i].done = cb.checked;
+saveData(data);
 render();
 };
 
-let span = document.createElement("span");
+let span=document.createElement("span");
 span.innerText=p.texto;
 if(p.done) span.classList.add("done");
 
-let del = document.createElement("button");
+let del=document.createElement("button");
 del.innerText="X";
 del.onclick=()=>{
-d.pendientes.splice(i,1);
-saveData(getData());
+data[dia].pendientes.splice(i,1);
+saveData(data);
 render();
 };
 
@@ -126,21 +136,24 @@ pendientesDiv.appendChild(div);
 });
 }
 
+/* DISCIPLINA */
 function renderDisciplina(){
-let d=getDiaData();
+let data = getData();
+let dia = getDia();
 
 ["respiracion","calistenia","baño"].forEach(id=>{
 let el=document.getElementById(id);
-el.checked=d.disciplina[id];
+el.checked=data[dia].disciplina[id];
 
 el.onchange=()=>{
-d.disciplina[id]=el.checked;
-saveData(getData());
+data[dia].disciplina[id]=el.checked;
+saveData(data);
 render();
 };
 });
 }
 
+/* AGUA */
 function renderAgua(){
 let d=getDiaData();
 document.getElementById("agua").innerText=d.agua+" ml";
@@ -157,40 +170,32 @@ saveData(data);
 render();
 };
 
+/* PROGRESO */
 function actualizarProgreso(){
 let d=getDiaData();
 
 let total=0, done=0;
 
-d.pendientes.forEach(p=>{
-total++;
-if(p.done) done++;
-});
-
-d.eventos.forEach(e=>{
-total++;
-if(e.done) done++;
-});
-
-Object.values(d.disciplina).forEach(v=>{
-total++;
-if(v) done++;
-});
+d.pendientes.forEach(p=>{ total++; if(p.done) done++; });
+d.eventos.forEach(e=>{ total++; if(e.done) done++; });
+Object.values(d.disciplina).forEach(v=>{ total++; if(v) done++; });
 
 total++;
 if(d.agua>=2000) done++;
 
-let prog=Math.round((done/total)*100);
-if(isNaN(prog)) prog=0;
+let prog=Math.round((done/total)*100) || 0;
 
 d.progreso=prog;
 
 document.getElementById("progressBar").style.width=prog+"%";
 document.getElementById("porcentaje").innerText=prog+"%";
 
-saveData(getData());
+let data=getData();
+data[getDia()]=d;
+saveData(data);
 }
 
+/* MISIÓN */
 function renderMision(){
 let d=getDiaData();
 let mision="";
@@ -218,28 +223,34 @@ mision="Todo completado ✔️";
 document.getElementById("mision").innerText=mision;
 
 document.getElementById("completeMission").onclick=()=>{
+let data=getData();
+let dia=getDia();
+
 if(p){
-p.done=true;
+data[dia].pendientes.find(x=>!x.done).done=true;
 }else if(discPendiente){
-d.disciplina[discPendiente]=true;
+data[dia].disciplina[discPendiente]=true;
 }
-saveData(getData());
+
+saveData(data);
 render();
 };
 }
 
+/* CALENDARIO */
 function renderCalendar(){
 let cal=document.getElementById("calendar");
 cal.innerHTML="";
 let data=getData();
 
-let year=currentDate.getFullYear();
-let month=currentDate.getMonth();
-let days=new Date(year,month+1,0).getDate();
+let y=currentDate.getFullYear();
+let m=currentDate.getMonth();
+let days=new Date(y,m+1,0).getDate();
 
 for(let i=1;i<=days;i++){
-let d=new Date(year,month,i);
-let key=d.toISOString().split("T")[0];
+let d=new Date(y,m,i);
+let key=getKey(d);
+
 let prog=data[key]?.progreso;
 
 let day=document.createElement("div");
@@ -263,11 +274,18 @@ cal.appendChild(day);
 }
 }
 
-function renderGrafica(){
-let canvas=document.getElementById("grafica");
-let ctx=canvas.getContext("2d");
+function getKey(date){
+let y=date.getFullYear();
+let m=String(date.getMonth()+1).padStart(2,"0");
+let d=String(date.getDate()).padStart(2,"0");
+return `${y}-${m}-${d}`;
+}
 
-ctx.clearRect(0,0,canvas.width,canvas.height);
+/* GRAFICA */
+function renderGrafica(){
+let c=document.getElementById("grafica");
+let ctx=c.getContext("2d");
+ctx.clearRect(0,0,c.width,c.height);
 
 let data=getData();
 
@@ -275,14 +293,14 @@ for(let i=0;i<7;i++){
 let d=new Date(currentDate);
 d.setDate(d.getDate()-i);
 
-let key=d.toISOString().split("T")[0];
-let val=data[key]?.progreso||0;
+let val=data[getKey(d)]?.progreso||0;
 
 ctx.fillStyle="lime";
 ctx.fillRect(40*i,150-val,20,val);
 }
 }
 
+/* BIBLIA */
 function renderBiblia(){
 let base=["Génesis 1","Génesis 2","Génesis 3","Génesis 4","Génesis 5"];
 
@@ -296,11 +314,13 @@ let ref=document.getElementById("reflexion");
 ref.value=d.biblia.reflexion;
 
 ref.oninput=()=>{
-d.biblia.reflexion=ref.value;
-saveData(getData());
+let data=getData();
+data[getDia()].biblia.reflexion=ref.value;
+saveData(data);
 };
 }
 
+/* AGREGAR EVENTO */
 document.getElementById("addEvento").onclick=()=>{
 let hora=document.getElementById("hora").value;
 let texto=document.getElementById("eventoTexto").value;
@@ -316,6 +336,7 @@ saveData(data);
 render();
 };
 
+/* AGREGAR PENDIENTE */
 document.getElementById("addPendiente").onclick=()=>{
 let txt=document.getElementById("nuevoPendiente").value;
 
@@ -330,6 +351,7 @@ saveData(data);
 render();
 };
 
+/* NAVEGACIÓN */
 document.getElementById("prevDay").onclick=()=>{
 currentDate.setDate(currentDate.getDate()-1);
 render();
