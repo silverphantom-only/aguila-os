@@ -1,336 +1,220 @@
-const timeline = document.getElementById("timeline");
-const pendientesDiv = document.getElementById("pendientes");
-const fechaEl = document.getElementById("fecha");
-
-let currentDate = new Date();
-
-function getDia() {
-return currentDate.toISOString().split("T")[0];
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+font-family:sans-serif;
 }
 
-function getData() {
-return JSON.parse(localStorage.getItem("aguilaOS") || "{}");
+body{
+background:#0f1115;
+color:#fff;
+display:flex;
+justify-content:center;
 }
 
-function saveData(data) {
-localStorage.setItem("aguilaOS", JSON.stringify(data));
+/* CONTENEDOR */
+.app{
+width:100%;
+max-width:420px;
+padding:16px;
 }
 
-function getDiaData() {
-let data = getData();
-let dia = getDia();
-
-if (!data[dia]) {
-data[dia] = {
-pendientes: [],
-eventos: [],
-agua: 0,
-disciplina: {respiracion:false, calistenia:false, baño:false},
-biblia: {reflexion:""},
-progreso: 0
-};
-saveData(data);
-}
-return data[dia];
+/* HEADER */
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
 }
 
-function render() {
-fechaEl.innerText = getDia();
-renderEventos();
-renderPendientes();
-renderDisciplina();
-renderAgua();
-actualizarProgreso();
-renderMision();
-renderCalendar();
-renderGrafica();
-renderBiblia();
+header h2{
+font-size:20px;
+font-weight:bold;
 }
 
-function renderEventos() {
-timeline.innerHTML = "";
-let d = getDiaData();
-
-d.eventos.sort((a,b)=>a.hora.localeCompare(b.hora));
-
-d.eventos.forEach((ev,i)=>{
-let div=document.createElement("div");
-div.className="evento";
-
-let cb=document.createElement("input");
-cb.type="checkbox";
-cb.checked=ev.done||false;
-
-cb.onchange=()=>{
-ev.done=!ev.done;
-saveData(getData());
-render();
-};
-
-let span=document.createElement("span");
-span.innerText=ev.hora+" - "+ev.texto;
-if(ev.done) span.classList.add("done");
-
-let del=document.createElement("button");
-del.innerText="X";
-del.onclick=()=>{
-d.eventos.splice(i,1);
-saveData(getData());
-render();
-};
-
-div.append(cb,span,del);
-timeline.appendChild(div);
-});
+/* BOTONES */
+button{
+background:#1e88e5;
+border:none;
+padding:10px 14px;
+border-radius:12px;
+color:#fff;
+font-weight:bold;
+cursor:pointer;
+transition:0.2s;
 }
 
-function renderPendientes() {
-pendientesDiv.innerHTML="";
-let d = getDiaData();
-
-d.pendientes.forEach((p,i)=>{
-let div = document.createElement("div");
-div.className="pendiente";
-
-let cb = document.createElement("input");
-cb.type="checkbox";
-cb.checked=p.done;
-
-cb.onchange=()=>{
-p.done=!p.done;
-saveData(getData());
-render();
-};
-
-let span = document.createElement("span");
-span.innerText=p.texto;
-if(p.done) span.classList.add("done");
-
-let del = document.createElement("button");
-del.innerText="X";
-del.onclick=()=>{
-d.pendientes.splice(i,1);
-saveData(getData());
-render();
-};
-
-div.append(cb,span,del);
-pendientesDiv.appendChild(div);
-});
+button:active{
+transform:scale(0.95);
 }
 
-function renderDisciplina(){
-let d=getDiaData();
-
-["respiracion","calistenia","baño"].forEach(id=>{
-let el=document.getElementById(id);
-el.checked=d.disciplina[id];
-
-el.onchange=()=>{
-d.disciplina[id]=el.checked;
-saveData(getData());
-render();
-};
-});
+/* TARJETAS */
+.card{
+background:#1c1f26;
+padding:16px;
+margin-bottom:16px;
+border-radius:18px;
+box-shadow:0 4px 12px rgba(0,0,0,0.4);
 }
 
-function renderAgua(){
-let d=getDiaData();
-document.getElementById("agua").innerText=d.agua+" ml";
+/* TITULOS */
+.card h3{
+margin-bottom:10px;
+font-size:18px;
 }
 
-document.getElementById("addAgua").onclick=()=>{
-let data=getData();
-let dia=getDia();
-
-data[dia].agua+=250;
-if(data[dia].agua>2000) data[dia].agua=2000;
-
-saveData(data);
-render();
-};
-
-function actualizarProgreso(){
-let d=getDiaData();
-
-let total=0, done=0;
-
-d.pendientes.forEach(p=>{
-total++;
-if(p.done) done++;
-});
-
-d.eventos.forEach(e=>{
-total++;
-if(e.done) done++;
-});
-
-Object.values(d.disciplina).forEach(v=>{
-total++;
-if(v) done++;
-});
-
-total++;
-if(d.agua>=2000) done++;
-
-let prog=Math.round((done/total)*100);
-if(isNaN(prog)) prog=0;
-
-d.progreso=prog;
-
-document.getElementById("progressBar").style.width=prog+"%";
-document.getElementById("porcentaje").innerText=prog+"%";
-
-saveData(getData());
+/* INPUTS */
+input, select, textarea{
+width:100%;
+padding:10px;
+margin-top:8px;
+border-radius:10px;
+border:none;
+background:#2a2d36;
+color:#fff;
+font-size:14px;
 }
 
-function renderMision(){
-let d=getDiaData();
-let mision="";
-let discPendiente=null;
-
-let p=d.pendientes.find(p=>!p.done);
-
-if(p){
-mision=p.texto;
-}else{
-let disc=Object.entries(d.disciplina).find(([k,v])=>!v);
-if(disc){
-let nombres={
-respiracion:"Respiración",
-calistenia:"Calistenia",
-baño:"Baño caliente"
-};
-mision=nombres[disc[0]];
-discPendiente=disc[0];
-}else{
-mision="Todo completado ✔️";
-}
+/* LISTAS (PENDIENTES Y EVENTOS) */
+.pendiente, .evento{
+display:flex;
+align-items:center;
+gap:10px;
+margin-top:10px;
+background:#2a2d36;
+padding:10px;
+border-radius:12px;
 }
 
-document.getElementById("mision").innerText=mision;
-
-document.getElementById("completeMission").onclick=()=>{
-if(p){
-p.done=true;
-}else if(discPendiente){
-d.disciplina[discPendiente]=true;
-}
-saveData(getData());
-render();
-};
+/* CHECKBOX */
+.pendiente input,
+.evento input{
+order:1;
+width:18px;
+height:18px;
+cursor:pointer;
 }
 
-function renderCalendar(){
-let cal=document.getElementById("calendar");
-cal.innerHTML="";
-let data=getData();
-
-let year=currentDate.getFullYear();
-let month=currentDate.getMonth();
-let days=new Date(year,month+1,0).getDate();
-
-for(let i=1;i<=days;i++){
-let d=new Date(year,month,i);
-let key=d.toISOString().split("T")[0];
-let prog=data[key]?.progreso;
-
-let day=document.createElement("div");
-day.className="day";
-day.innerText=i;
-
-if(prog!==undefined){
-if(prog<40) day.classList.add("rojo");
-else if(prog<80) day.classList.add("amarillo");
-else day.classList.add("verde");
-}else{
-day.style.background="#2a2d36";
+/* TEXTO */
+.pendiente span,
+.evento span{
+order:2;
+flex:1;
+font-size:14px;
 }
 
-day.onclick=()=>{
-currentDate=d;
-render();
-};
-
-cal.appendChild(day);
-}
-}
-
-function renderGrafica(){
-let canvas=document.getElementById("grafica");
-let ctx=canvas.getContext("2d");
-
-ctx.clearRect(0,0,canvas.width,canvas.height);
-
-let data=getData();
-
-for(let i=0;i<7;i++){
-let d=new Date(currentDate);
-d.setDate(d.getDate()-i);
-
-let key=d.toISOString().split("T")[0];
-let val=data[key]?.progreso||0;
-
-ctx.fillStyle="lime";
-ctx.fillRect(40*i,150-val,20,val);
-}
+/* BOTON ELIMINAR */
+.pendiente button,
+.evento button{
+order:3;
+margin-left:auto;
+background:#e53935;
+padding:6px 10px;
+border-radius:8px;
+font-size:12px;
 }
 
-function renderBiblia(){
-let base=["Génesis 1","Génesis 2","Génesis 3","Génesis 4","Génesis 5"];
-
-let index=Math.floor((new Date(getDia())-new Date("2026-01-01"))/86400000)%base.length;
-
-document.getElementById("pasaje").innerText=base[index];
-
-let d=getDiaData();
-let ref=document.getElementById("reflexion");
-
-ref.value=d.biblia.reflexion;
-
-ref.oninput=()=>{
-d.biblia.reflexion=ref.value;
-saveData(getData());
-};
+/* TEXTO COMPLETADO */
+.done{
+text-decoration:line-through;
+opacity:0.6;
 }
 
-document.getElementById("addEvento").onclick=()=>{
-let hora=document.getElementById("hora").value;
-let texto=document.getElementById("eventoTexto").value;
+/* DISCIPLINA */
+.disciplina-item{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-top:10px;
+}
 
-if(!hora||!texto) return;
+/* AGUA */
+#agua{
+margin-top:10px;
+font-size:16px;
+}
 
-let data=getData();
-let dia=getDia();
+/* PROGRESO */
+.progress{
+width:100%;
+height:12px;
+background:#333;
+border-radius:10px;
+overflow:hidden;
+margin-top:10px;
+}
 
-data[dia].eventos.push({hora,texto,done:false});
+#progressBar{
+height:100%;
+width:0%;
+background:linear-gradient(90deg,#00e676,#00c853);
+transition:0.4s;
+}
 
-saveData(data);
-render();
-};
+#porcentaje{
+margin-top:6px;
+font-size:14px;
+}
 
-document.getElementById("addPendiente").onclick=()=>{
-let txt=document.getElementById("nuevoPendiente").value;
+/* CALENDARIO */
+#calendar{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:6px;
+margin-top:10px;
+}
 
-if(!txt) return;
+.day{
+padding:10px;
+border-radius:10px;
+text-align:center;
+background:#2a2d36;
+cursor:pointer;
+font-size:12px;
+transition:0.2s;
+}
 
-let data=getData();
-let dia=getDia();
+.day:hover{
+transform:scale(1.05);
+}
 
-data[dia].pendientes.push({texto:txt,done:false});
+/* COLORES PROGRESO */
+.rojo{
+background:#e53935;
+}
 
-saveData(data);
-render();
-};
+.amarillo{
+background:#fbc02d;
+color:#000;
+}
 
-document.getElementById("prevDay").onclick=()=>{
-currentDate.setDate(currentDate.getDate()-1);
-render();
-};
+.verde{
+background:#43a047;
+}
 
-document.getElementById("nextDay").onclick=()=>{
-currentDate.setDate(currentDate.getDate()+1);
-render();
-};
+/* GRAFICA */
+canvas{
+width:100%;
+height:150px;
+background:#2a2d36;
+border-radius:10px;
+margin-top:10px;
+}
 
-render();
+/* TEXTAREA */
+textarea{
+resize:none;
+height:80px;
+}
+
+/* RESPONSIVE */
+@media(max-width:400px){
+header h2{
+font-size:16px;
+}
+
+button{
+padding:8px 10px;
+font-size:14px;
+}
+}
