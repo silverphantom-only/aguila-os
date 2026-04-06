@@ -4,16 +4,17 @@ const fechaEl = document.getElementById("fecha");
 
 let currentDate = new Date();
 
-/* FECHA LOCAL CORRECTA */
+/* FECHA LOCAL */
 function getDia() {
 let d = new Date(currentDate);
-let year = d.getFullYear();
-let month = String(d.getMonth() + 1).padStart(2, "0");
-let day = String(d.getDate()).padStart(2, "0");
-return `${year}-${month}-${day}`;
+return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 }
 
-/* DATA SEGURA */
+function getKey(date){
+return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+}
+
+/* DATA */
 function getData() {
 try {
 return JSON.parse(localStorage.getItem("aguilaOS")) || {};
@@ -27,21 +28,48 @@ function saveData(data) {
 localStorage.setItem("aguilaOS", JSON.stringify(data));
 }
 
+/* DIA CON TAREAS AUTOMATICAS */
 function getDiaData() {
 let data = getData();
 let dia = getDia();
 
 if (!data[dia]) {
+
+let fecha = new Date(currentDate);
+let diaSemana = fecha.getDay();
+
+/* PERSONALES */
+let personales = ["Baño","Fluoxetina"];
+
+/* TRABAJO */
+let trabajo = [
+"Revisar cierres día anterior",
+"Revisar consumo de gasolinas",
+"Revisar WhatsApp",
+"Revisar Gmail",
+"Seguimiento a clientes",
+"Llevar redes sociales",
+"Actualizar página web",
+"Reservar pendientes",
+"Revisar cuentas por cobrar"
+];
+
+let tareasBase = (diaSemana === 0)
+? personales
+: [...personales, ...trabajo];
+
 data[dia] = {
-pendientes: [],
+pendientes: tareasBase.map(t => ({texto:t, done:false})),
 eventos: [],
 agua: 0,
 disciplina: {respiracion:false, calistenia:false, baño:false},
 biblia: {reflexion:""},
 progreso: 0
 };
+
 saveData(data);
 }
+
 return data[dia];
 }
 
@@ -67,7 +95,6 @@ let dia = getDia();
 
 (data[dia].eventos || []).sort((a,b)=>a.hora.localeCompare(b.hora))
 .forEach((ev,i)=>{
-
 let div=document.createElement("div");
 div.className="evento";
 
@@ -105,7 +132,6 @@ let data = getData();
 let dia = getDia();
 
 (data[dia].pendientes || []).forEach((p,i)=>{
-
 let div=document.createElement("div");
 div.className="pendiente";
 
@@ -138,8 +164,8 @@ pendientesDiv.appendChild(div);
 
 /* DISCIPLINA */
 function renderDisciplina(){
-let data = getData();
-let dia = getDia();
+let data=getData();
+let dia=getDia();
 
 ["respiracion","calistenia","baño"].forEach(id=>{
 let el=document.getElementById(id);
@@ -176,15 +202,14 @@ let d=getDiaData();
 
 let total=0, done=0;
 
-d.pendientes.forEach(p=>{ total++; if(p.done) done++; });
-d.eventos.forEach(e=>{ total++; if(e.done) done++; });
-Object.values(d.disciplina).forEach(v=>{ total++; if(v) done++; });
+d.pendientes.forEach(p=>{total++; if(p.done) done++;});
+d.eventos.forEach(e=>{total++; if(e.done) done++;});
+Object.values(d.disciplina).forEach(v=>{total++; if(v) done++;});
 
 total++;
 if(d.agua>=2000) done++;
 
-let prog=Math.round((done/total)*100) || 0;
-
+let prog=Math.round((done/total)*100)||0;
 d.progreso=prog;
 
 document.getElementById("progressBar").style.width=prog+"%";
@@ -195,30 +220,12 @@ data[getDia()]=d;
 saveData(data);
 }
 
-/* MISIÓN */
+/* MISION */
 function renderMision(){
 let d=getDiaData();
-let mision="";
-let discPendiente=null;
-
 let p=d.pendientes.find(p=>!p.done);
 
-if(p){
-mision=p.texto;
-}else{
-let disc=Object.entries(d.disciplina).find(([k,v])=>!v);
-if(disc){
-let nombres={
-respiracion:"Respiración",
-calistenia:"Calistenia",
-baño:"Baño caliente"
-};
-mision=nombres[disc[0]];
-discPendiente=disc[0];
-}else{
-mision="Todo completado ✔️";
-}
-}
+let mision=p?p.texto:"Todo completado ✔️";
 
 document.getElementById("mision").innerText=mision;
 
@@ -226,11 +233,8 @@ document.getElementById("completeMission").onclick=()=>{
 let data=getData();
 let dia=getDia();
 
-if(p){
-data[dia].pendientes.find(x=>!x.done).done=true;
-}else if(discPendiente){
-data[dia].disciplina[discPendiente]=true;
-}
+let pendiente=data[dia].pendientes.find(x=>!x.done);
+if(pendiente) pendiente.done=true;
 
 saveData(data);
 render();
@@ -274,13 +278,6 @@ cal.appendChild(day);
 }
 }
 
-function getKey(date){
-let y=date.getFullYear();
-let m=String(date.getMonth()+1).padStart(2,"0");
-let d=String(date.getDate()).padStart(2,"0");
-return `${y}-${m}-${d}`;
-}
-
 /* GRAFICA */
 function renderGrafica(){
 let c=document.getElementById("grafica");
@@ -303,7 +300,6 @@ ctx.fillRect(40*i,150-val,20,val);
 /* BIBLIA */
 function renderBiblia(){
 let base=["Génesis 1","Génesis 2","Génesis 3","Génesis 4","Génesis 5"];
-
 let index=Math.floor((new Date(getDia())-new Date("2026-01-01"))/86400000)%base.length;
 
 document.getElementById("pasaje").innerText=base[index];
@@ -320,38 +316,42 @@ saveData(data);
 };
 }
 
-/* AGREGAR EVENTO */
+/* AGREGAR */
 document.getElementById("addEvento").onclick=()=>{
-let hora=document.getElementById("hora").value;
-let texto=document.getElementById("eventoTexto").value;
+let h=document.getElementById("hora");
+let t=document.getElementById("eventoTexto");
 
-if(!hora||!texto) return;
+if(!h.value||!t.value) return;
 
 let data=getData();
 let dia=getDia();
 
-data[dia].eventos.push({hora,texto,done:false});
+data[dia].eventos.push({hora:h.value,texto:t.value,done:false});
+
+h.value="";
+t.value="";
 
 saveData(data);
 render();
 };
 
-/* AGREGAR PENDIENTE */
 document.getElementById("addPendiente").onclick=()=>{
-let txt=document.getElementById("nuevoPendiente").value;
+let i=document.getElementById("nuevoPendiente");
 
-if(!txt) return;
+if(!i.value) return;
 
 let data=getData();
 let dia=getDia();
 
-data[dia].pendientes.push({texto:txt,done:false});
+data[dia].pendientes.push({texto:i.value,done:false});
+
+i.value="";
 
 saveData(data);
 render();
 };
 
-/* NAVEGACIÓN */
+/* NAV */
 document.getElementById("prevDay").onclick=()=>{
 currentDate.setDate(currentDate.getDate()-1);
 render();
