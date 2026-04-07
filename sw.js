@@ -1,12 +1,17 @@
-const CACHE_NAME="aguila-v4";
+const CACHE="aguila-v1";
 
 self.addEventListener("install",e=>{
 e.waitUntil(
-caches.open(CACHE_NAME).then(c=>c.addAll([
-"./","./index.html","./app.js","./manifest.json"
-]))
+caches.open(CACHE).then(c=>
+c.addAll([
+"/",
+"/index.html",
+"/style.css",
+"/app.js",
+"/manifest.json"
+])
+)
 );
-self.skipWaiting();
 });
 
 self.addEventListener("fetch",e=>{
