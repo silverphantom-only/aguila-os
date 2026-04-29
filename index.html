@@ -3,52 +3,250 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Modo Águila</title>
-<link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="style.css">
-<meta name="theme-color" content="#0f1115">
+<title>Modo Acero</title>
+
+<style>
+body{
+  margin:0;
+  font-family:-apple-system;
+  background:#0d0d0d;
+  color:#e0e0e0;
+}
+
+.screen{display:none;padding:20px;}
+.active{display:block;}
+
+button{
+  padding:12px;
+  margin:6px 0;
+  border:none;
+  border-radius:10px;
+  background:#e0e0e0;
+  color:#000;
+  width:100%;
+}
+
+.small{
+  background:none;
+  border:1px solid #333;
+  color:#888;
+}
+
+.block{
+  border:1px solid #222;
+  border-radius:10px;
+  padding:10px;
+  margin:10px 0;
+}
+
+.task{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px;
+  cursor:pointer;
+}
+
+.done{
+  text-decoration:line-through;
+  color:#555;
+}
+</style>
 </head>
+
 <body>
 
-<div class="app">
-
-<header>
-<button id="prevMonth">◀</button>
-<h2 id="month"></h2>
-<button id="nextMonth">▶</button>
-</header>
-
-<div id="calendar"></div>
-
-<div class="card">
-<h3 id="selectedDate"></h3>
-
-<div id="agenda"></div>
-
-<input type="time" id="time">
-<input type="text" id="taskText" placeholder="Nueva tarea">
-<button id="addTask">Agregar</button>
+<!-- START -->
+<div id="start" class="screen active">
+  <h2>Modo Acero</h2>
+  <button onclick="startDay()">EMPEZAR DÍA</button>
 </div>
 
-<div class="card">
-<h3>Pendientes</h3>
+<!-- FOCUS -->
+<div id="focus" class="screen">
+  <h2 id="focusText"></h2>
 
-<div id="pendientes"></div>
+  <div class="block">
+    <strong>OUTFIT DEL DÍA</strong>
+    <div id="outfit"></div>
+    <button class="small" onclick="generateOutfit()">Cambiar</button>
+  </div>
 
-<input type="text" id="pendienteTexto" placeholder="Nuevo pendiente">
-<button id="addPendiente">Agregar</button>
+  <button onclick="nextFocus()">SIGUIENTE</button>
 </div>
 
-<div class="card">
-<h3>Progreso</h3>
-<div class="progress"><div id="bar"></div></div>
-<p id="estado"></p>
+<!-- WORK -->
+<div id="work" class="screen">
+  <h2>Trabajo</h2>
+  <div id="currentTask"></div>
+
+  <button onclick="completeTask()">LISTO</button>
+  <button class="small" onclick="addTask()">+ Agregar</button>
+  <button class="small" onclick="goCalendar()">📅 Calendario</button>
 </div>
 
-<button id="quick">+</button>
-
+<!-- CALENDAR -->
+<div id="calendar" class="screen">
+  <h2>Hoy</h2>
+  <div id="calendarContent"></div>
+  <button onclick="goWork()">← Volver</button>
 </div>
 
-<script src="app.js"></script>
+<script>
+
+/* ================= STATE ================= */
+let workQueue = JSON.parse(localStorage.getItem("tasks") || "[]");
+let workIndex = parseInt(localStorage.getItem("index") || "0");
+let focusStep = 0;
+
+/* ================= START ================= */
+function startDay(){
+  generateOutfit();
+  startFocus();
+}
+
+/* ================= FOCUS ================= */
+function startFocus(){
+  focusStep = 0;
+  show("focus");
+  renderFocus();
+}
+
+function renderFocus(){
+  const steps = ["Calistenia", "Prepararte"];
+  document.getElementById("focusText").innerText = steps[focusStep];
+}
+
+function nextFocus(){
+  focusStep++;
+  if(focusStep >= 2){
+    goWork();
+  } else {
+    renderFocus();
+  }
+}
+
+/* ================= OUTFIT ================= */
+let pants=["café","verde","azul oscuro","mezclilla"];
+let tops=["polo claro","playera negra","playera gris"];
+let shoes=["zapatos café","zapatos negros"];
+
+function generateOutfit(){
+  const outfit = `
+    👖 ${rand(pants)}<br>
+    👕 ${rand(tops)}<br>
+    👟 ${rand(shoes)}
+  `;
+  document.getElementById("outfit").innerHTML = outfit;
+}
+
+/* ================= WORK ================= */
+function goWork(){
+  show("work");
+  renderWork();
+}
+
+function renderWork(){
+  let current = workQueue[workIndex];
+  document.getElementById("currentTask").innerText =
+    current ? current.title : "Sin tareas";
+}
+
+function addTask(){
+  let text = prompt("Nueva tarea:");
+  if(!text) return;
+
+  workQueue.push({
+    id: Date.now(),
+    title: text,
+    completed:false
+  });
+
+  save();
+  renderWork();
+}
+
+function completeTask(){
+  if(!workQueue[workIndex]) return;
+
+  workQueue[workIndex].completed = true;
+  workIndex++;
+
+  save();
+  renderWork();
+}
+
+/* ================= CALENDAR ================= */
+function goCalendar(){
+  renderCalendar();
+  show("calendar");
+}
+
+function renderCalendar(){
+
+  let done = workQueue.filter(t=>t.completed).length;
+  let total = workQueue.length;
+
+  let html = `
+    <div>${done} / ${total} completadas</div>
+    <button onclick="addTask()">+ Agregar</button>
+  `;
+
+  workQueue.forEach((t,i)=>{
+    html += `
+      <div class="task ${t.completed?'done':''}"
+           onclick="toggleTask(${i})">
+
+        <input type="checkbox"
+          ${t.completed?'checked':''}
+          style="pointer-events:none">
+
+        ${t.title}
+      </div>
+    `;
+  });
+
+  document.getElementById("calendarContent").innerHTML = html;
+}
+
+/* ================= TOGGLE ================= */
+function toggleTask(i){
+
+  workQueue[i].completed = !workQueue[i].completed;
+
+  if(workQueue[i].completed && i >= workIndex){
+    workIndex = i + 1;
+  }
+
+  if(!workQueue[i].completed && i < workIndex){
+    workIndex = i;
+  }
+
+  save();
+  renderCalendar();
+  renderWork();
+}
+
+/* ================= NAV ================= */
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+/* ================= SAVE ================= */
+function save(){
+  localStorage.setItem("tasks", JSON.stringify(workQueue));
+  localStorage.setItem("index", workIndex);
+}
+
+function rand(arr){
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+
+/* INIT */
+renderWork();
+
+</script>
+
 </body>
 </html>
